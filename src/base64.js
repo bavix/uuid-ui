@@ -1,3 +1,5 @@
+'use strict';
+
 import {bytesToUuid, uuidToBytes} from "./uuid-bytes.js";
 
 export function base64StdToUuid(base64) {

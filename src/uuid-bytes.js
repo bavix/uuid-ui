@@ -1,3 +1,5 @@
+'use strict';
+
 import {uuidFormatter} from "./uuid-formatter.js";
 
 const uuidAlf = /[^a-z0-9]/g
