@@ -6,7 +6,8 @@
   "private": true,
   "scripts": {
     "build": "rollup -c",
-    "test": "node --test ./tests/*"
+    "test": "node --test ./tests/*",
+    "serve": "http-server ./public/"
   },
   "repository": {
     "type": "git",
@@ -30,6 +31,7 @@
     "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "@rollup/plugin-replace": "^5.0.2",
+    "http-server": "^14.1.1",
     "preact": "^10.16.0",
     "rollup": "^3.27.2",
     "test": "^3.3.0",
