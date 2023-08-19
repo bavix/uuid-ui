@@ -14,18 +14,18 @@ function _getUuid(input) {
     return uuidStr
 }
 
-export function uuidToBytes (input) {
+export function uuidToBytes(input) {
     const uuidStr = _getUuid(input)
     if (uuidStr === null) {
         return null
     }
 
-    return  uuidStr
+    return uuidStr
         .match(chunk)
         .map(b => parseInt(b, 16))
 }
 
-export function bytesToUuid (bytes) {
+export function bytesToUuid(bytes) {
     return uuidFormatter(
         bytes.map(b => b.toString(16).padStart(2, '0')).join('')
     )
