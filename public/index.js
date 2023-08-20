@@ -1084,7 +1084,7 @@
           case TYPE_HIGH_LOW:
             return JSON.stringify(objectParse(input));
           case TYPE_BASE64:
-            return input;
+            return btoa(atob(input));
         }
         const uuid = uuidFormatter(input);
         if (uuid.length === 36) {
