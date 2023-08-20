@@ -6,4 +6,4 @@ on:
 
 jobs:
   test:
-    uses: .github/workflows/npm-test.yml@0.0.5
+    uses: bavix/.github/workflows/npm-test.yml@0.0.5
