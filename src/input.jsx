@@ -32,6 +32,7 @@ export default class InputComponent extends React.Component {
     state = {
         resultType: TYPE_HIGH_LOW,
         intType: SIGNED,
+        text: '',
     }
 
     constructor(props) {
@@ -39,12 +40,20 @@ export default class InputComponent extends React.Component {
     }
 
     onKeyboardInput = (e) => {
-        if (e.target.value[e.target.value.length - 1] !== "\n") {
+        const text = e.target.value
+
+        this.setState({text})
+
+        if (text[text.length - 1] !== "\n") {
             return
         }
 
+        this.handle(text)
+    }
+
+    handle = (text) => {
         this.addItems(
-            e.target.value.split("\n")
+            text.split("\n")
                 .map(l => l.trim())
                 .filter(l => l.length > 0)
         )
@@ -135,12 +144,16 @@ export default class InputComponent extends React.Component {
         return uuid
     }
 
-    setResultType = (type) => {
-        this.setState({resultType: type})
+    setResultType = async (type) => {
+        const {text} = this.state
+        await this.setState({resultType: type})
+        await this.handle(text)
     }
 
-    setIntType = (type) => {
-        this.setState({intType: type})
+    setIntType = async (type) => {
+        const {text} = this.state
+        await this.setState({intType: type})
+        await this.handle(text)
     }
 
     render({ items }, { resultType, intType }) {
