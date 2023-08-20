@@ -10,7 +10,16 @@ cd uuid-ui
 npm run build && npm run serve
 ```
 
-Service start (default port `8080`):
+Service start (default port `8080`).
+
+It is possible to run the project in docker.
+```sh
+docker run -p 8080:8080 -d bavix/uuid-ui
+
+or 
+
+docker run -p 8080:8080 -d ghcr.io/bavix/uuid-ui
+```
 
 ---
 Supported by
