@@ -15,12 +15,37 @@
     <link rel="stylesheet" href="./app.min.css">
 </head>
 <body>
-<div class="container">
-    <div class="columns">
-        <div class="column is-one-quarter" id="uc-input"></div>
-        <div class="column" id="uc"></div>
-    </div>
+<div class="uuid-ui--wrapper">
+    <nav class="navbar is-light" role="navigation" aria-label="main navigation">
+        <div class="container">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="./">
+                <img src="./android-chrome-192x192.png" >
+            </a>
+        </div>
+        <div class="navbar-menu">
+            <div class="navbar-start">
+                <a class="navbar-item" href="./">
+                    UUIDConv UI
+                </a>
+            </div>
+        </div>
+        </div>
+    </nav>
+
+    <div class="container margin-top" id="app"></div>
 </div>
+
+<footer class="footer margin-top">
+    <div class="content has-text-centered">
+        <p>
+            <strong>uuid-ui</strong> by <a href="https://github.com/rez1dent3">Babichev Maksim</a>.
+            Idea author <a href="http://enizz.duckdns.org:3001/">Andreyanov Denis</a>.
+            The <a href="https://github.com/bavix/uuid-ui">source code</a> is licensed <a href="https://github.com/bavix/uuid-ui/blob/master/LICENSE">MIT</a>.
+        </p>
+    </div>
+</footer>
+
 <script type="module" src="./index.js"></script>
 </body>
 </html>

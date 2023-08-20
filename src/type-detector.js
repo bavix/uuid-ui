@@ -3,10 +3,20 @@
 import {base64StdToUuid} from "./base64.js";
 import {objectParse} from "./object-parser.js";
 
-export const TYPE_HIGH_LOW = 2 ** 0
-export const TYPE_BASE64 = 2 ** 1
-export const TYPE_BYTES = 2 ** 2
-export const TYPE_UUID = 2 ** 3
+export const TYPE_UUID = 2 ** 0
+export const TYPE_HIGH_LOW = 2 ** 1
+export const TYPE_BASE64 = 2 ** 2
+export const TYPE_BYTES = 2 ** 3
+
+export function uuidTypeList() {
+    const list = []
+    list[TYPE_UUID] = 'uuid'
+    list[TYPE_BASE64] = 'base64'
+    list[TYPE_HIGH_LOW] = 'high-low'
+    list[TYPE_BYTES] = 'bytes'
+
+    return list
+}
 
 const UUID_LENGTH = 36
 
