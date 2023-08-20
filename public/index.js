@@ -1767,7 +1767,7 @@
           className: "panel"
         }, /*#__PURE__*/wn.createElement("p", {
           className: "panel-heading"
-        }, "History"), items.map(i => /*#__PURE__*/wn.createElement("div", {
+        }, "History"), [...items].slice(0, 30).map(i => /*#__PURE__*/wn.createElement("div", {
           className: "panel-block"
         }, /*#__PURE__*/wn.createElement("div", {
           className: "field"
