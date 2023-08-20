@@ -1,9 +1,10 @@
 import React from 'react';
-import {TYPE_BASE64, TYPE_BYTES, TYPE_HIGH_LOW, TYPE_UUID, typeDetector, uuidTypeList} from "./type-detector.js";
-import {bytesToUuid, uuidToBytes, uuidToBytesString} from "./uuid-bytes.js";
+import {TYPE_BASE64, TYPE_BYTES, TYPE_HIGH_LOW, typeDetector, uuidTypeList} from "./type-detector.js";
+import {bytesToUuid, uuidToBytesString} from "./uuid-bytes.js";
 import {objectParse} from "./object-parser.js";
 import {intsToUuid, uintsToUuid, uuidToInts, uuidToUints} from "./uuid-high-low.js";
 import {base64StdToUuid, uuidToBase64Std} from "./base64.js";
+import {uuidFormatter} from "./uuid-formatter.js";
 
 const SIGNED = 2 ** 0
 const UNSIGNED = 2 ** 1
@@ -69,7 +70,7 @@ export default class InputComponent extends React.Component {
             const output = this.castFromUuid(uuid)
             const nInput = this.normalize(input)
 
-            if (nInput === output) {
+            if (nInput === null || nInput === output) {
                 return null
             }
 
@@ -89,7 +90,13 @@ export default class InputComponent extends React.Component {
                 return input
         }
 
-        return input
+        const uuid = uuidFormatter(input)
+
+        if (uuid.length === 36) {
+            return uuid
+        }
+
+        return null
     }
 
     /**
