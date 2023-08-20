@@ -1,0 +1,9 @@
+name: npm units
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    uses: .github/workflows/npm-test.yml@0.0.5

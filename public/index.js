@@ -933,7 +933,7 @@
       if (bytes === null) {
         return null;
       }
-      return '[' + [...bytes].join(',') + ']';
+      return JSON.stringify(bytes);
     }
 
     function base64StdToUuid(base64) {

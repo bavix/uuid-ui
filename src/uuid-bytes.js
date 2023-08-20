@@ -37,5 +37,5 @@ export function uuidToBytesString(input) {
         return null
     }
 
-    return '[' + [...bytes].join(',') + ']'
+    return JSON.stringify(bytes)
 }
