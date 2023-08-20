@@ -67,15 +67,29 @@ export default class InputComponent extends React.Component {
         try {
             const uuid = this.castToUuid(input)
             const output = this.castFromUuid(uuid)
+            const nInput = this.normalize(input)
 
-            if (input === output) {
+            if (nInput === output) {
                 return null
             }
 
-            return new Item(input, output)
+            return new Item(nInput, output)
         } catch (e) {
             return null
         }
+    }
+
+    normalize = (input) => {
+        switch (typeDetector(input)) {
+            case TYPE_BYTES:
+                return JSON.stringify(objectParse(input))
+            case TYPE_HIGH_LOW:
+                return JSON.stringify(objectParse(input))
+            case TYPE_BASE64:
+                return input
+        }
+
+        return input
     }
 
     /**

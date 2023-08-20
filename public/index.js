@@ -947,7 +947,15 @@
     }
 
     const rg = /"?([a-zA-Z0-9]*)"?:/g;
+    const hlrg = /-?\d+;-?\d+/;
     function objectParse(val) {
+      if (val.match(hlrg)) {
+        const split = val.split(';');
+        return {
+          high: split[0],
+          low: split[1]
+        };
+      }
       return JSON.parse(val.replace(rg, '"$1":'));
     }
 
@@ -1057,13 +1065,25 @@
         try {
           const uuid = this.castToUuid(input);
           const output = this.castFromUuid(uuid);
-          if (input === output) {
+          const nInput = this.normalize(input);
+          if (nInput === output) {
             return null;
           }
-          return new Item(input, output);
+          return new Item(nInput, output);
         } catch (e) {
           return null;
         }
+      };
+      normalize = input => {
+        switch (typeDetector(input)) {
+          case TYPE_BYTES:
+            return JSON.stringify(objectParse(input));
+          case TYPE_HIGH_LOW:
+            return JSON.stringify(objectParse(input));
+          case TYPE_BASE64:
+            return input;
+        }
+        return input;
       };
 
       /**
