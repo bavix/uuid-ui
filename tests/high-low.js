@@ -1,6 +1,6 @@
 import assert from 'node:assert';
 import test from 'test';
-import {uuidToInts, intsToUuid, uuidToUints, uintsToUuid} from "../src/uuid-high-low.js";
+import {intsToUuid, uintsToUuid, uuidToInts, uuidToUints} from "../src/uuid-high-low.js";
 
 test('to-high-low-integer64', (t) => {
     assert.deepEqual(
