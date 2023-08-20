@@ -15,7 +15,7 @@ export default class HistoryComponent extends React.Component {
         return (
             <nav className="panel">
                 <p className="panel-heading">History</p>
-                { items.map(i =>
+                { [...items].slice(0, 30).map(i =>
                     <div className="panel-block">
                         <div className="field">
                             <a href="javascript:" onClick={this.copy} className="tag is-link is-light">{ i.output }</a>
