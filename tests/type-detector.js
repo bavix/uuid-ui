@@ -12,4 +12,7 @@ test('type detector', (t) => {
     assert.strictEqual(TYPE_BYTES, typeDetector(uuidToBytesString(guid)));
     assert.strictEqual(TYPE_HIGH_LOW, typeDetector(JSON.stringify(uuidToUints(guid))));
     assert.strictEqual(TYPE_BASE64, typeDetector(uuidToBase64Std(guid)));
+
+    assert.strictEqual(TYPE_HIGH_LOW, typeDetector('0;0'));
+    assert.strictEqual(TYPE_HIGH_LOW, typeDetector('-1;-1'));
 });
