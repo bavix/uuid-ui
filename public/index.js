@@ -950,7 +950,7 @@
     }
 
     const rg = /"?([a-zA-Z0-9]*)"?:/g;
-    const hlrg = /-?\d+;-?\d+/;
+    const hlrg = /^-?\d+;-?\d+$/;
     function objectParse(val) {
       if (val.match(hlrg)) {
         const split = val.split(';');
@@ -1043,16 +1043,24 @@
     class InputComponent extends wn.Component {
       state = {
         resultType: TYPE_HIGH_LOW,
-        intType: SIGNED
+        intType: SIGNED,
+        text: ''
       };
       constructor(props) {
         super(props);
       }
       onKeyboardInput = e => {
-        if (e.target.value[e.target.value.length - 1] !== "\n") {
+        const text = e.target.value;
+        this.setState({
+          text
+        });
+        if (text[text.length - 1] !== "\n") {
           return;
         }
-        this.addItems(e.target.value.split("\n").map(l => l.trim()).filter(l => l.length > 0));
+        this.handle(text);
+      };
+      handle = text => {
+        this.addItems(text.split("\n").map(l => l.trim()).filter(l => l.length > 0));
       };
       addItems = items => {
         let result = [];
@@ -1127,15 +1135,23 @@
         }
         return uuid;
       };
-      setResultType = type => {
-        this.setState({
+      setResultType = async type => {
+        const {
+          text
+        } = this.state;
+        await this.setState({
           resultType: type
         });
+        await this.handle(text);
       };
-      setIntType = type => {
-        this.setState({
+      setIntType = async type => {
+        const {
+          text
+        } = this.state;
+        await this.setState({
           intType: type
         });
+        await this.handle(text);
       };
       render({
         items
