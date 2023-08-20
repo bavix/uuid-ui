@@ -1,7 +1,7 @@
 'use strict';
 
 const rg = /"?([a-zA-Z0-9]*)"?:/g
-const hlrg = /-?\d+;-?\d+/
+const hlrg = /^-?\d+;-?\d+$/
 
 export function objectParse(val) {
     if (val.match(hlrg)) {
