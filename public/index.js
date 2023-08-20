@@ -909,7 +909,10 @@
     };
 
     function uuidFormatter(input) {
-      return input.slice(0, 8) + '-' + input.slice(8, 12) + '-' + input.slice(12, 16) + '-' + input.slice(16, 20) + '-' + input.slice(20, 32);
+      if (input.length === 32) {
+        return input.slice(0, 8) + '-' + input.slice(8, 12) + '-' + input.slice(12, 16) + '-' + input.slice(16, 20) + '-' + input.slice(20, 32);
+      }
+      return input;
     }
 
     const uuidAlf = /[^a-z0-9]/g;
@@ -1066,7 +1069,7 @@
           const uuid = this.castToUuid(input);
           const output = this.castFromUuid(uuid);
           const nInput = this.normalize(input);
-          if (nInput === output) {
+          if (nInput === null || nInput === output) {
             return null;
           }
           return new Item(nInput, output);
@@ -1083,7 +1086,11 @@
           case TYPE_BASE64:
             return input;
         }
-        return input;
+        const uuid = uuidFormatter(input);
+        if (uuid.length === 36) {
+          return uuid;
+        }
+        return null;
       };
 
       /**
