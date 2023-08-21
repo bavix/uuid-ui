@@ -5,9 +5,12 @@ import {objectParse} from "./object-parser.js";
 import {intsToUuid, uintsToUuid, uuidToInts, uuidToUints} from "./uuid-high-low.js";
 import {base64StdToUuid, uuidToBase64Std} from "./base64.js";
 import {uuidFormatter} from "./uuid-formatter.js";
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 const SIGNED = 2 ** 0
 const UNSIGNED = 2 ** 1
+
+const rg = /^["']|["']+$/g
 
 export function intTypeList() {
     const list = []
@@ -54,7 +57,7 @@ export default class InputComponent extends React.Component {
     handle = (text) => {
         this.addItems(
             text.split("\n")
-                .map(l => l.trim())
+                .map(l => l.replace(rg, '').trim())
                 .filter(l => l.length > 0)
         )
     }
@@ -85,6 +88,8 @@ export default class InputComponent extends React.Component {
 
             return new Item(nInput, output)
         } catch (e) {
+            Notify.failure('Failed to process string: ' + input);
+
             return null
         }
     }
