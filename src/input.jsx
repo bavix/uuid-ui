@@ -11,6 +11,7 @@ const SIGNED = 2 ** 0
 const UNSIGNED = 2 ** 1
 
 const rg = /^["']|["']+$/g
+const nrg = /"(-?\d+)"/g
 
 export function intTypeList() {
     const list = []
@@ -82,14 +83,21 @@ export default class InputComponent extends React.Component {
             const output = this.castFromUuid(uuid)
             const nInput = this.normalize(input)
 
-            if (nInput === null || nInput === output) {
+            if (nInput === null) {
+                Notify.failure('Failed to process string: ' + input);
+
                 return null
             }
 
-            return new Item(nInput, output)
-        } catch (e) {
-            Notify.failure('Failed to process string: ' + input);
+            const nOutput = this.normalize(output)
+            if (nInput === nOutput) {
+                Notify.warning('The result of the conversion matches the entered value: ' + input);
 
+                return null
+            }
+
+            return new Item(nInput, nOutput)
+        } catch (e) {
             return null
         }
     }
@@ -99,9 +107,15 @@ export default class InputComponent extends React.Component {
             case TYPE_BYTES:
                 return JSON.stringify(objectParse(input))
             case TYPE_HIGH_LOW:
-                return JSON.stringify(objectParse(input))
+                const result = JSON.stringify(objectParse(input))
+
+                return result.replace(nrg, "$1")
             case TYPE_BASE64:
                 return btoa(atob(input))
+        }
+
+        if (input[0] === '{' && input[input.length - 1] === '}') {
+            input = input.substring(1, input.length - 1)
         }
 
         const uuid = uuidFormatter(input)
