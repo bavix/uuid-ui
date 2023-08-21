@@ -30,7 +30,7 @@ export default {
             preventAssignment: true
         }),
         babel({
-            presets: ["@babel/preset-react"],
+            presets: ["@babel/preset-react", "minify"],
             plugins: ["@babel/plugin-transform-react-jsx"],
             babelHelpers: 'bundled'
         }),
