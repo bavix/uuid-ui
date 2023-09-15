@@ -23,7 +23,7 @@
   "author": "Maksim Babichev",
   "license": "MIT",
   "dependencies": {
-    "@babel/core": "^7.22.15",
+    "@babel/core": "^7.22.19",
     "@babel/preset-react": "^7.22.15",
     "@rollup/plugin-alias": "^5.0.0",
     "@rollup/plugin-babel": "^6.0.3",
