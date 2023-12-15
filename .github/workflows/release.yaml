@@ -1,0 +1,11 @@
+name: go release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build_uuid_ui:
+    permissions:
+      contents: write
+    uses: bavix/.github/.github/workflows/go-release-binary.yml@0.0.8
