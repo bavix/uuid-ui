@@ -5,7 +5,9 @@ import (
 	"errors"
 	"io/fs"
 	"log"
+	"net"
 	"net/http"
+	"os"
 )
 
 //go:embed public
@@ -19,7 +21,16 @@ func main() {
 
 	http.Handle("/", http.FileServer(http.FS(htmlContent)))
 
-	err = http.ListenAndServe(":8080", nil)
+	host, _ := os.LookupEnv("HOST")
+	port, ok := os.LookupEnv("PORT")
+	if !ok {
+		port = "8080"
+	}
+
+	addr := net.JoinHostPort(host, port)
+	log.Printf("Listening on %s...\n", addr)
+
+	err = http.ListenAndServe(addr, nil)
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal(err)
 	}
