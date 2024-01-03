@@ -33,7 +33,7 @@
     "@rollup/plugin-replace": "^5.0.5",
     "babel-preset-minify": "^0.5.2",
     "http-server": "^14.1.1",
-    "notiflix": "^3.2.6",
+    "notiflix": "^3.2.7",
     "preact": "^10.19.3",
     "rollup": "^4.9.2",
     "test": "^3.3.0",
