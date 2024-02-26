@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.0.18 - 2024-02-26
+
+### What's Changed
+
+* Update object-parser.js by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/93
+* Update object-parser.js by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/95
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.0.17...v1.0.18
+
 ## v1.0.17 - 2024-02-23
 
 ### What's Changed
