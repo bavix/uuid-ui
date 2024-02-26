@@ -65,17 +65,21 @@ export default class InputComponent extends React.Component {
     }
 
     addItems = (items) => {
-        let result = []
+        let result = new Map()
         for (const item of items.reverse()) {
             const obj = this.newItem(item)
             if (obj !== null) {
-                result = result.concat(obj)
+                result.set(obj.toString(), obj)
             }
         }
 
-        this.props.setItems([
-            ...new Map(result.concat(...this.props.items).map((item) => [item.toString(), item])).values(),
-        ])
+        for (const item of this.props.items) {
+            if (!result.has(item.toString())) {
+                result.set(item.toString(), item)
+            }
+        }
+
+        this.props.setItems([...result.values()])
     }
 
     newItem = (line) => {
