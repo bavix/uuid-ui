@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.19 - 2024-02-26
+
+### What's Changed
+
+* comment tooltip by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/96
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.0.18...v1.0.19
+
 ## v1.0.18 - 2024-02-26
 
 ### What's Changed
