@@ -18,10 +18,10 @@ export default class HistoryComponent extends React.Component {
                 { [...items].slice(0, 30).map(i =>
                     <div className="panel-block">
                         <div className="field">
-                            <a href="javascript:" onClick={this.copy} className="tag is-link is-light">{ i.output }</a>
+                            <a href="javascript:" onClick={this.copy} className="tag is-link is-light" data-tooltip={i.info}>{ i.output }</a>
 
                             <div className="tags">
-                                <a href="javascript:" onClick={this.copy} className="tag is-primary is-light">{ i.input }</a>
+                                <a href="javascript:" onClick={this.copy} className="tag is-primary is-light" data-tooltip={i.info}>{ i.input }</a>
                             </div>
                         </div>
                     </div>

@@ -24,6 +24,7 @@
   "dependencies": {
     "@babel/core": "^7.23.9",
     "@babel/preset-react": "^7.23.3",
+    "@creativebulma/bulma-tooltip": "^1.2.0",
     "@rollup/plugin-alias": "^5.1.0",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-commonjs": "^25.0.7",
@@ -31,9 +32,12 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-replace": "^5.0.5",
     "babel-preset-minify": "^0.5.2",
+    "bulma": "^0.9.4",
     "notiflix": "^3.2.7",
     "preact": "^10.19.6",
     "rollup": "^4.12.0",
+    "rollup-copy-transform-css": "^1.2.5",
+    "rollup-plugin-copy": "^3.5.0",
     "test": "^3.3.0",
     "uuid": "^9.0.1"
   }

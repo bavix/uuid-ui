@@ -1,0 +1,1 @@
+{"version":3,"sources":["app.css"],"names":[],"mappings":"AAAA,KAAM,YAAa,CAAmB,qBAAsB,CAAxC,gBAAyC,CAC7D,kBAAmB,MAAO,CAC1B,YAAa,eAAgB","file":"app.css","sourcesContent":["body {display: flex;min-height: 100vh;flex-direction: column;}\n.uuid-ui--wrapper {flex: 1}\n.margin-top {margin-top: 1rem}\n"]}
