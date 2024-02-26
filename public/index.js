@@ -14,7 +14,7 @@
     function base64StdToUuid(a){return bytesToUuid(atob(a).split("").map(a=>a.charCodeAt(0)))}function uuidToBase64Std(a){return btoa(String.fromCharCode.apply(null,new Uint8Array(uuidToBytes(a))))}
 
     const rg$1=/"?([a-zA-Z0-9]*)"?:/g,hlrg=/^(-?\d+)[;:,](-?\d+)$/,trg=/["']?(-?\d+)["']?/g;function objectParse(a){// adhoc
-    if(a=a.replaceAll("\u201D","\""),"["===a[0])return JSON.parse(a.replace(trg,"$1"));if(a.match(hlrg)){const b=a.replace(hlrg,"$1;$2").split(";");return {high:b[0].toString(),low:b[1].toString()}}const b=JSON.parse(a.replace(trg,"\"$1\"").replace(rg$1,"\"$1\":"));return {high:b.high,low:b.low}}
+    if(a=a.replace(/[“”]/g,"\""),"["===a[0])return JSON.parse(a.replace(trg,"$1"));if(a.match(hlrg)){const b=a.replace(hlrg,"$1;$2").split(";");return {high:b[0].toString(),low:b[1].toString()}}const b=JSON.parse(a.replace(trg,"\"$1\"").replace(rg$1,"\"$1\":"));return {high:b.high,low:b.low}}
 
     const TYPE_UUID=1;const TYPE_HIGH_LOW=2;const TYPE_BASE64=4;const TYPE_BYTES=8;function uuidTypeList(){const a=[];return a[TYPE_UUID]="uuid",a[TYPE_BASE64]="base64",a[TYPE_HIGH_LOW]="high-low",a[TYPE_BYTES]="bytes",a}const UUID_LENGTH=36;function typeDetector(a){// high-low-type or bytes-type
     try{return Array.isArray(objectParse(a))?TYPE_BYTES:TYPE_HIGH_LOW}catch(a){}// base64-type
