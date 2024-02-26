@@ -27,7 +27,7 @@ export default {
                 transform: createTransform({
                     inline: true,
                     minify: true,
-                    map: {inline: false},
+                    map: {inline: false, dir: 'public'},
                 }),
             }]
         }),
