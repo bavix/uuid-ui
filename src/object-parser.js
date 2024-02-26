@@ -5,8 +5,6 @@ const hlrg = /^(-?\d+)[;:,](-?\d+)$/
 const trg = /["']?(-?\d+)["']?/g
 
 export function objectParse(val) {
-    val = val.replace(/[“”]/g, '') // adhoc
-    
     if (val[0] === '[') {
         return JSON.parse(val.replace(trg, '$1'))
     }

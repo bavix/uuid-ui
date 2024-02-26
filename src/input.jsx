@@ -10,7 +10,7 @@ import { Notify } from 'notiflix/build/notiflix-notify-aio';
 const SIGNED = 2 ** 0
 const UNSIGNED = 2 ** 1
 
-const rg = /^["']|["']+$/g
+const rg = /["'“”]/g
 const nrg = /"(-?\d+)"/g
 
 export function intTypeList() {
@@ -109,13 +109,13 @@ export default class InputComponent extends React.Component {
     }
 
     parse = (line) => {
-        let results = line.split("//").map(s => s.trim())
+        let results = line.split("//").map(s => s.trim().replace(/,$/g, '').trimRight())
 
         if (results.length > 1) {
             return {input: results[0].toString(), comment: results[1].toString()}
         }
 
-        return {input: results[0].toString(), comment: ""}
+        return {input: results[0].toString(), comment: undefined}
     }
 
     normalize = (input) => {
