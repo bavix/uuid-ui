@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.1.0 - 2024-02-26
+
+### What's Changed
+
+* dynamic info by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/97
+* fix by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/98
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.0.19...v1.1.0
+
 ## v1.0.19 - 2024-02-26
 
 ### What's Changed
