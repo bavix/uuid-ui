@@ -22,9 +22,10 @@ export function intTypeList() {
 }
 
 class Item {
-    constructor(input, output) {
+    constructor(input, output, info) {
         this.input = input
         this.output = output
+        this.info = info
     }
 
     toString() {
@@ -77,29 +78,40 @@ export default class InputComponent extends React.Component {
         ])
     }
 
-    newItem = (input) => {
+    newItem = (line) => {
         try {
+            const {input, comment} = this.parse(line)
             const uuid = this.castToUuid(input)
             const output = this.castFromUuid(uuid)
             const nInput = this.normalize(input)
 
             if (nInput === null) {
-                Notify.failure('Failed to process string: ' + input);
+                Notify.failure('Failed to process string: ' + line);
 
                 return null
             }
 
             const nOutput = this.normalize(output)
             if (nInput === nOutput) {
-                Notify.warning('The result of the conversion matches the entered value: ' + input);
+                Notify.warning('The result of the conversion matches the entered value: ' + line);
 
                 return null
             }
 
-            return new Item(nInput, nOutput)
+            return new Item(nInput, nOutput, comment)
         } catch (e) {
             return null
         }
+    }
+
+    parse = (line) => {
+        let results = line.split("//").map(s => s.trim())
+
+        if (results.length > 1) {
+            return {input: results[0].toString(), comment: results[1].toString()}
+        }
+
+        return {input: results[0].toString(), comment: ""}
     }
 
     normalize = (input) => {
@@ -188,6 +200,8 @@ export default class InputComponent extends React.Component {
 {low: 0, high: 1}
 71a46cec-4809-4cc5-9689-5b0441b46186
 huW65O9YQDGzT16f+RTNVQ==
+0;1 // comment
+huW65O9YQDGzT16f+RTNVQ== //comment new
 ' rows="10"></textarea>
                 </label>
                 <div className="container margin-top">
