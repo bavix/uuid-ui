@@ -35,7 +35,7 @@
     "bulma": "^1.0.0",
     "notiflix": "^3.2.7",
     "preact": "^10.20.1",
-    "rollup": "^4.13.1",
+    "rollup": "^4.13.2",
     "rollup-copy-transform-css": "^1.2.5",
     "rollup-plugin-copy": "^3.5.0",
     "test": "^3.3.0",
