@@ -1,5 +1,26 @@
 # Changelog
 
+## v1.2.0 - 2024-03-29
+
+### What's Changed
+
+* Bump [@babel](https://github.com/babel)/core from 7.23.9 to 7.24.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/99
+* Bump rollup from 4.12.0 to 4.12.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/100
+* Bump rollup from 4.12.1 to 4.13.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/101
+* Bump preact from 10.19.6 to 10.19.7 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/102
+* Bump [@babel](https://github.com/babel)/core from 7.24.0 to 7.24.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/103
+* Bump [@babel](https://github.com/babel)/preset-react from 7.23.3 to 7.24.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/104
+* Bump [@babel](https://github.com/babel)/core from 7.24.1 to 7.24.3 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/106
+* Bump preact from 10.19.7 to 10.20.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/105
+* Bump bulma from 0.9.4 to 1.0.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/107
+* Bump preact from 10.20.0 to 10.20.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/108
+* Revert "Bump bulma from 0.9.4 to 1.0.0" by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/109
+* Bump bulma from 0.9.4 to 1.0.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/110
+* Bump rollup from 4.13.0 to 4.13.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/111
+* Bump rollup from 4.13.1 to 4.13.2 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/112
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.1.0...v1.2.0
+
 ## v1.1.0 - 2024-02-26
 
 ### What's Changed
