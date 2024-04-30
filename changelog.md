@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.2.1 - 2024-04-30
+
+### What's Changed
+
+* Bump rollup from 4.13.2 to 4.14.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/113
+* Bump [@babel](https://github.com/babel)/core from 7.24.3 to 7.24.4 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/114
+* Bump rollup from 4.14.0 to 4.14.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/115
+* Bump preact from 10.20.1 to 10.20.2 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/116
+* Bump rollup from 4.14.1 to 4.14.2 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/117
+* Bump rollup from 4.14.2 to 4.14.3 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/118
+* Bump rollup from 4.14.3 to 4.16.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/119
+* Bump rollup from 4.16.1 to 4.16.3 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/120
+* Bump rollup from 4.16.3 to 4.16.4 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/121
+* Bump rollup from 4.16.4 to 4.17.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/122
+* Bump [@babel](https://github.com/babel)/core from 7.24.4 to 7.24.5 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/123
+* Bump rollup from 4.17.1 to 4.17.2 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/124
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.2.0...v1.2.1
+
 ## v1.2.0 - 2024-03-29
 
 ### What's Changed
