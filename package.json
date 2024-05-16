@@ -34,7 +34,7 @@
     "babel-preset-minify": "^0.5.2",
     "bulma": "^1.0.0",
     "notiflix": "^3.2.7",
-    "preact": "^10.21.0",
+    "preact": "^10.22.0",
     "rollup": "^4.17.2",
     "rollup-copy-transform-css": "^1.2.5",
     "rollup-plugin-copy": "^3.5.0",
