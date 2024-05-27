@@ -23,7 +23,7 @@
   "license": "MIT",
   "dependencies": {
     "@babel/core": "^7.24.5",
-    "@babel/preset-react": "^7.24.1",
+    "@babel/preset-react": "^7.24.6",
     "@creativebulma/bulma-tooltip": "^1.2.0",
     "@rollup/plugin-alias": "^5.1.0",
     "@rollup/plugin-babel": "^6.0.4",
