@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.2.3 - 2024-06-06
+
+### What's Changed
+
+* upgrade npm packages by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/144
+* Bump [@rollup](https://github.com/rollup)/plugin-replace from 5.0.5 to 5.0.6 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/145
+* Bump [@rollup](https://github.com/rollup)/plugin-commonjs from 25.0.8 to 26.0.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/149
+* Bump [@rollup](https://github.com/rollup)/plugin-replace from 5.0.6 to 5.0.7 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/148
+* Bump [@babel](https://github.com/babel)/preset-react from 7.24.6 to 7.24.7 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/147
+* Bump [@babel](https://github.com/babel)/core from 7.24.6 to 7.24.7 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/146
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.2.2...v1.2.3
+
 ## v1.2.2 - 2024-05-31
 
 ### What's Changed
