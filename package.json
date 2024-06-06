@@ -22,7 +22,7 @@
   "author": "Maksim Babichev",
   "license": "MIT",
   "dependencies": {
-    "@babel/core": "^7.24.6",
+    "@babel/core": "^7.24.7",
     "@babel/preset-react": "^7.24.7",
     "@creativebulma/bulma-tooltip": "^1.2.0",
     "@rollup/plugin-alias": "^5.1.0",
