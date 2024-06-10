@@ -39,6 +39,6 @@
     "rollup-copy-transform-css": "^1.2.5",
     "rollup-plugin-copy": "^3.5.0",
     "test": "^3.3.0",
-    "uuid": "^9.0.1"
+    "uuid": "^10.0.0"
   }
 }
