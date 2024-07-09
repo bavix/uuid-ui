@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.2.4 - 2024-07-09
+
+### What's Changed
+
+* Bump uuid from 9.0.1 to 10.0.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/150
+* Bump docker/build-push-action from 5 to 6 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/151
+* Bump bavix/.github from 0.2.5 to 0.3.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/152
+* Bump preact from 10.22.0 to 10.22.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/153
+* Bump rollup from 4.18.0 to 4.18.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/154
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.2.3...v1.2.4
+
 ## v1.2.3 - 2024-06-06
 
 ### What's Changed
