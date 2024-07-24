@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.2.5 - 2024-07-24
+
+### What's Changed
+
+* Bump [@babel](https://github.com/babel)/core from 7.24.7 to 7.24.8 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/155
+* Bump [@babel](https://github.com/babel)/core from 7.24.8 to 7.24.9 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/156
+* Bump rollup from 4.18.1 to 4.19.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/157
+* Bump preact from 10.22.1 to 10.23.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/158
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.2.4...v1.2.5
+
 ## v1.2.4 - 2024-07-09
 
 ### What's Changed
