@@ -43,45 +43,56 @@ export default class HistoryComponent extends React.Component {
      */
     render() {
         // Destructure the props
-        const { items, clearItems } = this.props;
+        const { items, clearItems, isToggled } = this.props;
 
         return (
             // Navigation panel
-            <nav className="panel is-dark">
+            <nav className={isToggled ? "panel is-dark" : "panel is-light"}>
                 {/* Panel heading */}
                 <p className="panel-heading">History</p>
+
                 {/* Clear history button */}
                 <div className={items.length === 0 ? "panel-block is-hidden" : "panel-block"}>
-                    {/* Button to clear the history */}
-                    <button onClick={clearItems} className="button is-danger is-outlined is-fullwidth is-small">
+                    <button onClick={clearItems}
+                        className="button is-danger is-outlined is-fullwidth is-small">
                         Clear the history
                     </button>
                 </div>
+
                 {/* List of items */}
-                { [...items].slice(0, 30).map(i =>
+                { [...items].slice(0, 30).map(i => {
                     // Panel block for each item
-                    <div key={i.toString()} className="panel-block">
-                        {/* Field containing two tags */}
-                        <div className="field">
-                            {/* Output tag */}
-                            <div className="tags">
-                                {/* Copy output to clipboard and display a success message */}
-                                <a href="javascript:" onClick={this.copy} className="tag is-link is-light" data-tooltip={i.info}>
-                                    {/* Output text */}
-                                    { i.output }
-                                </a>
-                            </div>
-                            {/* Input tag */}
-                            <div className="tags">
-                                {/* Copy input to clipboard and display a success message */}
-                                <a href="javascript:" onClick={this.copy} className="tag is-primary is-light" data-tooltip={i.info}>
-                                    {/* Input text */}
-                                    { i.input }
-                                </a>
+                    return (
+                        <div key={i.toString()} className="panel-block">
+                            {/* Field containing two tags */}
+                            <div className="field">
+                                {/* Output tag */}
+                                <div className="tags">
+                                    {/* Copy output to clipboard and display a success message */}
+                                    <a href="javascript:"
+                                        onClick={this.copy}
+                                        className="tag is-link is-light"
+                                        data-tooltip={i.info}>
+                                        {/* Output text */}
+                                        { i.output }
+                                    </a>
+                                </div>
+
+                                {/* Input tag */}
+                                <div className="tags">
+                                    {/* Copy input to clipboard and display a success message */}
+                                    <a href="javascript:"
+                                        onClick={this.copy}
+                                        className="tag is-primary is-light"
+                                        data-tooltip={i.info}>
+                                        {/* Input text */}
+                                        { i.input }
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ) }
+                    );
+                }) }
             </nav>
         );
     }
