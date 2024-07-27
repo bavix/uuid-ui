@@ -58,7 +58,7 @@ export function intTypeList() {
  * Represents an item with input, output, and additional information.
  * @class
  */
-class Item {
+export class Item {
     /**
      * Creates a new Item.
      * @constructor
