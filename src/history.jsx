@@ -51,7 +51,9 @@ export default class HistoryComponent extends React.Component {
                         {/* Field containing two tags */}
                         <div className="field">
                             {/* Output tag */}
-                            <a href="javascript:" onClick={this.copy} className="tag is-link is-light" data-tooltip={i.info}>{ i.output }</a>
+                            <div className="tags">
+                                <a href="javascript:" onClick={this.copy} className="tag is-link is-light" data-tooltip={i.info}>{ i.output }</a>
+                            </div>
                             {/* Input tag */}
                             <div className="tags">
                                 <a href="javascript:" onClick={this.copy} className="tag is-primary is-light" data-tooltip={i.info}>{ i.input }</a>

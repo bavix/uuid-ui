@@ -1,5 +1,5 @@
 import React from 'react'
-import InputComponent from "./input.jsx"
+import InputComponent, {Item} from "./input.jsx"
 import HistoryComponent from "./history.jsx"
 import NavComponent from './nav.jsx'
 import '@creativebulma/bulma-tooltip/dist/bulma-tooltip.css'
@@ -27,6 +27,36 @@ export default class AppComponent extends React.Component {
      */
     constructor(props) {
         super(props);
+    }
+
+    /**
+     * ComponentDidMount lifecycle hook.
+     * It gets the items from localStorage and sets the state.
+     */
+    componentDidMount() {
+        const itemsFromLocalStorage = JSON.parse(localStorage.getItem('uuidItems')) || [];
+
+        let newItem
+        const items = {}
+        for (const item of itemsFromLocalStorage) {
+            newItem = new Item(item.input, item.output, item.info)
+            items[newItem.toString()] = newItem
+        }
+
+        this.setState({ items: Object.values(items) });
+    }
+
+    /**
+     * ComponentDidUpdate lifecycle hook.
+     * It saves the items to localStorage when the state changes.
+     * @param {Object} prevProps - The previous props.
+     * @param {Object} prevState - The previous state.
+     */
+    componentDidUpdate(prevProps, prevState) {
+        let newState = [...this.state.items].slice(0, 100) 
+        if (prevState.items !== newState) {
+            localStorage.setItem('uuidItems', JSON.stringify(newState));
+        }
     }
 
     /**
