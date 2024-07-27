@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.3.1 - 2024-07-27
+
+### What's Changed
+
+* [v1.3.1] uuid v4 gen by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/163
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.3.0...v1.3.1
+
 ## v1.3.0 - 2024-07-27
 
 ### What's Changed
