@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.3.6 - 2024-07-27
+
+### What's Changed
+
+* fix color input by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/170
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.3.5...v1.3.6
+
 ## v1.3.5 - 2024-07-27
 
 ### What's Changed
