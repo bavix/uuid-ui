@@ -2,7 +2,7 @@ import React from 'react';
 import "@theme-toggles/react/css/Expand.css"
 import { Expand } from "@theme-toggles/react"
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { v4 } from 'uuid';
+import { v4, v6, v7 } from 'uuid';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 export default class NavComponent extends React.Component {
@@ -20,14 +20,15 @@ export default class NavComponent extends React.Component {
     /**
      * Generates a new UUID and copies it to the clipboard.
      *
+     * @param {string} type - The type of UUID to generate. Can be 'v4', 'v6', or 'v7'.
      * @param {function} setUuid - A function to set the UUID state.
      * @return {void}
      */
-    generateV4 = (setUuid) => {
-        // Generate a new UUID
-        const uuid = v4();
+    generateUuid = (type, setUuid) => {
+        // Generate a new UUID based on the specified type
+        const uuid = type === 'v4' ? v4() : type === 'v6' ? v6() : v7();
 
-        // Copy the UUID to the clipboard
+        // Copy the generated UUID to the clipboard
         navigator.clipboard.writeText(uuid)
             .then(() => {
                 // Display a success message with the copied UUID
@@ -38,7 +39,7 @@ export default class NavComponent extends React.Component {
                 Notify.failure('Error copying text: ' + error);
             });
 
-        // Set the generated UUID as the new state
+        // Update the UUID state with the generated UUID
         setUuid(uuid);
     }
 
@@ -52,7 +53,13 @@ export default class NavComponent extends React.Component {
      * @returns {JSX.Element} The rendered NavComponent.
      */
     render() {
-        // Generate a new UUID and store it in the state
+        // Array of UUID types
+        const uuidTypes = ['v4', 'v6', 'v7'];
+
+        // State to store the selected UUID type
+        const [uuidType, setUuidType] = React.useState('v4');
+
+        // State to store the generated UUID
         const [uuid, setUuid] = React.useState('');
 
         /**
@@ -63,15 +70,14 @@ export default class NavComponent extends React.Component {
          */
         const { isToggled, setToggle } = this.props;
 
+        // Helmet to update the theme class in the html tag
         return (
             <HelmetProvider>
-                {/* Navigation panel */}
                 <nav
                     className={isToggled ? "navbar is-dark" : "navbar is-light"}
                     role="navigation" 
                     aria-label="main navigation" 
                 >
-                    {/* Helmet to update the theme class in the html tag */}
                     <Helmet>
                         <html lang="en" 
                             className={isToggled ? "theme-dark" : "theme-light"} />
@@ -93,21 +99,34 @@ export default class NavComponent extends React.Component {
                                 </a>
                                 {/* Online UUID Generator */}
                                 <div className='navbar-item'>
-                                    <div className="field is-grouped">
+                                    {/* Select to choose the UUID type */}
+                                    <div className="field has-addons">
+                                        <p className="control">
+                                            <span className="select is-small">
+                                                <select onChange={(e) => setUuidType(e.target.value)}>
+                                                    {uuidTypes.map(type => (
+                                                        <option key={type} value={type} checked={uuidType === type}>
+                                                            {type}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </span>
+                                        </p>
                                         {/* Input field for the generated UUID */}
-                                        <p className="control is-expanded">
+                                        <p className="control">
                                             <input
                                                 readOnly={true}
                                                 size={40}
                                                 className="input is-info is-small"
                                                 type="text"
                                                 value={uuid}
-                                                placeholder="Online UUIDv4 Generator"
+                                                placeholder="Online UUID Generator"
                                             />
                                         </p>
                                         {/* Generate button */}
                                         <p className="control">
-                                            <button className="button is-link is-small" onClick={() => this.generateV4(setUuid)}>Generate</button>
+                                            <button className="button is-link is-small"
+                                                onClick={() => this.generateUuid(uuidType, setUuid)}>Generate</button>
                                         </p>
                                     </div>
                                 </div>
