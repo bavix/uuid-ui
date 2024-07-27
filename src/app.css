@@ -1,3 +1,152 @@
-body {display: flex;min-height: 100vh;flex-direction: column;}
-.uuid-ui--wrapper {flex: 1}
-.margin-top {margin-top: 1rem}
+body {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.uuid-ui--wrapper {
+  flex: 1;
+}
+
+.margin-top {
+  margin-top: 1rem;
+}
+
+.b-radio.radio {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.b-radio.radio {
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.b-radio.radio:not(.button) {
+  margin-right: 0.5em;
+}
+
+.b-radio.radio:not(.button) + .radio:last-child {
+  margin-right: 0;
+}
+
+.b-radio.radio + .radio {
+  margin-left: 0;
+}
+
+.b-radio.radio input[type=radio] {
+  position: absolute;
+  left: 0;
+  opacity: 0;
+  outline: none;
+  z-index: -1;
+}
+
+.b-radio.radio input[type=radio] + .check {
+  display: flex;
+  flex-shrink: 0;
+  position: relative;
+  cursor: pointer;
+  width: 1.25em;
+  height: 1.25em;
+  transition: background 150ms ease-out;
+  border-radius: 50%;
+  border: 2px solid #7a7a7a;
+}
+
+.b-radio.radio input[type=radio] + .check:before {
+  content: "";
+  display: flex;
+  position: absolute;
+  left: 50%;
+  margin-left: calc(-1.25em * 0.5);
+  bottom: 50%;
+  margin-bottom: calc(-1.25em * 0.5);
+  width: 1.25em;
+  height: 1.25em;
+  transition: transform 150ms ease-out;
+  border-radius: 50%;
+  transform: scale(0);
+  background-color: #00d1b2;
+}
+
+.b-radio.radio input[type=radio] + .check.is-link:before {
+  background: #485fc7;
+}
+
+.b-radio.radio input[type=radio] + .check.is-info:before {
+  background: #3e8ed0;
+}
+
+.b-radio.radio input[type=radio]:checked + .check {
+  border-color: #00d1b2;
+}
+
+.b-radio.radio input[type=radio]:checked + .check.is-link {
+  border-color: #485fc7;
+}
+
+.b-radio.radio input[type=radio]:checked + .check.is-info {
+  border-color: #3e8ed0;
+}
+
+.b-radio.radio input[type=radio]:checked + .check:before {
+  transform: scale(0.5);
+}
+
+.b-radio.radio input[type=radio]:focus + .check {
+  box-shadow: 0 0 0.5em rgba(122, 122, 122, 0.8);
+}
+
+.b-radio.radio input[type=radio]:focus:checked + .check {
+  box-shadow: 0 0 0.5em rgba(0, 209, 178, 0.8);
+}
+
+.b-radio.radio input[type=radio]:focus:checked + .check.is-link {
+  box-shadow: 0 0 0.5em rgba(72, 95, 199, 0.8);
+}
+
+.b-radio.radio input[type=radio]:focus:checked + .check.is-info {
+  box-shadow: 0 0 0.5em rgba(62, 142, 208, 0.8);
+}
+
+.b-radio.radio .control-label {
+  padding-left: calc(0.75em - 1px);
+}
+
+.b-radio.radio.button {
+  display: flex;
+}
+
+.b-radio.radio.button.is-selected {
+  z-index: 1;
+}
+
+.b-radio.radio[disabled] {
+  opacity: 0.5;
+}
+
+.b-radio.radio:hover input[type=radio]:not(:disabled) + .check.is-link {
+  border-color: #485fc7;
+}
+
+.b-radio.radio:hover input[type=radio]:not(:disabled) + .check.is-info {
+  border-color: #3e8ed0;
+}
+
+.b-radio.radio.is-small {
+  border-radius: 2px;
+  font-size: 0.75rem;
+}
+
+.b-radio.radio.is-medium {
+  font-size: 1.25rem;
+}
+
+.b-radio.radio.is-large {
+  font-size: 1.5rem;
+}

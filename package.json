@@ -31,13 +31,15 @@
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-replace": "^5.0.7",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@theme-toggles/react": "^4.1.0",
     "babel-preset-minify": "^0.5.2",
     "bulma": "^1.0.2",
     "notiflix": "^3.2.7",
     "preact": "^10.23.1",
+    "react-helmet-async": "^2.0.5",
     "rollup": "^4.19.0",
-    "rollup-copy-transform-css": "^1.2.5",
-    "rollup-plugin-copy": "^3.5.0",
+    "rollup-plugin-import-css": "^3.5.0",
     "test": "^3.3.0",
     "uuid": "^10.0.0"
   }
