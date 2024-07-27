@@ -1,3 +1,7 @@
+#app {
+  padding-bottom: 1rem;
+}
+
 body {
   display: flex;
   min-height: 100vh;

@@ -6,6 +6,8 @@
   "private": true,
   "scripts": {
     "build": "rollup -c",
+    "watch": "rollup -c -w",
+    "dev": "concurrently \"npm run watch\" \"web-dev-server --config web-dev-server.config.js\"",
     "test": "node --test ./tests/*"
   },
   "repository": {
@@ -33,12 +35,16 @@
     "@rollup/plugin-replace": "^5.0.7",
     "@rollup/plugin-terser": "^0.4.4",
     "@theme-toggles/react": "^4.1.0",
+    "@web/dev-server": "^0.4.6",
     "babel-preset-minify": "^0.5.2",
     "bulma": "^1.0.2",
+    "concurrently": "^8.2.2",
     "notiflix": "^3.2.7",
     "preact": "^10.23.1",
     "react-helmet-async": "^2.0.5",
     "rollup": "^4.19.0",
+    "rollup-plugin-cleandir": "^2.0.0",
+    "rollup-plugin-generate-html-template": "^1.7.0",
     "rollup-plugin-import-css": "^3.5.0",
     "test": "^3.3.0",
     "uuid": "^10.0.0"

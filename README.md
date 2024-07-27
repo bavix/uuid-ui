@@ -12,6 +12,11 @@ or
 docker run -p 8080:80 -d ghcr.io/bavix/uuid-ui
 ```
 
+You can run it like this:
+```sh
+npm run dev
+```
+
 ---
 Supported by
 
