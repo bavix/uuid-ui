@@ -35,27 +35,38 @@ export default class HistoryComponent extends React.Component {
 
     /**
      * Render method for the HistoryComponent.
-     * It returns a navigation panel (<nav>) with a heading "History" and a list of items.
+     *
+     * Returns a navigation panel (<nav>) with a heading "History" and a list of items.
      * Each item is a panel block (<div>) with a field (<div>) containing two tags (<a>).
-     * 
+     *
      * @returns {JSX.Element} The rendered HistoryComponent.
      */
-    render({ items }, { }) {
+    render({ items, clearItems }, { }) {
         return (
+            // Navigation panel
             <nav className="panel is-dark">
                 {/* Panel heading */}
                 <p className="panel-heading">History</p>
+                {/* Clear history button */}
+                <div className={items.length === 0 ? "panel-block is-hidden" : "panel-block"}>
+                    <button onClick={clearItems} className="button is-danger is-outlined is-fullwidth is-small">
+                        Clear the history
+                    </button>
+                </div>
                 {/* List of items */}
                 { [...items].slice(0, 30).map(i =>
+                    // Panel block for each item
                     <div key={i.toString()} className="panel-block">
                         {/* Field containing two tags */}
                         <div className="field">
                             {/* Output tag */}
                             <div className="tags">
+                                {/* Copy output to clipboard and display a success message */}
                                 <a href="javascript:" onClick={this.copy} className="tag is-link is-light" data-tooltip={i.info}>{ i.output }</a>
                             </div>
                             {/* Input tag */}
                             <div className="tags">
+                                {/* Copy input to clipboard and display a success message */}
                                 <a href="javascript:" onClick={this.copy} className="tag is-primary is-light" data-tooltip={i.info}>{ i.input }</a>
                             </div>
                         </div>

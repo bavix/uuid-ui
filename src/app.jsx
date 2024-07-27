@@ -74,25 +74,49 @@ export default class AppComponent extends React.Component {
         
         return (
             // Wrapper div for the AppComponent
+            /*
+             * The outermost div for the AppComponent.
+             * It has the class 'uuid-ui--wrapper' to style it.
+             */
             <div className="uuid-ui--wrapper">
                 {/* Navigation component */}
+                {/* The navigation component at the top of the AppComponent. */}
                 <NavComponent />
                 {/* Container div with a margin-top class */}
                 <div className="container margin-top">
                     {/* Columns div with a centered layout */}
+                    {/* The div that contains two columns: input and history. */}
                     <div className="columns is-centered">
                         {/* Input column */}
+                        /*
+                         * The column that contains the input component.
+                         * It has the classes 'column is-three-fifths' to style it.
+                         * It has the id 'input-cp' to identify it.
+                         */
                         <div className="column is-three-fifths" id="input-cp">
                             {/* Input component with items and setItems props */}
+                            {/*
+                             * The input component that allows users to enter UUIDs.
+                             * It receives the items from the state and a function to update the state.
+                             */}
                             <InputComponent 
                                 items={items} 
                                 setItems={(items) => this.setState({items})} 
                             />
                         </div>
                         {/* History column */}
+                        /*
+                         * The column that contains the history component.
+                         * It has the classes 'column is-two-fifths is-narrow' to style it.
+                         * It has the id 'history-cp' to identify it.
+                         */
                         <div className="column is-two-fifths is-narrow" id="history-cp">
                             {/* History component with items prop */}
-                            <HistoryComponent items={items} />
+                            {/*
+                             * The history component that displays the entered UUIDs.
+                             * It receives the items from the state and a function to clear the state.
+                             */}
+                            <HistoryComponent items={items} clearItems={() => this.setState({items: []})} />
                         </div>
                     </div>
                 </div>
