@@ -75,48 +75,40 @@ export default class AppComponent extends React.Component {
         return (
             // Wrapper div for the AppComponent
             /*
-             * The outermost div for the AppComponent.
-             * It has the class 'uuid-ui--wrapper' to style it.
+             * The root div for the AppComponent.
+             * This div has a flex layout with a minimum height of 100vh (viewport height).
              */
             <div className="uuid-ui--wrapper">
                 {/* Navigation component */}
-                {/* The navigation component at the top of the AppComponent. */}
+                {/* The navigation component at the top of the AppComponent */}
                 <NavComponent />
                 {/* Container div with a margin-top class */}
                 <div className="container margin-top">
                     {/* Columns div with a centered layout */}
-                    {/* The div that contains two columns: input and history. */}
                     <div className="columns is-centered">
                         {/* Input column */}
-                        /*
-                         * The column that contains the input component.
-                         * It has the classes 'column is-three-fifths' to style it.
-                         * It has the id 'input-cp' to identify it.
-                         */
+                        {/* The column for the input component */}
                         <div className="column is-three-fifths" id="input-cp">
                             {/* Input component with items and setItems props */}
-                            {/*
-                             * The input component that allows users to enter UUIDs.
-                             * It receives the items from the state and a function to update the state.
-                             */}
+                            {/* The input component that allows the user to enter UUIDs */}
                             <InputComponent 
+                                /* The items to be displayed in the input component */
                                 items={items} 
+                                /* Function to update the items in the component's state */
                                 setItems={(items) => this.setState({items})} 
                             />
                         </div>
                         {/* History column */}
-                        /*
-                         * The column that contains the history component.
-                         * It has the classes 'column is-two-fifths is-narrow' to style it.
-                         * It has the id 'history-cp' to identify it.
-                         */
+                        {/* The column for the history component */}
                         <div className="column is-two-fifths is-narrow" id="history-cp">
                             {/* History component with items prop */}
-                            {/*
-                             * The history component that displays the entered UUIDs.
-                             * It receives the items from the state and a function to clear the state.
-                             */}
-                            <HistoryComponent items={items} clearItems={() => this.setState({items: []})} />
+                            {/* The history component that displays the past input items */}
+                            <HistoryComponent 
+                                /* The items to be displayed in the history component */
+                                items={items} 
+                                /* Function to clear the items in the component's state */
+                                clearItems={() => this.setState({items: []})} 
+                            />
                         </div>
                     </div>
                 </div>
