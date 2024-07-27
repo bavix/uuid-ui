@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.3.4 - 2024-07-27
+
+### What's Changed
+
+* fix light theme by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/168
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.3.3...v1.3.4
+
 ## v1.3.3 - 2024-07-27
 
 ### What's Changed
