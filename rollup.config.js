@@ -5,38 +5,28 @@ import alias from '@rollup/plugin-alias';
 import commonjs from '@rollup/plugin-commonjs';
 import json from "@rollup/plugin-json";
 import resolve from '@rollup/plugin-node-resolve';
-import copy from 'rollup-plugin-copy';
-import { createTransform } from 'rollup-copy-transform-css';
+import terser from '@rollup/plugin-terser';
+import css from "rollup-plugin-import-css";
 
 export default {
     input: 'src/index.jsx',
     output: {
         dir: 'public/',
-        format: 'iife', // 'cjs' if building Node app, 'umd' for both
+        format: 'esm',
         sourcemap: true,
+        plugins: [terser()],
     },
     plugins: [
-        copy({
-            targets: [{
-                src: [
-                    './src/app.css',
-                    './node_modules/bulma/css/bulma.css',
-                    './node_modules/@creativebulma/bulma-tooltip/dist/bulma-tooltip.css',
-                ],
-                dest: 'public',
-                transform: createTransform({
-                    inline: true,
-                    minify: true,
-                    map: {inline: false, dir: 'public'},
-                }),
-            }]
+        css({
+            output: 'app.css',
+            minify: true,
         }),
         resolve({
             browser: true
         }),
         commonjs({
             include: /node_modules/,
-            requireReturnsDefault: 'auto', // <---- this solves default issue
+            requireReturnsDefault: 'auto',
         }),
         json(),
         nodeResolve({

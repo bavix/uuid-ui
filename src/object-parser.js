@@ -4,18 +4,37 @@ const rg = /"?([a-zA-Z0-9]*)"?:/g
 const hlrg = /^(-?\d+)[;:,](-?\d+)$/
 const trg = /["']?(-?\d+)["']?/g
 
+/**
+ * Parses a string representation of an object into a JavaScript object.
+ * 
+ * @param {string} val - The string representation of the object.
+ * @returns {Object} - The parsed object.
+ */
 export function objectParse(val) {
+    // If the string starts with '[', it is a JSON array and needs to be parsed.
     if (val[0] === '[') {
+        // Replace all occurrences of numbers with the same number without quotes.
         return JSON.parse(val.replace(trg, '$1'))
     }
 
+    // If the string matches the regular expression for a high-low pair, split it into an array.
     if (val.match(hlrg)) {
+        // Replace the high-low pair with the same numbers separated by semicolons.
         const split = val.replace(hlrg, '$1;$2').split(';')
 
-        return {high: split[0].toString(), low: split[1].toString()}
+        // Return an object with the high and low properties.
+        return {
+            high: split[0].toString(),
+            low: split[1].toString()
+        }
     }
 
+    // Parse the string representation of the object.
     const obj = JSON.parse(val.replace(trg, '"$1"').replace(rg, '"$1":'))
 
-    return {high: obj.high, low: obj.low}
+    // Return an object with the high and low properties.
+    return {
+        high: obj.high,
+        low: obj.low
+    }
 }
