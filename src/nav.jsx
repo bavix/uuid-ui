@@ -102,7 +102,7 @@ export default class NavComponent extends React.Component {
                                     {/* Select to choose the UUID type */}
                                     <div className="field has-addons">
                                         <p className="control">
-                                            <span className="select is-small">
+                                            <span className="select is-link is-small">
                                                 <select onChange={(e) => setUuidType(e.target.value)}>
                                                     {uuidTypes.map(type => (
                                                         <option key={type} value={type} checked={uuidType === type}>
@@ -117,7 +117,7 @@ export default class NavComponent extends React.Component {
                                             <input
                                                 readOnly={true}
                                                 size={40}
-                                                className="input is-info is-small"
+                                                className="input is-link is-small"
                                                 type="text"
                                                 value={uuid}
                                                 placeholder="Online UUID Generator"
