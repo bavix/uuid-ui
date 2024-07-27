@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.3.3 - 2024-07-27
+
+### What's Changed
+
+* add dev mode by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/167
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.3.2...v1.3.3
+
 ## v1.3.2 - 2024-07-27
 
 ### What's Changed
