@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.3.2 - 2024-07-27
+
+### What's Changed
+
+* Update title by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/164
+* [v1.3.2] clear the history by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/165
+* Update comments by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/166
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.3.1...v1.3.2
+
 ## v1.3.1 - 2024-07-27
 
 ### What's Changed
