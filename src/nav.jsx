@@ -55,15 +55,13 @@ export default class NavComponent extends React.Component {
         // Generate a new UUID and store it in the state
         const [uuid, setUuid] = React.useState('');
 
-        // Initialize the state variable for the theme toggle
-        const [isToggled, setToggle] = React.useState(
-            JSON.parse(localStorage.getItem('theme')) || false
-        );
-
-        // Use effect hook to update the theme in the local storage when the theme toggle state changes
-        React.useEffect(() => {
-            localStorage.setItem('theme', JSON.stringify(isToggled));
-        }, [isToggled]);
+        /**
+         * Destructures the isToggled and setToggle props from the NavComponent's props.
+         *
+         * @param {boolean} isToggled - Indicates whether the theme is toggled (dark or light).
+         * @param {function} setToggle - A function to update the theme toggle state.
+         */
+        const { isToggled, setToggle } = this.props;
 
         return (
             <HelmetProvider>

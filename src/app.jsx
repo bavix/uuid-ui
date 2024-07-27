@@ -69,19 +69,41 @@ export default class AppComponent extends React.Component {
      * @returns {JSX.Element} The rendered AppComponent.
      */
     render() {
+        // Initialize the state variable for the theme toggle
+        /**
+         * State variable for the theme toggle.
+         * It is initialized with the value from localStorage or false.
+         * @type {boolean}
+         */
+        const [isToggled, setToggle] = React.useState(
+            JSON.parse(localStorage.getItem('theme')) || false
+        );
+
+        // Use effect hook to update the theme in the local storage when the theme toggle state changes
+        /**
+         * Use effect hook to update the theme in the local storage when the theme toggle state changes.
+         */
+        React.useEffect(() => {
+            localStorage.setItem('theme', JSON.stringify(isToggled));
+        }, [isToggled]);
+
         // Get the items from the component's state
+        /**
+         * Get the items from the component's state.
+         * @type {Array<Item>}
+         */
         const { items } = this.state;
         
         return (
             // Wrapper div for the AppComponent
-            /*
+            /**
              * The root div for the AppComponent.
              * This div has a flex layout with a minimum height of 100vh (viewport height).
              */
             <div className="uuid-ui--wrapper">
                 {/* Navigation component */}
                 {/* The navigation component at the top of the AppComponent */}
-                <NavComponent />
+                <NavComponent isToggled={isToggled} setToggle={setToggle} />
                 {/* Container div with a margin-top class */}
                 <div className="container margin-top">
                     {/* Columns div with a centered layout */}
@@ -92,9 +114,9 @@ export default class AppComponent extends React.Component {
                             {/* Input component with items and setItems props */}
                             {/* The input component that allows the user to enter UUIDs */}
                             <InputComponent 
-                                /* The items to be displayed in the input component */
+                                // The items to be displayed in the input component
                                 items={items} 
-                                /* Function to update the items in the component's state */
+                                // Function to update the items in the component's state
                                 setItems={(items) => this.setState({items})} 
                             />
                         </div>
@@ -104,10 +126,12 @@ export default class AppComponent extends React.Component {
                             {/* History component with items prop */}
                             {/* The history component that displays the past input items */}
                             <HistoryComponent 
-                                /* The items to be displayed in the history component */
+                                // The items to be displayed in the history component
                                 items={items} 
-                                /* Function to clear the items in the component's state */
+                                // Function to clear the items in the component's state
                                 clearItems={() => this.setState({items: []})} 
+                                // The theme toggle state
+                                isToggled={isToggled}
                             />
                         </div>
                     </div>
