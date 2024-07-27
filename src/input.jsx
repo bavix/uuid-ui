@@ -420,7 +420,7 @@ huW65O9YQDGzT16f+RTNVQ==
 0;1 // comment
 huW65O9YQDGzT16f+RTNVQ== //comment new
 `}
-                        rows="13"
+                        rows="10"
                     ></textarea>
                 </label>
 

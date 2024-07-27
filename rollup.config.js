@@ -7,18 +7,21 @@ import json from "@rollup/plugin-json";
 import resolve from '@rollup/plugin-node-resolve';
 import terser from '@rollup/plugin-terser';
 import css from "rollup-plugin-import-css";
+import htmlTemplate from 'rollup-plugin-generate-html-template';
+import { cleandir } from "rollup-plugin-cleandir";
 
 export default {
     input: 'src/index.jsx',
     output: {
-        dir: 'public/',
+        dir: 'public',
+        entryFileNames: 'assets/bundle-[hash].js',
         format: 'esm',
         sourcemap: true,
         plugins: [terser()],
     },
     plugins: [
+        cleandir('public/assets'),
         css({
-            output: 'app.css',
             minify: true,
         }),
         resolve({
@@ -48,6 +51,10 @@ export default {
                 { find: 'react-dom', replacement: 'preact/compat' },
                 { find: 'react/jsx-runtime', replacement: 'preact/jsx-runtime' }
             ]
-        })
+        }),
+        htmlTemplate({
+          template: 'src/index.html',
+          target: 'public/index.html',
+        }),
     ]
 };
