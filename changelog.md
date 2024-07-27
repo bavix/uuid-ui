@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.3.0 - 2024-07-27
+
+### What's Changed
+
+* Bump preact from 10.23.0 to 10.23.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/159
+* Bump bulma from 1.0.1 to 1.0.2 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/160
+* [v1.3.0] dark mode by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/161
+* [v1.3.0] history LocalStorage by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/162
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.2.5...v1.3.0
+
 ## v1.2.5 - 2024-07-24
 
 ### What's Changed
