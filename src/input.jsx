@@ -412,7 +412,7 @@ export default class InputComponent extends React.Component {
                     <textarea
                         className="textarea"
                         onChange={this.onKeyboardInput}
-                        placeholder={`Enter uuid. Input examples:
+                        placeholder={`Enter UUID. Input examples:
 0;0
 {low: 0, high: 1}
 71a46cec-4809-4cc5-9689-5b0441b46186
