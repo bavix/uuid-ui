@@ -67,30 +67,6 @@ export default class NavComponent extends React.Component {
     }
 
     /**
-     * Saves the UUID type to localStorage.
-     *
-     * @param {string} type - The UUID type to save.
-     * @return {void}
-     */
-    saveSelectedUuidType = (type) => {
-        // Save the UUID type to localStorage
-        localStorage.setItem('uuidType', type);
-    }
-
-    /**
-     * Retrieves the UUID type from localStorage.
-     *
-     * @return {string} The UUID type from localStorage or 'v4' if it is not found.
-     */
-    getStoredUuidType = () => {
-        // Retrieve the UUID type from localStorage
-        let type = localStorage.getItem('uuidType');
-
-        // Return the UUID type or 'v4' if it is not found
-        return type ? type : 'v4';
-    }
-
-    /**
      * Render method for the NavComponent.
      *
      * This method returns the navigation panel (<nav>) with a brand and a menu.
@@ -101,7 +77,14 @@ export default class NavComponent extends React.Component {
      */
     render() {
         // State to store the selected UUID type
-        const [selectedUuidType, setSelectedUuidType] = React.useState(this.getStoredUuidType());
+        const [selectedUuidType, setSelectedUuidType] = React.useState(
+            localStorage.getItem('uuidType') || 'v4'
+        );
+
+        // Effect to store the selected UUID type in localStorage
+        React.useEffect(() => {
+            localStorage.setItem('uuidType', selectedUuidType);
+        }, [selectedUuidType]);
 
         // State to store the generated UUID
         const [generatedUuid, setGeneratedUuid] = React.useState('');
@@ -151,10 +134,7 @@ export default class NavComponent extends React.Component {
                                         <p className="control">
                                             <span className="select is-link is-small">
                                                 {/* Dropdown menu for UUID types */}
-                                                <select onChange={(e) => {
-                                                    setSelectedUuidType(e.target.value);
-                                                    this.saveSelectedUuidType(e.target.value);
-                                                }}>
+                                                <select onChange={(e) => setSelectedUuidType(e.target.value)}>
                                                     {uuidTypes.map(type => (
                                                         <option key={type} value={type} selected={selectedUuidType === type}>
                                                             {type}
