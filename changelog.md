@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.3.7 - 2024-07-29
+
+### What's Changed
+
+* Bump bavix/.github from 0.3.0 to 0.3.2 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/171
+* Add support v1, nil, max by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/172
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.3.6...v1.3.7
+
 ## v1.3.6 - 2024-07-27
 
 ### What's Changed
