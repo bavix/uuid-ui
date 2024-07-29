@@ -11,4 +11,4 @@ jobs:
     uses: bavix/.github/.github/workflows/compile-assets.yml@0.3.2
     secrets: inherit
     with:
-      nodejs: 21.x
+      nodejs: 22.x
