@@ -8,4 +8,4 @@ jobs:
   build_uuid_ui:
     permissions:
       contents: write
-    uses: bavix/.github/.github/workflows/go-release-binary.yml@0.3.0
+    uses: bavix/.github/.github/workflows/go-release-binary.yml@0.3.2
