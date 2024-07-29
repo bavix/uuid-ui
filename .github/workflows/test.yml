@@ -7,3 +7,5 @@ on:
 jobs:
   test:
     uses: bavix/.github/.github/workflows/npm-test.yml@0.3.2
+    with:
+      nodejs: 22.x

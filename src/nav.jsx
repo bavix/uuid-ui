@@ -2,8 +2,11 @@ import React from 'react';
 import "@theme-toggles/react/css/Expand.css"
 import { Expand } from "@theme-toggles/react"
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { v4, v6, v7 } from 'uuid';
+import { v1, v4, v6, v7, NIL, MAX } from 'uuid';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
+
+// Array of UUID types
+const uuidTypes = ['v1','v4', 'v6', 'v7', 'nil', 'max'];
 
 export default class NavComponent extends React.Component {
     /**
@@ -18,29 +21,73 @@ export default class NavComponent extends React.Component {
     }
 
     /**
-     * Generates a new UUID and copies it to the clipboard.
+     * Generates a new UUID of the specified type and copies it to the clipboard.
      *
-     * @param {string} type - The type of UUID to generate. Can be 'v4', 'v6', or 'v7'.
+     * @param {string} type - The type of UUID to generate. Can be one of the following:
+     *                          - 'v1' for a time-based UUID
+     *                          - 'v4' for a random UUID
+     *                          - 'v6' for a UUID using the SHA-256 hash function
+     *                          - 'v7' for a UUID using the SHA-1 hash function
+     *                          - 'nil' for a nil UUID
+     *                          - 'max' for the maximum UUID
      * @param {function} setUuid - A function to set the UUID state.
      * @return {void}
      */
     generateUuid = (type, setUuid) => {
+        // Check if the specified type is valid
+        if (!uuidTypes.includes(type)) {
+            // Display an error message if the type is invalid
+            Notify.failure(`Invalid type: ${type}`);
+            return;
+        }
+
         // Generate a new UUID based on the specified type
-        const uuid = type === 'v4' ? v4() : type === 'v6' ? v6() : v7();
+        const uuid = {
+            'v1': v1(), // Generate a time-based UUID
+            'v4': v4(), // Generate a random UUID
+            'v6': v6(), // Generate a UUID using the SHA-256 hash function
+            'v7': v7(), // Generate a UUID using the SHA-1 hash function
+            'nil': NIL, // Generate a nil UUID
+            'max': MAX // Generate the maximum UUID
+        }[type];
 
         // Copy the generated UUID to the clipboard
         navigator.clipboard.writeText(uuid)
             .then(() => {
-                // Display a success message with the copied UUID
-                Notify.success('Text ' + uuid + ' copied');
+                // Display a success message if the copy operation is successful
+                Notify.success(`Text ${uuid} copied`);
             })
-            .catch((error) => {
+            .catch(error => {
                 // Display an error message if the copy operation fails
-                Notify.failure('Error copying text: ' + error);
+                Notify.failure(`Error copying text: ${error}`);
             });
 
         // Update the UUID state with the generated UUID
         setUuid(uuid);
+    }
+
+    /**
+     * Saves the UUID type to localStorage.
+     *
+     * @param {string} type - The UUID type to save.
+     * @return {void}
+     */
+    saveSelectedUuidType = (type) => {
+        // Save the UUID type to localStorage
+        localStorage.setItem('uuidType', type);
+    }
+
+    /**
+     * Retrieves the UUID type from localStorage.
+     *
+     * @return {string} The UUID type from localStorage or 'v4' if it is not found.
+     */
+    getStoredUuidType = () => {
+        // Retrieve the UUID type from localStorage
+        let type = localStorage.getItem('uuidType');
+
+        // Return the UUID type or 'v4' if it is not found
+        return type ? type : 'v4';
     }
 
     /**
@@ -53,14 +100,11 @@ export default class NavComponent extends React.Component {
      * @returns {JSX.Element} The rendered NavComponent.
      */
     render() {
-        // Array of UUID types
-        const uuidTypes = ['v4', 'v6', 'v7'];
-
         // State to store the selected UUID type
-        const [uuidType, setUuidType] = React.useState('v4');
+        const [selectedUuidType, setSelectedUuidType] = React.useState(this.getStoredUuidType());
 
         // State to store the generated UUID
-        const [uuid, setUuid] = React.useState('');
+        const [generatedUuid, setGeneratedUuid] = React.useState('');
 
         /**
          * Destructures the isToggled and setToggle props from the NavComponent's props.
@@ -73,6 +117,7 @@ export default class NavComponent extends React.Component {
         // Helmet to update the theme class in the html tag
         return (
             <HelmetProvider>
+                {/* Navigation panel */}
                 <nav
                     className={isToggled ? "navbar is-dark" : "navbar is-light"}
                     role="navigation" 
@@ -87,7 +132,8 @@ export default class NavComponent extends React.Component {
                         <div className="navbar-brand">
                             {/* Link to homepage */}
                             <a className="navbar-item" href="./">
-                                <img src="./android-chrome-192x192.png" /> {/* Image for brand */}
+                                {/* Image for brand */}
+                                <img src="./android-chrome-192x192.png" /> 
                             </a>
                         </div>
                         {/* Menu */}
@@ -95,7 +141,8 @@ export default class NavComponent extends React.Component {
                             <div className="navbar-start">
                                 {/* Link to homepage */}
                                 <a className="navbar-item" href="./">
-                                    UUIDConv UI {/* Menu item */}
+                                    {/* Menu item */}
+                                    UUIDConv UI 
                                 </a>
                                 {/* Online UUID Generator */}
                                 <div className='navbar-item'>
@@ -103,9 +150,13 @@ export default class NavComponent extends React.Component {
                                     <div className="field has-addons">
                                         <p className="control">
                                             <span className="select is-link is-small">
-                                                <select onChange={(e) => setUuidType(e.target.value)}>
+                                                {/* Dropdown menu for UUID types */}
+                                                <select onChange={(e) => {
+                                                    setSelectedUuidType(e.target.value);
+                                                    this.saveSelectedUuidType(e.target.value);
+                                                }}>
                                                     {uuidTypes.map(type => (
-                                                        <option key={type} value={type} checked={uuidType === type}>
+                                                        <option key={type} value={type} selected={selectedUuidType === type}>
                                                             {type}
                                                         </option>
                                                     ))}
@@ -119,14 +170,14 @@ export default class NavComponent extends React.Component {
                                                 size={40}
                                                 className="input is-link is-small"
                                                 type="text"
-                                                value={uuid}
+                                                value={generatedUuid}
                                                 placeholder="Online UUID Generator"
                                             />
                                         </p>
                                         {/* Generate button */}
                                         <p className="control">
                                             <button className="button is-link is-small"
-                                                onClick={() => this.generateUuid(uuidType, setUuid)}>Generate</button>
+                                                onClick={() => this.generateUuid(selectedUuidType, setGeneratedUuid)}>Generate</button>
                                         </p>
                                     </div>
                                 </div>
