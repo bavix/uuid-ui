@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.3.8 - 2024-07-29
+
+### What's Changed
+
+* uuidType by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/173
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.3.7...v1.3.8
+
 ## v1.3.7 - 2024-07-29
 
 ### What's Changed
