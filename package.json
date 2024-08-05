@@ -42,7 +42,7 @@
     "notiflix": "^3.2.7",
     "preact": "^10.23.1",
     "react-helmet-async": "^2.0.5",
-    "rollup": "^4.19.2",
+    "rollup": "^4.20.0",
     "rollup-plugin-cleandir": "^2.0.0",
     "rollup-plugin-generate-html-template": "^1.7.0",
     "rollup-plugin-import-css": "^3.5.0",
