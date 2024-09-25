@@ -25,7 +25,6 @@
   "license": "MIT",
   "dependencies": {
     "@babel/core": "^7.25.2",
-    "@babel/plugin-syntax-import-attributes": "^7.25.6",
     "@babel/preset-react": "^7.24.7",
     "@creativebulma/bulma-tooltip": "^1.2.0",
     "@rollup/plugin-alias": "^5.1.0",
