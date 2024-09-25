@@ -2,9 +2,9 @@ import React from 'react'
 import InputComponent, {Item} from "./input.jsx"
 import HistoryComponent from "./history.jsx"
 import NavComponent from './nav.jsx'
-import '@creativebulma/bulma-tooltip/dist/bulma-tooltip.css' with { type: 'css' }
-import 'bulma/css/bulma.css' with { type: 'css' }
-import './app.css' with { type: 'css' }
+import '@creativebulma/bulma-tooltip/dist/bulma-tooltip.css'
+import 'bulma/css/bulma.css'
+import './app.css'
 
 export default class AppComponent extends React.Component {
     /**

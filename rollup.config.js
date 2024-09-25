@@ -41,7 +41,7 @@ export default {
         }),
         babel({
             presets: ["@babel/preset-react", "minify"],
-            plugins: ["@babel/plugin-transform-react-jsx", "@babel/plugin-syntax-import-attributes"],
+            plugins: ["@babel/plugin-transform-react-jsx"],
             babelHelpers: 'bundled'
         }),
         alias({
