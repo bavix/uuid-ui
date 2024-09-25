@@ -1,5 +1,5 @@
 import React from 'react';
-import "@theme-toggles/react/css/Expand.css" with { type: 'css' }
+import "@theme-toggles/react/css/Expand.css"
 import { Expand } from "@theme-toggles/react"
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { v1, v4, v6, v7, NIL, MAX } from 'uuid';
