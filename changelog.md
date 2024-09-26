@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.4.0 - 2024-09-26
+
+### What's Changed
+
+* upgrade rollup-plugin-import-css by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/201
+* Revert "upgrade rollup-plugin-import-css" by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/202
+* Revert "Revert "upgrade rollup-plugin-import-css"" by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/203
+* Bump concurrently from 8.2.2 to 9.0.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/206
+* Bump [@rollup](https://github.com/rollup)/plugin-replace from 5.0.7 to 6.0.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/204
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.3.9...v1.4.0
+
 ## v1.3.9 - 2024-09-25
 
 ### What's Changed
