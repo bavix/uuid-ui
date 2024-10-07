@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.4.1 - 2024-10-07
+
+### What's Changed
+
+* Bump rollup from 4.22.4 to 4.22.5 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/207
+* Bump rollup from 4.22.5 to 4.23.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/209
+* Bump rollup-plugin-cleandir from 2.0.0 to 3.0.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/208
+* Bump preact from 10.24.1 to 10.24.2 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/213
+* Bump [@babel](https://github.com/babel)/preset-react from 7.24.7 to 7.25.7 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/212
+* Bump rollup from 4.23.0 to 4.24.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/211
+* Bump [@babel](https://github.com/babel)/core from 7.25.2 to 7.25.7 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/210
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.4.0...v1.4.1
+
 ## v1.4.0 - 2024-09-26
 
 ### What's Changed
