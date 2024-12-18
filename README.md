@@ -16,8 +16,3 @@ You can run it like this:
 ```sh
 npm run dev
 ```
-
----
-Supported by
-
-[![Supported by JetBrains](https://cdn.rawgit.com/bavix/development-through/46475b4b/jetbrains.svg)](https://www.jetbrains.com/)
