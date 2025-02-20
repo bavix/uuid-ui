@@ -1,5 +1,58 @@
 # Changelog
 
+## v1.4.3 - 2025-02-20
+
+### What's Changed
+
+* Bump preact from 10.24.2 to 10.24.3 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/216
+* Bump [@rollup](https://github.com/rollup)/plugin-commonjs from 28.0.0 to 28.0.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/217
+* Bump [@babel](https://github.com/babel)/preset-react from 7.25.7 to 7.25.9 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/219
+* Bump [@babel](https://github.com/babel)/core from 7.25.8 to 7.25.9 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/218
+* Bump rollup-plugin-import-css from 3.5.5 to 3.5.6 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/220
+* Bump rollup from 4.24.0 to 4.24.2 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/221
+* Bump [@babel](https://github.com/babel)/core from 7.25.9 to 7.26.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/223
+* Bump uuid from 10.0.0 to 11.0.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/222
+* Bump rollup from 4.24.2 to 4.24.3 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/224
+* Bump uuid from 11.0.1 to 11.0.2 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/225
+* Bump rollup from 4.24.3 to 4.24.4 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/227
+* Bump concurrently from 9.0.1 to 9.1.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/226
+* Bump rollup from 4.24.4 to 4.25.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/229
+* Bump rollup from 4.25.0 to 4.26.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/230
+* Bump uuid from 11.0.2 to 11.0.3 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/228
+* Bump rollup from 4.26.0 to 4.27.2 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/231
+* Bump rollup from 4.27.2 to 4.27.3 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/232
+* Bump rollup-plugin-import-css from 3.5.6 to 3.5.7 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/233
+* Bump rollup from 4.27.3 to 4.27.4 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/234
+* Bump preact from 10.24.3 to 10.25.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/235
+* Bump [@rollup](https://github.com/rollup)/plugin-replace from 6.0.1 to 6.0.2 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/241
+* Bump [@babel](https://github.com/babel)/preset-react from 7.25.9 to 7.26.3 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/238
+* Bump rollup from 4.27.4 to 4.28.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/239
+* Bump rollup-plugin-import-css from 3.5.7 to 3.5.8 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/240
+* Bump [@rollup](https://github.com/rollup)/plugin-commonjs from 28.0.1 to 28.0.2 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/243
+* Bump [@rollup](https://github.com/rollup)/plugin-node-resolve from 15.3.0 to 16.0.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/242
+* Bump preact from 10.25.0 to 10.25.2 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/244
+* Bump preact from 10.25.2 to 10.25.3 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/245
+* Bump rollup from 4.28.1 to 4.29.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/246
+* Bump uuid from 11.0.3 to 11.0.4 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/253
+* Bump rollup from 4.29.1 to 4.30.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/254
+* Bump uuid from 11.0.4 to 11.0.5 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/255
+* Bump concurrently from 9.1.0 to 9.1.2 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/250
+* Bump preact from 10.25.3 to 10.25.4 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/248
+* Bump bulma from 1.0.2 to 1.0.3 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/247
+* Bump notiflix from 3.2.7 to 3.2.8 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/252
+* Bump rollup from 4.30.0 to 4.30.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/256
+* Bump [@babel](https://github.com/babel)/core from 7.26.0 to 7.26.7 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/259
+* Bump rollup from 4.30.1 to 4.34.3 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/262
+* Bump rollup from 4.34.3 to 4.34.4 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/263
+* Bump [@babel](https://github.com/babel)/core from 7.26.7 to 7.26.8 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/265
+* Bump rollup from 4.34.4 to 4.34.6 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/264
+* Bump uuid from 11.0.5 to 11.1.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/269
+* Bump rollup from 4.34.6 to 4.34.8 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/268
+* Bump [@babel](https://github.com/babel)/core from 7.26.8 to 7.26.9 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/266
+* Bump preact from 10.25.4 to 10.26.2 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/270
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.4.2...v1.4.3
+
 ## v1.4.2 - 2024-10-12
 
 ### What's Changed
