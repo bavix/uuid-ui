@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.4.7 - 2025-05-09
+
+### What's Changed
+
+* Bump [@babel](https://github.com/babel)/core from 7.26.10 to 7.27.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/286
+* Bump [@babel](https://github.com/babel)/preset-react from 7.26.3 to 7.27.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/287
+* Bump preact from 10.26.5 to 10.26.6 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/288
+* Bump rollup from 4.40.1 to 4.40.2 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/289
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.4.6...v1.4.7
+
 ## v1.4.6 - 2025-04-28
 
 ### What's Changed
