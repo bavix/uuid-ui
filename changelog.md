@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.4.8 - 2025-05-26
+
+### What's Changed
+
+* Bump rollup from 4.40.2 to 4.41.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/290
+* Bump rollup from 4.41.0 to 4.41.1 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/291
+* Bump preact from 10.26.6 to 10.26.7 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/292
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.4.7...v1.4.8
+
 ## v1.4.7 - 2025-05-09
 
 ### What's Changed
