@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.4.9 - 2025-05-29
+
+### What's Changed
+
+* Bump [@babel](https://github.com/babel)/core from 7.27.1 to 7.27.3 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/293
+* Bump rollup-plugin-import-css from 3.5.8 to 4.0.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/294
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.4.8...v1.4.9
+
 ## v1.4.8 - 2025-05-26
 
 ### What's Changed
