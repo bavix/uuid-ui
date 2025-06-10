@@ -37,9 +37,9 @@ export function uuidToUlid(input) {
  * @returns {boolean} True if the input is a valid ULID, false otherwise.
  */
 export function isValid(input) {
-  const ULID_REGEX = /^[0-7][0-9A-HJKMNP-TV-Z]{25}$/i;
+    const ULID_REGEX = /^[0-7][0-9A-HJKMNP-TV-Z]{25}$/i;
 
-  return typeof input === 'string' && ULID_REGEX.test(input.toUpperCase());
+    return typeof input === 'string' && ULID_REGEX.test(input.toUpperCase());
 }
 
 // === Internal helpers (not exported) ===
@@ -97,7 +97,7 @@ function encodeBase32(bytes) {
         }
     }
 
-    if (bits > 0) {
+    if (bits > 0 && bits < 5) {
         output.unshift(value & 0x1f);
     }
 
@@ -108,7 +108,7 @@ function encodeBase32(bytes) {
  * Parses UUID string into Uint8Array of raw bytes.
  */
 function parseUuidToBytes(input) {
-    const hex = input.replace(/-/g, '');
+    const hex = input.toUpperCase().replace(/-/g, '');
     const bytes = [];
 
     for (let i = 0; i < hex.length; i += 2) {
@@ -131,4 +131,3 @@ function formatBytesAsUuid(bytes) {
         `${hex.slice(20)}`
     );
 }
-

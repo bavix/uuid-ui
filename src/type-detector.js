@@ -86,6 +86,11 @@ export function uuidTypeList() {
  * @return {number} The type of the input.
  */
 export function typeDetector(input) {
+    // Check if the input can be parsed as a valid ULID.
+    if (isValidUlid(input.trim())) {
+        return TYPE_ULID;
+    }
+
     // Attempt to parse the input as a JSON array (bytes-type) or JSON object
     // (high-low-type).
     try {
@@ -107,11 +112,6 @@ export function typeDetector(input) {
         }
     } catch (e) {
         // Do nothing if parsing fails.
-    }
-
-    // Check if the input can be parsed as a valid ULID.
-    if (isValidUlid(input.trim())) {
-        return TYPE_ULID;
     }
 
     // If parsing fails for both bytes-type and base64-type, return the default
