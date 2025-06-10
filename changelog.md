@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.5.0 - 2025-06-10
+
+### What's Changed
+
+* ulid support by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/298
+* Bump preact from 10.26.7 to 10.26.8 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/295
+* Bump [@babel](https://github.com/babel)/core from 7.27.3 to 7.27.4 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/296
+* Bump rollup from 4.41.1 to 4.42.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/297
+* fix ulid + tests by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/299
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.4.9...v1.5.0
+
 ## v1.4.9 - 2025-05-29
 
 ### What's Changed
