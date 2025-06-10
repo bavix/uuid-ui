@@ -1,11 +1,12 @@
 import React from 'react';
-import {TYPE_BASE64, TYPE_BYTES, TYPE_HIGH_LOW, typeDetector, uuidTypeList} from "./type-detector.js";
+import {TYPE_BASE64, TYPE_BYTES, TYPE_HIGH_LOW, TYPE_ULID, typeDetector, uuidTypeList} from "./type-detector.js";
 import {bytesToUuid, uuidToBytesString} from "./uuid-bytes.js";
 import {objectParse} from "./object-parser.js";
 import {intsToUuid, uintsToUuid, uuidToInts, uuidToUints} from "./uuid-high-low.js";
 import {base64StdToUuid, uuidToBase64Std} from "./base64.js";
 import {uuidFormatter} from "./uuid-formatter.js";
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import { ulidToUuid, uuidToUlid } from './uuid-ulid.js';
 
 /**
  * Bit mask for signed integers.
@@ -278,6 +279,9 @@ export default class InputComponent extends React.Component {
             // If the input is of base64 type, convert it to standard base64 and back to base64.
             case TYPE_BASE64:
                 return btoa(atob(input));
+            // If the input is of ULID type, return it as is.
+            case TYPE_ULID:
+                return input;
         }
 
         // If the input is enclosed in curly braces, remove them.
@@ -306,19 +310,21 @@ export default class InputComponent extends React.Component {
 
         // Determine the type of the input and cast it to a UUID accordingly.
         switch (typeDetector(input)) {
-            // If the input is a byte array, cast it to a UUID using the bytesToUuid function.
+            // If the input is of bytes type, convert it to a UUID using the bytesToUuid function.
             case TYPE_BYTES:
                 return bytesToUuid(objectParse(input))
-            // If the input is a high-low pair of integers, cast it to a UUID using the uintsToUuid function.
-            // The function to use depends on the type of integers used (unsigned or signed).
+            // If the input is of high-low type, convert it to a UUID using the appropriate function based on integer type.
             case TYPE_HIGH_LOW:
                 const u = objectParse(input)
                 const fn = intType === SIGNED ? intsToUuid : uintsToUuid
 
                 return fn(u.high, u.low)
-            // If the input is a base64 string, cast it to a UUID using the base64StdToUuid function.
+            // If the input is of base64 type, convert it to a UUID using the base64StdToUuid function.
             case TYPE_BASE64:
                 return base64StdToUuid(input)
+            // If the input is of ULID type, convert it to a UUID using the ulidToUuid function.
+            case TYPE_ULID:
+                return ulidToUuid(input)
         }
 
         // If none of the above cases match, simply return the input as is.
@@ -338,13 +344,15 @@ export default class InputComponent extends React.Component {
             case TYPE_BYTES:
                 return uuidToBytesString(uuid); // Cast UUID to bytes string
             case TYPE_HIGH_LOW:
-                const u = intType === SIGNED ? uuidToInts(uuid) : uuidToUints(uuid); // Get UUID's high and low integers
-                return JSON.stringify(u); // Cast high and low integers to JSON
+                const u = intType === SIGNED ? uuidToInts(uuid) : uuidToUints(uuid) // Get UUID's high and low integers
+                return JSON.stringify(u) // Cast high and low integers to JSON
             case TYPE_BASE64:
-                return uuidToBase64Std(uuid); // Cast UUID to base64 standard string
+                return uuidToBase64Std(uuid) // Cast UUID to base64 standard string
+            case TYPE_ULID:
+                return uuidToUlid(uuid)
         }
 
-        return uuid; // Return UUID if no result type is specified
+        return uuid // Return UUID if no result type is specified
     }
 
     /**
