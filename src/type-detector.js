@@ -2,6 +2,7 @@
 
 import {base64StdToUuid} from "./base64.js";
 import {objectParse} from "./object-parser.js";
+import {isValid as isValidUlid} from './uuid-ulid.js';
 
 /**
  * Represents the type of UUID.
@@ -32,6 +33,13 @@ export const TYPE_BASE64 = 2 ** 2; // 0b0100
 export const TYPE_BYTES = 2 ** 3; // 0b1000
 
 /**
+ * Represents the type of UUID represented as ULID.
+ * 
+ * @type {number}
+ */
+export const TYPE_ULID = 2 ** 4;
+
+/**
  * Represents the length of a UUID string.
  *
  * A UUID is a 128-bit value represented as a 36-character string.
@@ -55,6 +63,7 @@ export function uuidTypeList() {
     list[TYPE_BASE64] = 'base64' // Base64 type
     list[TYPE_HIGH_LOW] = 'high-low' // High-low type
     list[TYPE_BYTES] = 'bytes' // Bytes type
+    list[TYPE_ULID] = 'ulid'
 
     // Return the list of UUID types and their names.
     return list
@@ -98,6 +107,11 @@ export function typeDetector(input) {
         }
     } catch (e) {
         // Do nothing if parsing fails.
+    }
+
+    // Check if the input can be parsed as a valid ULID.
+    if (isValidUlid(input.trim())) {
+        return TYPE_ULID;
     }
 
     // If parsing fails for both bytes-type and base64-type, return the default

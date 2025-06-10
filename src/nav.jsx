@@ -3,10 +3,11 @@ import "@theme-toggles/react/css/Expand.css"
 import { Expand } from "@theme-toggles/react"
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { v1, v4, v6, v7, NIL, MAX } from 'uuid';
+import { uuidToUlid } from "./uuid-ulid.js";
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 // Array of UUID types
-const uuidTypes = ['v1','v4', 'v6', 'v7', 'nil', 'max'];
+const uuidTypes = ['v1','v4', 'v6', 'v7', 'nil', 'max', 'ulid'];
 
 export default class NavComponent extends React.Component {
     /**
@@ -48,7 +49,8 @@ export default class NavComponent extends React.Component {
             'v6': v6(), // Generate a UUID using the SHA-256 hash function
             'v7': v7(), // Generate a UUID using the SHA-1 hash function
             'nil': NIL, // Generate a nil UUID
-            'max': MAX // Generate the maximum UUID
+            'max': MAX, // Generate the maximum UUID
+            'ulid': uuidToUlid(v7()), // Generate a ULID
         }[type];
 
         // Copy the generated UUID to the clipboard
