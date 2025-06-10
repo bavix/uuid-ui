@@ -342,7 +342,7 @@ export default class InputComponent extends React.Component {
 
         switch (resultType) {
             case TYPE_BYTES:
-                return uuidToBytesString(uuid) // Cast UUID to bytes string
+                return uuidToBytesString(uuid); // Cast UUID to bytes string
             case TYPE_HIGH_LOW:
                 const u = intType === SIGNED ? uuidToInts(uuid) : uuidToUints(uuid) // Get UUID's high and low integers
                 return JSON.stringify(u) // Cast high and low integers to JSON
