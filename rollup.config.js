@@ -40,7 +40,7 @@ export default {
             preventAssignment: true
         }),
         babel({
-            presets: ["@babel/preset-react", "minify"],
+            presets: ["@babel/preset-react"],
             plugins: ["@babel/plugin-transform-react-jsx"],
             babelHelpers: 'bundled'
         }),
