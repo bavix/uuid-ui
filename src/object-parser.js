@@ -1,8 +1,6 @@
 'use strict';
 
-const rg = /"?([a-zA-Z0-9]*)"?:/g
-const hlrg = /^(-?\d+)[;:,](-?\d+)$/
-const trg = /["']?(-?\d+)["']?/g
+import JSON5 from 'json5';
 
 /**
  * Parses a string representation of an object into a JavaScript object.
@@ -11,10 +9,13 @@ const trg = /["']?(-?\d+)["']?/g
  * @returns {Object} - The parsed object.
  */
 export function objectParse(val) {
+    const hlrg = /^(-?\d+)[;:,](-?\d+)$/
+    const trg = /["']?(-?\d+)["']?/g
+
     // If the string starts with '[', it is a JSON array and needs to be parsed.
     if (val[0] === '[') {
         // Replace all occurrences of numbers with the same number without quotes.
-        return JSON.parse(val.replace(trg, '$1'))
+        return JSON5.parse(val.replace(trg, '$1'))
     }
 
     // If the string matches the regular expression for a high-low pair, split it into an array.
@@ -30,7 +31,7 @@ export function objectParse(val) {
     }
 
     // Parse the string representation of the object.
-    const obj = JSON.parse(val.replace(trg, '"$1"').replace(rg, '"$1":'))
+    const obj = JSON5.parse(val.replace(trg, '"$1"'))
 
     // Return an object with the high and low properties.
     return {

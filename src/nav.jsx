@@ -136,7 +136,10 @@ export default class NavComponent extends React.Component {
                                         <p className="control">
                                             <span className="select is-link is-small">
                                                 {/* Dropdown menu for UUID types */}
-                                                <select onChange={(e) => setSelectedUuidType(e.target.value)}>
+                                                <select onChange={(e) => {
+                                                    setSelectedUuidType(e.target.value)
+                                                    this.generateUuid(e.target.value, setGeneratedUuid)
+                                                }}>
                                                     {uuidTypes.map(type => (
                                                         <option key={type} value={type} selected={selectedUuidType === type}>
                                                             {type}

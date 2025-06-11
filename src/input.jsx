@@ -1,10 +1,10 @@
 import React from 'react';
-import {TYPE_BASE64, TYPE_BYTES, TYPE_HIGH_LOW, TYPE_ULID, typeDetector, uuidTypeList} from "./type-detector.js";
-import {bytesToUuid, uuidToBytesString} from "./uuid-bytes.js";
-import {objectParse} from "./object-parser.js";
-import {intsToUuid, uintsToUuid, uuidToInts, uuidToUints} from "./uuid-high-low.js";
-import {base64StdToUuid, uuidToBase64Std} from "./base64.js";
-import {uuidFormatter} from "./uuid-formatter.js";
+import { TYPE_BASE64, TYPE_BYTES, TYPE_HIGH_LOW, TYPE_ULID, typeDetector, uuidTypeList } from "./type-detector.js";
+import { bytesToUuid, uuidToBytesString } from "./uuid-bytes.js";
+import { objectParse } from "./object-parser.js";
+import { intsToUuid, uintsToUuid, uuidToInts, uuidToUints } from "./uuid-high-low.js";
+import { base64StdToUuid, uuidToBase64Std } from "./base64.js";
+import { uuidFormatter } from "./uuid-formatter.js";
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import { ulidToUuid, uuidToUlid } from './uuid-ulid.js';
 
@@ -135,7 +135,7 @@ export default class InputComponent extends React.Component {
         const text = e.target.value
 
         // Update the component's state with the input text
-        this.setState({text})
+        this.setState({ text })
 
         // If the input text does not end with a newline character, return
         if (text[text.length - 1] !== "\n") {
@@ -147,21 +147,72 @@ export default class InputComponent extends React.Component {
     }
 
     /**
-     * Handles the keyboard input by splitting it into lines,
-     * removing empty lines and extra spaces, and then adding
-     * the lines as items to the component's list of items.
+     * Splits input text into logical blocks.
+     * If a line starts with '{', it reads lines until the closing '}' is found (not in comment).
+     * Other lines are added as-is. All comments inside JSON-like blocks are moved to the end.
      *
-     * @param {string} text - The input text from the keyboard.
+     * @param {string} text - Input text from keyboard.
      */
     handle = (text) => {
-        // Split the input text into lines
-        const lines = text.split("\n");
+        const lines = text.split('\n');
+        const result = [];
+        let i = 0;
 
-        // Remove empty lines and extra spaces from each line
-        const trimmedLines = lines.map(l => l.replace(rg, '').trim()).filter(l => l.length > 0);
+        while (i < lines.length) {
+            const line = lines[i];
 
-        // Add the trimmed lines as items to the component's list of items
-        this.addItems(trimmedLines);
+            if (line.trimStart().startsWith('{')) {
+                let block = '';
+                let openBraces = 0;
+                let j = i;
+
+                do {
+                    const currentLine = lines[j];
+                    block += currentLine;
+                    const lineWithoutComment = currentLine.split('//')[0];
+
+                    openBraces += (lineWithoutComment.match(/{/g) || []).length;
+                    openBraces -= (lineWithoutComment.match(/}/g) || []).length;
+
+                    j++;
+                    if (j < lines.length) block += '\n';
+
+                } while (j < lines.length && openBraces > 0);
+
+                result.push(this.moveCommentsToEnd(block));
+                i = j;
+            } else {
+                const trimmed = line.trim();
+                if (trimmed) result.push(trimmed);
+                i++;
+            }
+        }
+
+        this.addItems(result);
+    }
+
+    /**
+     * Moves all comments to the end of the block.
+     *
+     * @param {string} block
+     * @return {string}
+     */
+    moveCommentsToEnd(block) {
+        const lines = block.split('\n');
+        const comments = [];
+        const codeLines = [];
+
+        for (const line of lines) {
+            const idx = line.indexOf('//');
+            if (idx !== -1) {
+                codeLines.push(line.slice(0, idx).trimEnd());
+                comments.push(line.slice(idx + 2).trim());
+            } else {
+                codeLines.push(line.trimEnd());
+            }
+        }
+
+        return codeLines.join('\n') + (comments.length ? ` // ${comments.join(' ')}` : '');
     }
 
     /**
@@ -207,7 +258,7 @@ export default class InputComponent extends React.Component {
     newItem = (line) => {
         try {
             // Parse the line into input and comment.
-            const {input, comment} = this.parse(line)
+            const { input, comment } = this.parse(line)
 
             // Cast the input to a UUID and back to a string.
             const uuid = this.castToUuid(input)
@@ -254,10 +305,10 @@ export default class InputComponent extends React.Component {
         // If there is a comment, return an object with the input and comment.
         // Otherwise, return an object with just the input.
         if (results.length > 1) {
-            return {input: results[0].toString(), comment: results[1].toString()}
+            return { input: results[0].toString(), comment: results[1].toString() }
         }
 
-        return {input: results[0].toString(), comment: undefined}
+        return { input: results[0].toString(), comment: undefined }
     }
 
     /**
@@ -306,7 +357,7 @@ export default class InputComponent extends React.Component {
      * @return {string} The casted UUID.
      */
     castToUuid = (input) => {
-        const {intType} = this.state
+        const { intType } = this.state
 
         // Determine the type of the input and cast it to a UUID accordingly.
         switch (typeDetector(input)) {
@@ -338,7 +389,7 @@ export default class InputComponent extends React.Component {
      * @return {string|object} The casted UUID or the JSON representation of the UUID's high and low integers.
      */
     castFromUuid = (uuid) => {
-        const {resultType, intType} = this.state
+        const { resultType, intType } = this.state
 
         switch (resultType) {
             case TYPE_BYTES:
@@ -363,10 +414,10 @@ export default class InputComponent extends React.Component {
      */
     setResultType = async (type) => {
         // Get the current text from state
-        const {text} = this.state
+        const { text } = this.state
 
         // Set the result type in state
-        await this.setState({resultType: type})
+        await this.setState({ resultType: type })
 
         // Handle the input with the updated result type
         await this.handle(text)
@@ -379,10 +430,10 @@ export default class InputComponent extends React.Component {
      * @return {Promise<void>} A Promise that resolves when the integer type is set and the input is handled.
      */
     setIntType = async (type) => {
-        const {text} = this.state
+        const { text } = this.state
 
         // Set the integer type
-        await this.setState({intType: type})
+        await this.setState({ intType: type })
 
         // Handle the input with the new integer type
         await this.handle(text)
@@ -421,12 +472,15 @@ export default class InputComponent extends React.Component {
                         className="textarea"
                         onChange={this.onKeyboardInput}
                         placeholder={`Enter UUID. Input examples:
-0;0
+0;1 // comment
 {low: 0, high: 1}
 71a46cec-4809-4cc5-9689-5b0441b46186
 huW65O9YQDGzT16f+RTNVQ==
-0;1 // comment
 huW65O9YQDGzT16f+RTNVQ== //comment new
+{ // Begin comment
+    low: 0, // Lo UUID
+    high: 1, // Hi UUID
+} // End
 `}
                         rows="10"
                     ></textarea>
@@ -438,7 +492,7 @@ huW65O9YQDGzT16f+RTNVQ== //comment new
                         <label>Select result type:</label>
                         <div className="radios">
                             {/* Maps the uuid type list and renders the radio buttons */}
-                            { uuidTypeList().map((v, k) => (
+                            {uuidTypeList().map((v, k) => (
                                 <label className="b-radio radio">
                                     <input
                                         type="radio"
@@ -449,7 +503,7 @@ huW65O9YQDGzT16f+RTNVQ== //comment new
                                     <span class="check is-link"></span>
                                     <span class="control-label">{v}</span>
                                 </label>
-                            )) }
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -460,7 +514,7 @@ huW65O9YQDGzT16f+RTNVQ== //comment new
                         <label>Integer type:</label>
                         <div className="radios">
                             {/* Maps the integer type list and renders the radio buttons */}
-                            { intTypeList().map((v, k) => (
+                            {intTypeList().map((v, k) => (
                                 <label className="b-radio radio">
                                     <input
                                         type="radio"
@@ -471,7 +525,7 @@ huW65O9YQDGzT16f+RTNVQ== //comment new
                                     <span class="check is-info"></span>
                                     <span class="control-label">{v}</span>
                                 </label>
-                            )) }
+                            ))}
                         </div>
                     </div>
                 </div>
