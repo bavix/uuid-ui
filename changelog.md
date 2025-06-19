@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.5.2 - 2025-06-19
+
+### What's Changed
+
+* Bump [@rollup](https://github.com/rollup)/plugin-commonjs from 28.0.3 to 28.0.5 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/302
+* Bump [@rollup](https://github.com/rollup)/plugin-commonjs from 28.0.5 to 28.0.6 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/303
+* Bump rollup from 4.43.0 to 4.44.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/304
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.5.1...v1.5.2
+
 ## v1.5.1 - 2025-06-11
 
 ### What's Changed
