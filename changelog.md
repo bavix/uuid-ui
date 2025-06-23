@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.5.3 - 2025-06-23
+
+### What's Changed
+
+* Bump concurrently from 9.1.2 to 9.2.0 by [@dependabot](https://github.com/dependabot) in https://github.com/bavix/uuid-ui/pull/305
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.5.2...v1.5.3
+
 ## v1.5.2 - 2025-06-19
 
 ### What's Changed
