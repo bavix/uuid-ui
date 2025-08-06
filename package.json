@@ -45,7 +45,7 @@
     "rollup": "^4.45.1",
     "rollup-plugin-cleandir": "^3.0.0",
     "rollup-plugin-generate-html-template": "^1.7.0",
-    "rollup-plugin-import-css": "^4.0.1",
+    "rollup-plugin-import-css": "^4.0.2",
     "test": "^3.3.0",
     "uuid": "^11.1.0"
   }
