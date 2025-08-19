@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.5.4 - 2025-08-19
+
+### What's Changed
+
+* Bump [@babel](https://github.com/babel)/core from 7.27.4 to 7.27.7 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/307
+* Bump rollup from 4.44.0 to 4.44.1 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/306
+* Bump [@babel](https://github.com/babel)/core from 7.27.7 to 7.28.0 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/308
+* Bump rollup from 4.44.1 to 4.44.2 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/309
+* Bump rollup from 4.44.2 to 4.45.1 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/311
+* Bump rollup-plugin-import-css from 4.0.1 to 4.0.2 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/315
+* Bump preact from 10.26.9 to 10.27.0 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/313
+* Bump rollup from 4.45.1 to 4.46.2 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/314
+* Bump rollup from 4.46.2 to 4.46.3 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/318
+* Bump actions/checkout from 4 to 5 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/316
+* Bump [@babel](https://github.com/babel)/core from 7.28.0 to 7.28.3 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/317
+* Bump preact from 10.27.0 to 10.27.1 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/319
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.5.3...v1.5.4
+
 ## v1.5.3 - 2025-06-23
 
 ### What's Changed
