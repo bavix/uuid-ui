@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.5.5 - 2025-09-22
+
+### What's Changed
+
+* Bump rollup from 4.46.3 to 4.46.4 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/320
+* Bump rollup from 4.46.4 to 4.50.0 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/327
+* Bump concurrently from 9.2.0 to 9.2.1 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/325
+* Bump actions/upload-pages-artifact from 3 to 4 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/323
+* Bump bavix/.github from 0.3.3 to 0.4.0 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/328
+* Bump rollup from 4.50.0 to 4.50.1 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/331
+* Bump uuid from 11.1.0 to 12.0.0 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/330
+* Bump [@babel](https://github.com/babel)/core from 7.28.3 to 7.28.4 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/329
+* Bump uuid from 12.0.0 to 13.0.0 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/332
+* Bump rollup from 4.50.1 to 4.52.0 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/335
+* Bump preact from 10.27.1 to 10.27.2 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/333
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.5.4...v1.5.5
+
 ## v1.5.4 - 2025-08-19
 
 ### What's Changed
