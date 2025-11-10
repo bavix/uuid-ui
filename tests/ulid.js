@@ -1,5 +1,5 @@
 import assert from 'node:assert';
-import test from 'test';
+import test from 'node:test';
 import { isValid, ulidToUuid, uuidToUlid } from "../src/uuid-ulid.js";
 
 test('ULID validation', (t) => {

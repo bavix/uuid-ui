@@ -1,5 +1,5 @@
 import assert from 'node:assert';
-import test from 'test';
+import test from 'node:test';
 import {parse as uuidParse} from 'uuid';
 import {uuidToBytesString} from "../src/uuid-bytes.js";
 

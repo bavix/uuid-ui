@@ -1,5 +1,5 @@
 import assert from 'node:assert';
-import test from 'test';
+import test from 'node:test';
 import {base64StdToUuid, uuidToBase64Std} from "../src/base64.js";
 
 test('base64std', (t) => {
