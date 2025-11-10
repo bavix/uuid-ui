@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.6.1 - 2025-11-10
+
+### What's Changed
+
+* Refactor Dockerfile to build Go application with UPX compression and update Go version in go.mod to 1.25 by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/358
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.6.0...v1.6.1
+
 ## v1.6.0 - 2025-11-10
 
 ### What's Changed
