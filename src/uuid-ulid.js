@@ -1,9 +1,3 @@
-/**
- * Converts a ULID string to a UUID string.
- *
- * @param {string} input - The ULID string to convert.
- * @returns {string} The corresponding UUID string.
- */
 export function ulidToUuid(input) {
     try {
         const bytes = decodeBase32(input);
@@ -14,12 +8,6 @@ export function ulidToUuid(input) {
     return null;
 }
 
-/**
- * Converts a UUID string to a ULID string.
- *
- * @param {string} input - The UUID string to convert.
- * @returns {string} The corresponding ULID string.
- */
 export function uuidToUlid(input) {
     try {
         const bytes = parseUuidToBytes(input);
@@ -30,25 +18,14 @@ export function uuidToUlid(input) {
     return null;
 }
 
-/**
- * Validates if a string is a valid ULID.
- *
- * @param {string} input - The string to validate.
- * @returns {boolean} True if the input is a valid ULID, false otherwise.
- */
 export function isValid(input) {
     const ULID_REGEX = /^[0-7][0-9A-HJKMNP-TV-Z]{25}$/i;
 
     return typeof input === 'string' && ULID_REGEX.test(input.toUpperCase());
 }
 
-// === Internal helpers (not exported) ===
-
 const B32_CHARS = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
 
-/**
- * Decodes base32-encoded ULID into Uint8Array of bytes.
- */
 function decodeBase32(input) {
     let bits = 0;
     let value = 0;
@@ -76,9 +53,6 @@ function decodeBase32(input) {
     return new Uint8Array(bytes);
 }
 
-/**
- * Encodes a Uint8Array into Crockford base32 (ULID-compatible).
- */
 function encodeBase32(bytes) {
     const reversed = [...bytes].reverse();
 
@@ -104,9 +78,6 @@ function encodeBase32(bytes) {
     return output.map(b => B32_CHARS[b]).join('');
 }
 
-/**
- * Parses UUID string into Uint8Array of raw bytes.
- */
 function parseUuidToBytes(input) {
     const hex = input.toUpperCase().replace(/-/g, '');
     const bytes = [];
@@ -118,9 +89,6 @@ function parseUuidToBytes(input) {
     return new Uint8Array(bytes);
 }
 
-/**
- * Formats a Uint8Array as a standard UUID string.
- */
 function formatBytesAsUuid(bytes) {
     const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
     return (
