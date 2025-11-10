@@ -1,5 +1,5 @@
 import assert from 'node:assert';
-import test from 'test';
+import test from 'node:test';
 import {TYPE_BASE64, TYPE_BYTES, TYPE_HIGH_LOW, TYPE_UUID, typeDetector} from "../src/type-detector.js";
 import {uuidToBytesString} from "../src/uuid-bytes.js";
 import {uuidToUints} from "../src/uuid-high-low.js";

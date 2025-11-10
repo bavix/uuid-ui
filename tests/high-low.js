@@ -1,5 +1,5 @@
 import assert from 'node:assert';
-import test from 'test';
+import test from 'node:test';
 import {intsToUuid, uintsToUuid, uuidToInts, uuidToUints} from "../src/uuid-high-low.js";
 
 test('to-high-low-integer64', (t) => {
