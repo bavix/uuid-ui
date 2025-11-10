@@ -1,5 +1,29 @@
 # Changelog
 
+## v1.6.0 - 2025-11-10
+
+### What's Changed
+
+* Bump rollup from 4.52.0 to 4.52.4 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/339
+* Bump [@rollup](https://github.com/rollup)/plugin-node-resolve from 16.0.1 to 16.0.2 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/340
+* Bump [@rollup](https://github.com/rollup)/plugin-babel from 6.0.4 to 6.1.0 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/341
+* Bump [@rollup](https://github.com/rollup)/plugin-node-resolve from 16.0.2 to 16.0.3 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/342
+* Bump [@rollup](https://github.com/rollup)/plugin-commonjs from 28.0.6 to 28.0.7 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/343
+* Bump rollup-plugin-import-css from 4.0.2 to 4.1.0 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/349
+* Bump [@rollup](https://github.com/rollup)/plugin-commonjs from 28.0.7 to 28.0.9 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/348
+* Bump [@babel](https://github.com/babel)/core from 7.28.4 to 7.28.5 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/347
+* Bump rollup from 4.52.4 to 4.52.5 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/345
+* Bump [@babel](https://github.com/babel)/preset-react from 7.27.1 to 7.28.5 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/346
+* Bump [@rollup](https://github.com/rollup)/plugin-alias from 5.1.1 to 6.0.0 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/350
+* Bump [@rollup](https://github.com/rollup)/plugin-replace from 6.0.2 to 6.0.3 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/351
+* Bump [@rollup](https://github.com/rollup)/plugin-commonjs from 28.0.9 to 29.0.0 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/352
+* Bump rollup-plugin-import-css from 4.1.0 to 4.1.1 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/353
+* Bump rollup-plugin-import-css from 4.1.1 to 4.1.2 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/354
+* Refactor project by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/356
+* Idea author by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/357
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.5.5...v1.6.0
+
 ## v1.5.5 - 2025-09-22
 
 ### What's Changed
