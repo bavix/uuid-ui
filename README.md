@@ -20,9 +20,9 @@ npm run preview
 
 Docker:
 ```sh
-docker run -p 8080:80 -d bavix/uuid-ui
+docker run -p 8080:8080 -d bavix/uuid-ui
 ```
 or
 ```sh
-docker run -p 8080:80 -d ghcr.io/bavix/uuid-ui
+docker run -p 8080:8080 -d ghcr.io/bavix/uuid-ui
 ```
