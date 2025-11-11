@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 @layer base {
   body {
@@ -116,11 +114,11 @@
   }
 
   .custom-radio input[type="radio"]:focus + .radio-check {
-    @apply ring-2 ring-gray-400 dark:ring-gray-500 ring-opacity-50;
+    @apply ring-2 ring-gray-400/50 dark:ring-gray-500/50;
   }
 
   .custom-radio input[type="radio"]:focus:checked + .radio-check {
-    @apply ring-2 ring-teal-400 ring-opacity-50;
+    @apply ring-2 ring-teal-400/50;
   }
 
   .custom-radio input[type="radio"]:focus:checked + .radio-check.radio-link {
@@ -436,8 +434,10 @@
 }
 
 .footer-brand {
-  @apply font-bold bg-clip-text text-transparent gradient-animate;
+  @apply font-bold bg-clip-text text-transparent;
   background-image: linear-gradient(to right, rgb(37, 99, 235), rgb(147, 51, 234), rgb(219, 39, 119));
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
 }
 
 .footer-text {
