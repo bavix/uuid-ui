@@ -26,7 +26,7 @@
   "dependencies": {
     "@theme-toggles/react": "^4.1.0",
     "@preact/preset-vite": "^2.10.2",
-    "autoprefixer": "^10.4.17",
+    "autoprefixer": "^10.4.22",
     "json5": "^2.2.3",
     "postcss": "^8.4.33",
     "preact": "^10.27.2",
