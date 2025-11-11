@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.6.2 - 2025-11-11
+
+### What's Changed
+
+* Update package dependencies and PostCSS configuration to use Tailwind CSS 4.1.17 and Sonner 2.0.7, while removing deprecated autoprefixer usage. by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/362
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.6.1...v1.6.2
+
 ## v1.6.1 - 2025-11-10
 
 ### What's Changed
