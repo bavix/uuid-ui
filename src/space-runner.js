@@ -119,6 +119,7 @@ export default function SpaceRunner({ onClose }) {
   const [scoreFlash, setScoreFlash] = useState(0);
   const [lives, setLives] = useState(3);
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const containerRef = useRef(null);
   const [gameWidth, setGameWidth] = useState(600);
@@ -205,16 +206,67 @@ export default function SpaceRunner({ onClose }) {
     return () => observer.disconnect();
   }, []);
 
+  const toggleFullscreen = useCallback(() => {
+    if (!containerRef.current) return;
+
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen().then(() => {
+        setIsFullscreen(true);
+        setTimeout(() => {
+          if (containerRef.current) {
+            setGameWidth(window.innerWidth);
+            setGameHeight(window.innerHeight);
+          }
+        }, 100);
+      }).catch((err) => {
+        console.error('Error attempting to enable fullscreen:', err);
+      });
+    } else {
+      document.exitFullscreen().then(() => {
+        setIsFullscreen(false);
+      }).catch((err) => {
+        console.error('Error attempting to exit fullscreen:', err);
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isNowFullscreen = !!document.fullscreenElement;
+      setIsFullscreen(isNowFullscreen);
+      if (containerRef.current) {
+        if (isNowFullscreen) {
+          setGameWidth(window.innerWidth);
+          setGameHeight(window.innerHeight);
+        } else {
+          const rect = containerRef.current.getBoundingClientRect();
+          setGameWidth(Math.max(500, rect.width - 16));
+          setGameHeight(Math.max(400, rect.height - 60));
+        }
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
   useEffect(() => {
     const updateSize = () => {
       if (containerRef.current) {
         const rect = containerRef.current.getBoundingClientRect();
-        const newWidth = Math.max(500, rect.width - 16);
-        const newHeight = Math.max(400, rect.height - 60);
-        setGameWidth(newWidth);
-        setGameHeight(newHeight);
+        if (isFullscreen) {
+          setGameWidth(window.innerWidth);
+          setGameHeight(window.innerHeight);
+        } else {
+          const newWidth = Math.max(500, rect.width - 16);
+          const newHeight = Math.max(400, rect.height - 60);
+          setGameWidth(newWidth);
+          setGameHeight(newHeight);
+        }
         if (!gameStarted) {
-          playerRef.current.y = newHeight / 2;
+          playerRef.current.y = isFullscreen ? window.innerHeight / 2 : (rect.height - 60) / 2;
         }
       }
     };
@@ -225,7 +277,7 @@ export default function SpaceRunner({ onClose }) {
       clearTimeout(timer);
       window.removeEventListener('resize', updateSize);
     };
-  }, [gameStarted]);
+  }, [gameStarted, isFullscreen]);
 
   const resetGame = useCallback(() => {
     playerRef.current = { x: 50, y: gameHeight / 2 };
@@ -2050,28 +2102,72 @@ export default function SpaceRunner({ onClose }) {
   }, [isHyperspeed]);
 
   return (
-    <div ref={containerRef} className="w-full h-full flex flex-col relative m-0 p-0">
-      <button
-        onClick={onClose}
-        className="absolute top-1 right-1 z-50 w-6 h-6 flex items-center justify-center rounded-lg bg-gray-800/80 dark:bg-gray-700/80 hover:bg-gray-700 dark:hover:bg-gray-600 text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-gray-200 transition-all hover:scale-110 active:scale-95 shadow-lg backdrop-blur-sm"
-        aria-label="Close game"
-        title="Close game"
-      >
-        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
+    <div 
+      ref={containerRef} 
+      className={`w-full h-full flex flex-col relative m-0 p-0 ${isFullscreen ? 'fixed inset-0' : ''}`}
+      style={isFullscreen ? { width: '100vw', height: '100vh', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 } : {}}
+    >
+      <div className="absolute top-1 right-1 z-[10000] flex flex-col items-end gap-1">
+        <button
+          onClick={onClose}
+          className="w-6 h-6 flex items-center justify-center rounded-lg bg-gray-800/80 dark:bg-gray-700/80 hover:bg-gray-700 dark:hover:bg-gray-600 text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-gray-200 transition-all hover:scale-110 active:scale-95 shadow-lg backdrop-blur-sm"
+          aria-label="Close game"
+          title="Close game"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <button
+          onClick={toggleFullscreen}
+          className="w-6 h-6 flex items-center justify-center rounded-lg bg-gray-800/80 dark:bg-gray-700/80 hover:bg-gray-700 dark:hover:bg-gray-600 text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-gray-200 transition-all hover:scale-110 active:scale-95 shadow-lg backdrop-blur-sm"
+          aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+        >
+          {isFullscreen ? (
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />
+            </svg>
+          ) : (
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
+          )}
+        </button>
+      </div>
 
-      <div className="flex-1 flex items-center justify-center min-h-0 w-full h-full m-0 p-0 relative">
+      <div className={`flex items-center justify-center m-0 p-0 relative ${isFullscreen ? 'absolute inset-0 w-full h-full' : 'flex-1 min-h-0 w-full h-full'}`}>
         <canvas
           ref={bgCanvasRef}
           className="cursor-pointer m-0 p-0"
-          style={{ imageRendering: 'pixelated', width: '100%', height: '100%', maxWidth: '100%', maxHeight: '100%', display: 'block', filter: 'none' }}
+          style={{ 
+            imageRendering: 'pixelated', 
+            width: isFullscreen ? '100vw' : '100%', 
+            height: isFullscreen ? '100vh' : '100%', 
+            maxWidth: '100%', 
+            maxHeight: '100%', 
+            display: 'block', 
+            filter: 'none',
+            position: isFullscreen ? 'absolute' : 'relative',
+            top: isFullscreen ? 0 : 'auto',
+            left: isFullscreen ? 0 : 'auto'
+          }}
         />
         <canvas
           ref={canvasRef}
           className="cursor-pointer m-0 p-0"
-          style={{ imageRendering: 'pixelated', width: '100%', height: '100%', maxWidth: '100%', maxHeight: '100%', display: 'block', filter: 'none' }}
+          style={{ 
+            imageRendering: 'pixelated', 
+            width: isFullscreen ? '100vw' : '100%', 
+            height: isFullscreen ? '100vh' : '100%', 
+            maxWidth: '100%', 
+            maxHeight: '100%', 
+            display: 'block', 
+            filter: 'none',
+            position: isFullscreen ? 'absolute' : 'relative',
+            top: isFullscreen ? 0 : 'auto',
+            left: isFullscreen ? 0 : 'auto'
+          }}
         />
       </div>
     </div>
