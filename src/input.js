@@ -88,7 +88,7 @@ export default class InputComponent extends React.Component {
                 do {
                     const currentLine = lines[j];
                     block += currentLine;
-                    const lineWithoutComment = currentLine.split('//')[0];
+                    const lineWithoutComment = this.removeComment(currentLine);
 
                     openBraces += (lineWithoutComment.match(/{/g) || []).length;
                     openBraces -= (lineWithoutComment.match(/}/g) || []).length;
@@ -110,16 +110,61 @@ export default class InputComponent extends React.Component {
         this.addItems(result);
     }
 
+    removeComment(line) {
+        const idxDoubleSlash = line.indexOf('//');
+        const idxHash = line.indexOf('#');
+        
+        if (idxDoubleSlash === -1 && idxHash === -1) {
+            return line;
+        }
+        
+        if (idxDoubleSlash === -1) {
+            return line.slice(0, idxHash);
+        }
+        
+        if (idxHash === -1) {
+            return line.slice(0, idxDoubleSlash);
+        }
+        
+        // Use the one that appears first
+        return line.slice(0, Math.min(idxDoubleSlash, idxHash));
+    }
+
+    extractComment(line) {
+        const idxDoubleSlash = line.indexOf('//');
+        const idxHash = line.indexOf('#');
+        
+        if (idxDoubleSlash === -1 && idxHash === -1) {
+            return null;
+        }
+        
+        if (idxDoubleSlash === -1) {
+            return line.slice(idxHash + 1).trim();
+        }
+        
+        if (idxHash === -1) {
+            return line.slice(idxDoubleSlash + 2).trim();
+        }
+        
+        // Use the one that appears first
+        const firstIdx = Math.min(idxDoubleSlash, idxHash);
+        if (firstIdx === idxDoubleSlash) {
+            return line.slice(idxDoubleSlash + 2).trim();
+        } else {
+            return line.slice(idxHash + 1).trim();
+        }
+    }
+
     moveCommentsToEnd(block) {
         const lines = block.split('\n');
         const comments = [];
         const codeLines = [];
 
         for (const line of lines) {
-            const idx = line.indexOf('//');
-            if (idx !== -1) {
-                codeLines.push(line.slice(0, idx).trimEnd());
-                comments.push(line.slice(idx + 2).trim());
+            const comment = this.extractComment(line);
+            if (comment !== null) {
+                codeLines.push(this.removeComment(line).trimEnd());
+                comments.push(comment);
             } else {
                 codeLines.push(line.trimEnd());
             }
@@ -176,13 +221,14 @@ export default class InputComponent extends React.Component {
     }
 
     parse = (line) => {
-        let results = line.split("//").map(s => s.trim().replace(/,$/g, '').trimRight())
+        const comment = this.extractComment(line);
+        const input = this.removeComment(line).trim().replace(/,$/g, '').trimRight();
 
-        if (results.length > 1) {
-            return { input: results[0].toString(), comment: results[1].toString() }
+        if (comment !== null) {
+            return { input: input.toString(), comment: comment.toString() }
         }
 
-        return { input: results[0].toString(), comment: undefined }
+        return { input: input.toString(), comment: undefined }
     }
 
     normalize = (input) => {
@@ -410,13 +456,15 @@ export default class InputComponent extends React.Component {
                         aria-label="UUID input field"
                         placeholder={`Enter UUID. Input examples:
 0;1 // comment
+0;1 # comment
 {low: 0, high: 1}
 71a46cec-4809-4cc5-9689-5b0441b46186
 huW65O9YQDGzT16f+RTNVQ==
 huW65O9YQDGzT16f+RTNVQ== //comment new
+huW65O9YQDGzT16f+RTNVQ== # comment new
 { // Begin comment
     low: 0, // Lo UUID
-    high: 1, // Hi UUID
+    high: 1, # Hi UUID
 } // End
 `}
                         rows="15"

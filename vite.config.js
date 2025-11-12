@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
-import { copyFileSync, rmSync, readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { copyFileSync, rmSync, readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync } from 'fs';
+import { join } from 'path';
 import preact from '@preact/preset-vite';
 
 export default defineConfig({
@@ -24,13 +25,76 @@ export default defineConfig({
     {
       name: 'clean-assets',
       buildStart() {
-        const assetsDir = '../public/assets';
+        const assetsDir = resolve(__dirname, 'public/assets');
+        const publicDir = resolve(__dirname, 'public');
+        
         if (existsSync(assetsDir)) {
           try {
-            rmSync(assetsDir, { recursive: true, force: true });
-            mkdirSync(assetsDir, { recursive: true });
+            console.log('Cleaning assets directory...');
+            const files = readdirSync(assetsDir);
+            let removedCount = 0;
+            files.forEach(file => {
+              const filePath = join(assetsDir, file);
+              try {
+                const stat = statSync(filePath);
+                if (stat.isFile() || stat.isDirectory()) {
+                  rmSync(filePath, { recursive: true, force: true });
+                  removedCount++;
+                }
+              } catch (e) {
+                console.warn(`Failed to remove ${file}:`, e);
+              }
+            });
+            if (removedCount > 0) {
+              console.log(`Removed ${removedCount} file(s) from assets directory`);
+            }
           } catch (e) {
             console.warn('Failed to clean assets directory:', e);
+            try {
+              rmSync(assetsDir, { recursive: true, force: true });
+              mkdirSync(assetsDir, { recursive: true });
+              console.log('Recreated assets directory');
+            } catch (e2) {
+              console.error('Failed to recreate assets directory:', e2);
+            }
+          }
+        } else {
+          mkdirSync(assetsDir, { recursive: true });
+        }
+        
+        if (existsSync(publicDir)) {
+          try {
+            const files = readdirSync(publicDir);
+            files.forEach(file => {
+              const filePath = join(publicDir, file);
+              const stat = statSync(filePath);
+              
+              if (stat.isFile() && (
+                (file.startsWith('bundle-') && file.endsWith('.js')) ||
+                (file.startsWith('index-') && file.endsWith('.js')) ||
+                (file.endsWith('.map') && !file.includes('assets')) ||
+                (file.endsWith('.css') && file.includes('index') && !file.includes('assets'))
+              )) {
+                try {
+                  rmSync(filePath, { force: true });
+                  console.log(`Removed old file: ${file}`);
+                } catch (e) {
+                  console.warn(`Failed to remove ${file}:`, e);
+                }
+              }
+            });
+          } catch (e) {
+            console.warn('Failed to clean old build files:', e);
+          }
+        }
+        
+        const srcDir = resolve(__dirname, 'public/src');
+        if (existsSync(srcDir)) {
+          try {
+            rmSync(srcDir, { recursive: true, force: true });
+            console.log('Removed old src directory');
+          } catch (e) {
+            console.warn('Failed to clean src directory:', e);
           }
         }
       }
@@ -39,13 +103,11 @@ export default defineConfig({
       name: 'move-html',
       closeBundle() {
         try {
-          let htmlContent = readFileSync('../public/src/index.html', 'utf-8');
-          // Fix paths from ../assets/ to ./assets/
+          let htmlContent = readFileSync(resolve(__dirname, 'public/src/index.html'), 'utf-8');
           htmlContent = htmlContent.replace(/\.\.\/assets\//g, './assets/');
-          writeFileSync('../public/index.html', htmlContent);
-          rmSync('../public/src', { recursive: true, force: true });
+          writeFileSync(resolve(__dirname, 'public/index.html'), htmlContent);
+          rmSync(resolve(__dirname, 'public/src'), { recursive: true, force: true });
         } catch (e) {
-          // Ignore errors if files don't exist
         }
       }
     }
@@ -59,7 +121,7 @@ export default defineConfig({
     }
   },
   build: {
-    outDir: '../public',
+    outDir: resolve(__dirname, 'public'),
     emptyOutDir: false,
     copyPublicDir: false,
     rollupOptions: {

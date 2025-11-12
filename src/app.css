@@ -160,16 +160,27 @@
   }
 
   .tooltip {
-    @apply fixed z-[9999] px-3 py-2 text-xs font-medium rounded-lg shadow-xl pointer-events-none whitespace-normal max-w-xs;
-    @apply opacity-0 invisible transition-opacity duration-200;
+    @apply fixed z-[9999] pointer-events-none whitespace-normal;
+    @apply opacity-0 invisible transition-all duration-200;
+    padding: 8px 10px;
+    font-size: 11px;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(8px);
   }
 
   .tooltip-light {
-    @apply bg-gray-900 text-white;
+    background: rgb(17, 24, 39);
+    color: rgb(249, 250, 251);
+    border: 1px solid rgba(75, 85, 99, 0.6);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
   }
 
   .tooltip-dark {
-    @apply bg-white text-gray-900 border border-gray-300 shadow-2xl;
+    background: rgb(255, 255, 255);
+    color: rgb(3, 7, 18);
+    border: 1px solid rgba(209, 213, 219, 0.8);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
   }
 
   .tooltip::after {
@@ -183,6 +194,10 @@
 
   .tooltip-bottom::after {
     @apply top-0 left-1/2 -translate-x-1/2 -translate-y-1/2;
+  }
+
+  .favorite-filter-tag:not(.favorite-filter-tag-active) {
+    border: 1px solid var(--tag-border-color, currentColor);
   }
 
   .tooltip-light::after {
@@ -207,11 +222,11 @@
     border-bottom-right-radius: 0.75rem;
   }
 
-  .history-item:nth-child(even) {
+  .history-item:nth-child(odd) {
     @apply bg-gray-100 hover:bg-gray-200;
   }
 
-  .history-item:nth-child(odd) {
+  .history-item:nth-child(even) {
     @apply bg-white hover:bg-gray-50;
   }
 
@@ -220,35 +235,38 @@
   }
 
   .history-label {
-    @apply text-[9px] font-medium uppercase tracking-wider text-gray-600;
+    @apply text-[9px] font-medium uppercase tracking-wider;
+    color: rgb(17, 24, 39);
   }
 
   .history-type-badge {
     @apply text-[9px] px-1.5 py-0.5 rounded font-semibold bg-gray-200;
+    color: rgb(3, 7, 18);
   }
 
   .history-type-badge.type-ulid {
-    @apply text-purple-600;
+    color: rgb(126, 34, 206);
   }
 
   .history-type-badge.type-uuid {
-    @apply text-green-600;
+    color: rgb(22, 163, 74);
   }
 
   .history-type-badge.type-base64 {
-    @apply text-yellow-600;
+    color: rgb(202, 138, 4);
   }
 
   .history-type-badge.type-highlow {
-    @apply text-blue-600;
+    color: rgb(37, 99, 235);
   }
 
   .history-type-badge.type-bytes {
-    @apply text-indigo-600;
+    color: rgb(79, 70, 229);
   }
 
   .history-value-button {
-    @apply w-full px-3 py-2 text-xs font-mono border rounded-lg transition-all cursor-pointer flex items-center gap-2 relative bg-white text-gray-900 border-gray-200 hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm;
+    @apply w-full px-3 py-2 text-xs font-mono border rounded-lg transition-all cursor-pointer flex items-center gap-2 relative bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm;
+    color: rgb(3, 7, 18);
   }
 
   .history-info-icon {
@@ -282,6 +300,7 @@
     flex-direction: column;
     height: fit-content;
     overflow: hidden;
+    color: rgb(3, 7, 18);
   }
 
   .history-container.game-expanded {
@@ -315,7 +334,17 @@
   }
 
   .history-header {
-    @apply px-5 py-4 rounded-t-xl flex items-center justify-between text-gray-900;
+    @apply px-5 py-4 rounded-t-xl flex items-center justify-between;
+    color: rgb(3, 7, 18);
+  }
+  
+  .history-header-title {
+    color: rgb(3, 7, 18);
+  }
+
+  .history-count-badge {
+    background-color: rgb(37, 99, 235);
+    color: rgb(255, 255, 255);
   }
 
   .history-divider {
@@ -413,6 +442,15 @@
 
 .dark .history-header {
   color: rgb(243, 244, 246);
+}
+
+.dark .history-header-title {
+  color: rgb(243, 244, 246);
+}
+
+.dark .history-count-badge {
+  background-color: rgba(30, 64, 175, 0.4);
+  color: rgb(147, 197, 253);
 }
 
 .dark .history-divider {
