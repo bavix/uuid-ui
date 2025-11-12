@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.7.0 - 2025-11-12
+
+### What's Changed
+
+* Enhance asset management and favorites functionality in the app by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/363
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.6.2...v1.7.0
+
 ## v1.6.2 - 2025-11-11
 
 ### What's Changed
