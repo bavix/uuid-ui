@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.7.1 - 2025-11-12
+
+### What's Changed
+
+* Update project description in InputComponent to clarify that it is provided "as is" and that updates will be made only when necessary by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/364
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.7.0...v1.7.1
+
 ## v1.7.0 - 2025-11-12
 
 ### What's Changed
