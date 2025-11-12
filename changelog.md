@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.7.2 - 2025-11-12
+
+### What's Changed
+
+* Add fullscreen functionality to SpaceRunner component by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/365
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.7.1...v1.7.2
+
 ## v1.7.1 - 2025-11-12
 
 ### What's Changed
