@@ -8,7 +8,7 @@ jobs:
   ui:
     permissions:
       contents: write
-    uses: bavix/.github/.github/workflows/compile-assets.yml@0.4.0
+    uses: bavix/.github/.github/workflows/compile-assets.yml@0.4.1
     secrets: inherit
     with:
       nodejs: 22.x
