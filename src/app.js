@@ -292,6 +292,33 @@ export default class AppComponent extends React.Component {
         }
     }
 
+    restoreFromGist = (restoredItems, restoredFavorites) => {
+        const items = (restoredItems || []).map(item => {
+            return new Item(
+                item.input || '',
+                item.output || '',
+                item.info || ''
+            );
+        });
+
+        const favorites = {};
+        for (const [listName, listItems] of Object.entries(restoredFavorites || {})) {
+            if (Array.isArray(listItems) && listItems.length > 0) {
+                favorites[listName] = listItems.map(item => 
+                    new Item(
+                        item.input || '',
+                        item.output || '',
+                        item.info || ''
+                    )
+                );
+            }
+        }
+
+        this.setState({ items, favorites }, () => {
+            this.saveFavoritesToStorage(favorites);
+        });
+    }
+
     render() {
         const [isToggled, setToggle] = useState(() => {
             try {
@@ -319,7 +346,13 @@ export default class AppComponent extends React.Component {
                     closeButton
                     theme={isToggled ? "dark" : "light"}
                 />
-                <NavComponent isToggled={isToggled} setToggle={setToggle} />
+                <NavComponent 
+                    isToggled={isToggled} 
+                    setToggle={setToggle}
+                    items={items}
+                    favorites={this.state.favorites}
+                    onRestore={this.restoreFromGist}
+                />
                 <div className={`container mx-auto py-6 max-w-7xl px-4 ${isToggled ? 'text-gray-100' : 'text-gray-900'}`}>
                     <div className="flex flex-col lg:flex-row">
                         <div className="w-full lg:w-3/5 flex-shrink-0" id="input-cp">

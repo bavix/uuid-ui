@@ -6,6 +6,8 @@ import { Expand } from "@theme-toggles/react"
 import { v1, v4, v6, v7, NIL, MAX } from 'uuid';
 import { uuidToUlid } from "./uuid-ulid.js";
 import { createConfetti, spinElement } from './effects.js';
+import GistSyncModal from './gist-sync-modal.js';
+import { getGistToken } from './gist-sync.js';
 
 const uuidTypes = ['v1','v4', 'v6', 'v7', 'nil', 'max', 'ulid'];
 
@@ -17,6 +19,9 @@ export default class NavComponent extends React.Component {
         this.lastGenerateClick = null;
         this.lastSpinTime = 0;
         this.spinThrottle = 200;
+        this.state = {
+            showSyncModal: false
+        };
     }
     
     handleToggle = (value) => {
@@ -242,6 +247,20 @@ export default class NavComponent extends React.Component {
                                 </div>
                                 
                                 <div className="ml-auto flex items-center">
+                                    <button
+                                        onClick={() => this.setState({ showSyncModal: true })}
+                                        className={`p-2 mr-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center ${
+                                            isToggled
+                                                ? 'bg-gray-800/50 hover:bg-gray-700/50 text-gray-200'
+                                                : 'bg-white hover:bg-gray-50 text-gray-700'
+                                        } ${getGistToken() ? 'text-green-500' : ''}`}
+                                        aria-label="Sync with GitHub Gist"
+                                        title="Sync with GitHub Gist"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                    </button>
                                     <a
                                         href="https://github.com/bavix/uuid-ui"
                                         target="_blank"
@@ -274,6 +293,14 @@ export default class NavComponent extends React.Component {
                             </div>
                         </div>
                     </div>
+                    <GistSyncModal
+                        isOpen={this.state.showSyncModal}
+                        onClose={() => this.setState({ showSyncModal: false })}
+                        items={this.props.items}
+                        favorites={this.props.favorites}
+                        onRestore={this.props.onRestore}
+                        isToggled={isToggled}
+                    />
                 </nav>
         );
     }
