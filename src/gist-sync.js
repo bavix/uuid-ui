@@ -1,6 +1,8 @@
 const GIST_API_URL = 'https://api.github.com/gists';
 const GIST_FILENAME = 'uuid-ui-data.json';
 const GIST_DESCRIPTION = 'UUID UI - Sync Data';
+const GITHUB_API_VERSION = '2022-11-28';
+const MAX_ITEMS = 100;
 
 /**
  * GistSync class handles syncing UUID UI data to/from GitHub Gists
@@ -18,7 +20,7 @@ export class GistSync {
       'Authorization': `Bearer ${this.token}`,
       'Accept': 'application/vnd.github+json',
       'Content-Type': 'application/json',
-      'X-GitHub-Api-Version': '2022-11-28'
+      'X-GitHub-Api-Version': GITHUB_API_VERSION
     };
   }
 
@@ -33,7 +35,7 @@ export class GistSync {
     return {
       version: 1,
       timestamp,
-      items: items.slice(0, 100).map(item => ({
+      items: items.slice(0, MAX_ITEMS).map(item => ({
         input: item.input,
         output: item.output,
         info: item.info || ''

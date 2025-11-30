@@ -87,12 +87,12 @@ export default function GistSyncModal({
     setIsSyncing(true);
     try {
       const gistSync = new GistSync(savedToken);
-      const gist = await gistSync.syncToGist(items, favorites);
+      await gistSync.syncToGist(items, favorites);
       const timestamp = new Date().toISOString();
       saveLastSyncTimestamp(timestamp);
       setLastSync(timestamp);
       toast.success('Synced to GitHub Gist', {
-        description: `Data saved to gist: ${gist.id.substring(0, 8)}...`
+        description: 'Your data has been saved successfully'
       });
     } catch (error) {
       toast.error('Sync failed', {

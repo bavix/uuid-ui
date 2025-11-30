@@ -20,8 +20,22 @@ export default class NavComponent extends React.Component {
         this.lastSpinTime = 0;
         this.spinThrottle = 200;
         this.state = {
-            showSyncModal: false
+            showSyncModal: false,
+            isGistConnected: !!getGistToken()
         };
+    }
+
+    componentDidMount() {
+        this.checkGistConnection();
+    }
+
+    checkGistConnection = () => {
+        this.setState({ isGistConnected: !!getGistToken() });
+    }
+
+    handleSyncModalClose = () => {
+        this.setState({ showSyncModal: false });
+        this.checkGistConnection();
     }
     
     handleToggle = (value) => {
@@ -253,7 +267,7 @@ export default class NavComponent extends React.Component {
                                             isToggled
                                                 ? 'bg-gray-800/50 hover:bg-gray-700/50 text-gray-200'
                                                 : 'bg-white hover:bg-gray-50 text-gray-700'
-                                        } ${getGistToken() ? 'text-green-500' : ''}`}
+                                        } ${this.state.isGistConnected ? 'text-green-500' : ''}`}
                                         aria-label="Sync with GitHub Gist"
                                         title="Sync with GitHub Gist"
                                     >
@@ -295,7 +309,7 @@ export default class NavComponent extends React.Component {
                     </div>
                     <GistSyncModal
                         isOpen={this.state.showSyncModal}
-                        onClose={() => this.setState({ showSyncModal: false })}
+                        onClose={this.handleSyncModalClose}
                         items={this.props.items}
                         favorites={this.props.favorites}
                         onRestore={this.props.onRestore}
