@@ -24,7 +24,7 @@
   "author": "Maksim Babichev",
   "license": "MIT",
   "dependencies": {
-    "@preact/preset-vite": "^2.10.2",
+    "@preact/preset-vite": "^2.10.3",
     "@tailwindcss/postcss": "^4.1.18",
     "@theme-toggles/react": "^4.1.0",
     "json5": "^2.2.3",
