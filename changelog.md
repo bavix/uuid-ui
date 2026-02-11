@@ -1,5 +1,27 @@
 # Changelog
 
+## v1.7.3 - 2026-02-11
+
+### What's Changed
+
+* Bump bavix/.github/.github/workflows/go-release-binary.yml from 0.4.0 to 0.4.1 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/371
+* Bump bavix/.github/.github/workflows/npm-test.yml from 0.4.0 to 0.4.1 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/369
+* Bump bavix/.github/.github/workflows/compile-assets.yml from 0.4.0 to 0.4.1 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/368
+* Bump actions/checkout from 5 to 6 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/367
+* Bump vite from 7.2.2 to 7.2.4 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/366
+* Bump bavix/.github/.github/workflows/changelog.yml from 0.4.0 to 0.4.1 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/370
+* Add GitHub link to NavComponent for project visibility by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/372
+* Bump vite from 7.2.4 to 7.2.6 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/375
+* Bump vite from 7.2.6 to 7.3.0 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/380
+* Bump [@tailwindcss](https://github.com/tailwindcss)/postcss from 4.1.17 to 4.1.18 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/379
+* Bump tailwindcss from 4.1.17 to 4.1.18 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/378
+* Bump preact from 10.27.2 to 10.28.0 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/376
+* Bump golang from 1.25-alpine to 1.26-alpine by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/383
+* Bump [@preact](https://github.com/preact)/preset-vite from 2.10.2 to 2.10.3 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/382
+* Bump vite from 7.3.0 to 7.3.1 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/381
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.7.2...v1.7.3
+
 ## v1.7.2 - 2025-11-12
 
 ### What's Changed
