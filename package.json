@@ -29,7 +29,7 @@
     "@theme-toggles/react": "^4.1.0",
     "json5": "^2.2.3",
     "postcss": "^8.4.33",
-    "preact": "^10.28.2",
+    "preact": "^10.28.3",
     "sonner": "^2.0.7",
     "tailwindcss": "^4.1.18",
     "uuid": "^13.0.0",
