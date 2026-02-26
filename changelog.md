@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.7.4 - 2026-02-26
+
+### What's Changed
+
+* Bump preact from 10.28.2 to 10.28.3 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/384
+* Bump preact from 10.28.3 to 10.28.4 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/387
+* Bump tailwindcss from 4.1.18 to 4.2.1 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/388
+* Bump [@tailwindcss](https://github.com/tailwindcss)/postcss from 4.1.18 to 4.2.0 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/385
+* Bump rollup from 4.53.2 to 4.59.0 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/389
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.7.3...v1.7.4
+
 ## v1.7.3 - 2026-02-11
 
 ### What's Changed
