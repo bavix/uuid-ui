@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.7.5 - 2026-03-11
+
+### What's Changed
+
+* Bump preact from 10.28.4 to 10.29.0 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/396
+* Bump docker/build-push-action from 6 to 7 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/395
+* Bump docker/metadata-action from 5 to 6 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/394
+* Bump docker/setup-buildx-action from 3 to 4 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/393
+* Bump docker/setup-qemu-action from 3 to 4 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/392
+* Bump docker/login-action from 3 to 4 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/391
+* Bump postcss from 8.5.6 to 8.5.8 by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/390
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.7.4...v1.7.5
+
 ## v1.7.4 - 2026-02-26
 
 ### What's Changed
