@@ -4,19 +4,45 @@ updates:
     directory: /
     schedule:
       interval: daily
+    groups:
+      npm:
+        patterns:
+          - "*"
     open-pull-requests-limit: 10
+    commit-message:
+      prefix: "chore(go-deps)"
+  # Node.js dependencies (docs / tooling)
   - package-ecosystem: npm
-    directory: "/"
+    directory: /
     schedule:
       interval: daily
+    groups:
+      npm:
+        patterns:
+          - "*"
     open-pull-requests-limit: 10
+    commit-message:
+      prefix: "chore(npm-deps)"
+  # GitHub Actions
   - package-ecosystem: github-actions
-    directory: "/"
+    directory: /
     schedule:
       interval: daily
+    groups:
+      actions:
+        patterns:
+          - "*"
     open-pull-requests-limit: 10
+    commit-message:
+      prefix: "ci(deps)"
   - package-ecosystem: docker
     directory: "/"
     schedule:
       interval: daily
+    groups:
+      npm:
+        patterns:
+          - "*"
     open-pull-requests-limit: 10
+    commit-message:
+      prefix: "ci(docker)"
