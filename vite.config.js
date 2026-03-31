@@ -8,18 +8,6 @@ export default defineConfig({
   root: 'src',
   base: './',
   publicDir: '../public',
-  esbuild: {
-    loader: 'jsx',
-    include: /.*\.js$/,
-    exclude: []
-  },
-  optimizeDeps: {
-    esbuildOptions: {
-      loader: {
-        '.js': 'jsx'
-      }
-    }
-  },
   plugins: [
     preact(),
     {
