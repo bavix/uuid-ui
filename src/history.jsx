@@ -9,7 +9,7 @@ import {
   TYPE_BYTES,
   typeDetector,
 } from './type-detector';
-import SpaceRunner from './space-runner.js';
+import SpaceRunner from './space-runner.jsx';
 
 const TYPE_LABELS = {
   [TYPE_ULID]: 'ULID',

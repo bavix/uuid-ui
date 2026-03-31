@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'preact/hooks';
 import React from 'preact/compat';
 import { Toaster } from 'sonner';
-import InputComponent, {Item} from "./input.js"
-import HistoryComponent from "./history.js"
-import NavComponent from './nav.js'
+import InputComponent, {Item} from "./input.jsx"
+import HistoryComponent from "./history.jsx"
+import NavComponent from './nav.jsx'
 import './app.css'
 
 export default class AppComponent extends React.Component {

@@ -1,5 +1,5 @@
 import { render } from 'preact';
-import AppComponent from "./app.js";
+import AppComponent from "./app.jsx";
 
 render(
     <AppComponent />,
