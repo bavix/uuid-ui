@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.7.6 - 2026-03-31
+
+### What's Changed
+
+* dependabot by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/407
+* ci(deps): bump the actions group with 6 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/408
+* chore(ci): bump nodejs by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/410
+* chore(npm-deps): vite8 by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/411
+* chore(npm-deps): bump the npm group across 1 directory with 2 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/412
+* chore(npm-deps): bump picomatch by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/413
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.7.5...v1.7.6
+
 ## v1.7.5 - 2026-03-11
 
 ### What's Changed
