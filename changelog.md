@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.7.7 - 2026-04-02
+
+### What's Changed
+
+* chore(npm-deps): bump baseline-browser-mapping from 2.10.12 to 2.10.13 in the npm group by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/414
+* chore(npm-deps): bump esbuild from 0.27.4 to 0.27.5 in the npm group by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/415
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.7.6...v1.7.7
+
 ## v1.7.6 - 2026-03-31
 
 ### What's Changed
