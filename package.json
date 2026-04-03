@@ -37,6 +37,6 @@
   },
   "devDependencies": {
     "baseline-browser-mapping": "^2.10.13",
-    "esbuild": "^0.27.5"
+    "esbuild": "^0.28.0"
   }
 }
