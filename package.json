@@ -25,7 +25,7 @@
   "license": "MIT",
   "dependencies": {
     "@preact/preset-vite": "^2.10.5",
-    "@tailwindcss/postcss": "^4.3.0",
+    "@tailwindcss/postcss": "^4.3.1",
     "@theme-toggles/react": "^4.1.0",
     "json5": "^2.2.3",
     "postcss": "^8.5.15",
@@ -36,7 +36,7 @@
     "vite": "^8.0.16"
   },
   "devDependencies": {
-    "baseline-browser-mapping": "^2.10.36",
+    "baseline-browser-mapping": "^2.10.37",
     "esbuild": "^0.28.1"
   }
 }
