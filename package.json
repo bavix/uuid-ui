@@ -28,7 +28,7 @@
     "@tailwindcss/postcss": "^4.3.2",
     "@theme-toggles/react": "^4.1.0",
     "json5": "^2.2.3",
-    "postcss": "^8.5.18",
+    "postcss": "^8.5.19",
     "preact": "^10.29.7",
     "sonner": "^2.0.7",
     "tailwindcss": "^4.2.1",
