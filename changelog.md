@@ -1,5 +1,34 @@
 # Changelog
 
+## v1.7.8 - 2026-08-05
+
+### What's Changed
+
+* chore(npm-deps): bump the npm group across 1 directory with 5 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/419
+* chore(npm-deps): bump vite from 8.0.7 to 8.0.8 in the npm group by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/420
+* ci(deps): bump actions/upload-pages-artifact from 4 to 5 in the actions group by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/422
+* chore(npm-deps): bump the npm group across 1 directory with 2 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/423
+* chore(npm-deps): bump the npm group with 3 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/424
+* chore(npm-deps): bump the npm group across 1 directory with 5 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/427
+* chore(npm-deps): bump baseline-browser-mapping from 2.10.23 to 2.10.24 in the npm group by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/428
+* chore(npm-deps): bump postcss from 8.5.12 to 8.5.13 in the npm group by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/429
+* chore(npm-deps): bump the npm group across 1 directory with 6 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/434
+* chore(npm-deps): bump the npm group with 2 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/435
+* chore(npm-deps): bump the npm group across 1 directory with 2 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/437
+* chore(npm-deps): bump the npm group across 1 directory with 3 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/439
+* chore(npm-deps): bump the npm group across 1 directory with 7 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/445
+* ci(deps): bump actions/checkout from 6 to 7 in the actions group by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/441
+* chore(npm-deps): bump the npm group across 1 directory with 4 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/447
+* chore(npm-deps): bump the npm group across 1 directory with 3 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/449
+* chore(npm-deps): bump the npm group with 2 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/450
+* chore(npm-deps): bump postcss from 8.5.18 to 8.5.19 in the npm group by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/451
+* chore(npm-deps): bump the npm group across 1 directory with 5 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/453
+* chore(npm-deps): bump the npm group across 1 directory with 2 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/455
+* chore(npm-deps): bump the npm group across 1 directory with 3 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/458
+* chore(npm-deps): bump the npm group with 2 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/459
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.7.7...v1.7.8
+
 ## v1.7.7 - 2026-04-02
 
 ### What's Changed
