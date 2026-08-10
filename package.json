@@ -28,12 +28,12 @@
     "@tailwindcss/postcss": "^4.3.3",
     "@theme-toggles/react": "^4.1.0",
     "json5": "^2.2.3",
-    "postcss": "^8.5.25",
+    "postcss": "^8.5.26",
     "preact": "^10.29.8",
     "sonner": "^2.0.7",
     "tailwindcss": "^4.2.1",
     "uuid": "^14.0.1",
-    "vite": "^8.2.0"
+    "vite": "^8.2.1"
   },
   "devDependencies": {
     "baseline-browser-mapping": "^2.11.12",
