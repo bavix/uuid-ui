@@ -251,12 +251,20 @@ export default class HistoryComponent extends React.Component {
   };
 
   // Preact mounts the element, the browser opens it: showModal is what makes
-  // it modal, and it must run once the node exists.
+  // it modal, and it must run once the node exists. Dismissing on a backdrop
+  // click is wired here too, next to the rest of the native dialog behaviour:
+  // it is a mouse shortcut for what Escape and the Close button already do, so
+  // it belongs with them rather than as a lone click handler in the markup.
   openTagDialog = (node) => {
     this.tagDialog = node;
 
     if (node && !node.open) {
       node.showModal();
+      node.addEventListener('click', (e) => {
+        if (e.target === node) {
+          this.closeTagPopup();
+        }
+      });
     }
   }
 
@@ -1142,7 +1150,6 @@ export default class HistoryComponent extends React.Component {
               aria-labelledby="tag-dialog-title"
               className="modal-panel"
               onClose={this.closeTagPopup}
-              onClick={(e) => { if (e.target === e.currentTarget) { this.closeTagPopup(); } }}
             >
               <div className="modal-head">
                 <div>

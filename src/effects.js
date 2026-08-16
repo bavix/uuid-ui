@@ -1,13 +1,15 @@
+import { randomFloat, randomInt, randomPick, randomRange } from './random.js';
+
 export function createConfetti(x, y, colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F']) {
     const confettiCount = 30;
     const confetti = [];
     
     for (let i = 0; i < confettiCount; i++) {
         const element = document.createElement('div');
-        const color = colors[Math.floor(Math.random() * colors.length)];
-        const size = Math.random() * 8 + 4;
-        const angle = Math.random() * Math.PI * 2;
-        const velocity = Math.random() * 8 + 4;
+        const color = randomPick(colors);
+        const size = randomRange(4, 12);
+        const angle = randomFloat() * Math.PI * 2;
+        const velocity = randomRange(4, 12);
         
         element.style.position = 'fixed';
         element.style.left = `${x}px`;
@@ -26,8 +28,8 @@ export function createConfetti(x, y, colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', 
         
         const vx = Math.cos(angle) * velocity;
         const vy = Math.sin(angle) * velocity - 5;
-        const rotation = Math.random() * 360;
-        const rotationSpeed = (Math.random() - 0.5) * 8;
+        const rotation = randomFloat() * 360;
+        const rotationSpeed = (randomFloat() - 0.5) * 8;
         
         let posX = x;
         let posY = y;
@@ -60,7 +62,7 @@ export function createConfetti(x, y, colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', 
 }
 
 export function startNumberGuessingGame(onComplete) {
-    const targetNumber = Math.floor(Math.random() * 100) + 1;
+    const targetNumber = randomInt(100) + 1;
     const maxAttempts = 7;
     let attempts = 0;
 
@@ -191,8 +193,8 @@ export function shakeElement(selector, intensity = 10, duration = 500) {
     const animate = () => {
         const elapsed = Date.now() - startTime;
         if (elapsed < duration) {
-            const shakeX = (Math.random() - 0.5) * intensity;
-            const shakeY = (Math.random() - 0.5) * intensity;
+            const shakeX = (randomFloat() - 0.5) * intensity;
+            const shakeY = (randomFloat() - 0.5) * intensity;
             element.style.transform = `translate(${shakeX}px, ${shakeY}px)`;
             requestAnimationFrame(animate);
         } else {
@@ -390,7 +392,7 @@ export function uuidRain(duration = 6000) {
     const glyphs = '0123456789abcdef-';
     const step = 14;
     const columns = Math.ceil(window.innerWidth / step);
-    const drops = Array.from({ length: columns }, () => Math.random() * -40);
+    const drops = Array.from({ length: columns }, () => randomFloat() * -40);
 
     const startedAt = Date.now();
     let frame = null;
@@ -408,8 +410,8 @@ export function uuidRain(duration = 6000) {
             : `rgba(15,118,110,${0.75 * fading})`;
 
         for (let i = 0; i < columns; i++) {
-            ctx.fillText(glyphs[Math.floor(Math.random() * glyphs.length)], i * step, drops[i] * step);
-            drops[i] = drops[i] * step > window.innerHeight && Math.random() > 0.975 ? 0 : drops[i] + 1;
+            ctx.fillText(randomPick(glyphs), i * step, drops[i] * step);
+            drops[i] = drops[i] * step > window.innerHeight && randomFloat() > 0.975 ? 0 : drops[i] + 1;
         }
 
         if (elapsed < duration) {
