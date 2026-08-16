@@ -1,4 +1,10 @@
+import {uuidToBytes} from "./uuid-bytes.js";
+
 export function ulidToUuid(input) {
+    if (!isValid(input)) {
+        return null;
+    }
+
     try {
         const bytes = decodeBase32(input);
         return formatBytesAsUuid(bytes);
@@ -9,8 +15,14 @@ export function ulidToUuid(input) {
 }
 
 export function uuidToUlid(input) {
+    // Without this, a non-hex "uuid" decoded to NaN bytes and encoded to a
+    // plausible-looking all-zero ULID.
+    const bytes = uuidToBytes(input);
+    if (bytes === null) {
+        return null;
+    }
+
     try {
-        const bytes = parseUuidToBytes(input);
         return encodeBase32(bytes);
     } catch (error) {
         console.error(error);
@@ -76,17 +88,6 @@ function encodeBase32(bytes) {
     }
 
     return output.map(b => B32_CHARS[b]).join('');
-}
-
-function parseUuidToBytes(input) {
-    const hex = input.toUpperCase().replace(/-/g, '');
-    const bytes = [];
-
-    for (let i = 0; i < hex.length; i += 2) {
-        bytes.push(parseInt(hex.substring(i, i + 2), 16));
-    }
-
-    return new Uint8Array(bytes);
 }
 
 function formatBytesAsUuid(bytes) {

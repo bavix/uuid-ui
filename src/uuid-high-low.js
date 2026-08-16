@@ -2,8 +2,25 @@
 
 import {bytesToUuid, uuidToBytes} from "./uuid-bytes.js";
 
+function toBigIntBytes(input) {
+    const bytes = uuidToBytes(input)
+    if (bytes === null) {
+        return null
+    }
+
+    return bytes.map(i => BigInt(i))
+}
+
+function toBigInt(value) {
+    try {
+        return BigInt(value)
+    } catch (e) {
+        return null
+    }
+}
+
 export function uuidToInts(input) {
-    const v = uuidToBytes(input).map(i => BigInt(i))
+    const v = toBigIntBytes(input)
     if (v === null) {
         return null
     }
@@ -21,28 +38,34 @@ export function uuidToInts(input) {
 }
 
 export function intsToUuid(high, low) {
+    const h = toBigInt(high)
+    const l = toBigInt(low)
+    if (h === null || l === null) {
+        return null
+    }
+
     return bytesToUuid([
-        BigInt(high) & BigInt(0xff),
-        BigInt(high) >> BigInt(8) & BigInt(0xff),
-        BigInt(high) >> BigInt(16) & BigInt(0xff),
-        BigInt(high) >> BigInt(24) & BigInt(0xff),
-        BigInt(high) >> BigInt(32) & BigInt(0xff),
-        BigInt(high) >> BigInt(40) & BigInt(0xff),
-        BigInt(high) >> BigInt(48) & BigInt(0xff),
-        BigInt(high) >> BigInt(56) & BigInt(0xff),
-        BigInt(low) & BigInt(0xff),
-        BigInt(low) >> BigInt(8) & BigInt(0xff),
-        BigInt(low) >> BigInt(16) & BigInt(0xff),
-        BigInt(low) >> BigInt(24) & BigInt(0xff),
-        BigInt(low) >> BigInt(32) & BigInt(0xff),
-        BigInt(low) >> BigInt(40) & BigInt(0xff),
-        BigInt(low) >> BigInt(48) & BigInt(0xff),
-        BigInt(low) >> BigInt(56) & BigInt(0xff),
+        h & BigInt(0xff),
+        h >> BigInt(8) & BigInt(0xff),
+        h >> BigInt(16) & BigInt(0xff),
+        h >> BigInt(24) & BigInt(0xff),
+        h >> BigInt(32) & BigInt(0xff),
+        h >> BigInt(40) & BigInt(0xff),
+        h >> BigInt(48) & BigInt(0xff),
+        h >> BigInt(56) & BigInt(0xff),
+        l & BigInt(0xff),
+        l >> BigInt(8) & BigInt(0xff),
+        l >> BigInt(16) & BigInt(0xff),
+        l >> BigInt(24) & BigInt(0xff),
+        l >> BigInt(32) & BigInt(0xff),
+        l >> BigInt(40) & BigInt(0xff),
+        l >> BigInt(48) & BigInt(0xff),
+        l >> BigInt(56) & BigInt(0xff),
     ])
 }
 
 export function uuidToUints(input) {
-    const v = uuidToBytes(input).map(i => BigInt(i))
+    const v = toBigIntBytes(input)
     if (v === null) {
         return null
     }
@@ -64,22 +87,28 @@ export function uuidToUints(input) {
 }
 
 export function uintsToUuid(high, low) {
+    const h = toBigInt(high)
+    const l = toBigInt(low)
+    if (h === null || l === null) {
+        return null
+    }
+
     return bytesToUuid([
-        BigInt(high) >> BigInt(56) & BigInt(0xff),
-        BigInt(high) >> BigInt(48) & BigInt(0xff),
-        BigInt(high) >> BigInt(40) & BigInt(0xff),
-        BigInt(high) >> BigInt(32) & BigInt(0xff),
-        BigInt(high) >> BigInt(24) & BigInt(0xff),
-        BigInt(high) >> BigInt(16) & BigInt(0xff),
-        BigInt(high) >> BigInt(8) & BigInt(0xff),
-        BigInt(high) & BigInt(0xff),
-        BigInt(low) >> BigInt(56) & BigInt(0xff),
-        BigInt(low) >> BigInt(48) & BigInt(0xff),
-        BigInt(low) >> BigInt(40) & BigInt(0xff),
-        BigInt(low) >> BigInt(32) & BigInt(0xff),
-        BigInt(low) >> BigInt(24) & BigInt(0xff),
-        BigInt(low) >> BigInt(16) & BigInt(0xff),
-        BigInt(low) >> BigInt(8) & BigInt(0xff),
-        BigInt(low) & BigInt(0xff),
+        h >> BigInt(56) & BigInt(0xff),
+        h >> BigInt(48) & BigInt(0xff),
+        h >> BigInt(40) & BigInt(0xff),
+        h >> BigInt(32) & BigInt(0xff),
+        h >> BigInt(24) & BigInt(0xff),
+        h >> BigInt(16) & BigInt(0xff),
+        h >> BigInt(8) & BigInt(0xff),
+        h & BigInt(0xff),
+        l >> BigInt(56) & BigInt(0xff),
+        l >> BigInt(48) & BigInt(0xff),
+        l >> BigInt(40) & BigInt(0xff),
+        l >> BigInt(32) & BigInt(0xff),
+        l >> BigInt(24) & BigInt(0xff),
+        l >> BigInt(16) & BigInt(0xff),
+        l >> BigInt(8) & BigInt(0xff),
+        l & BigInt(0xff),
     ])
 }

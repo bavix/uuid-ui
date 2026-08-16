@@ -1,12 +1,122 @@
 @import "tailwindcss";
 
+/*
+ * The app toggles a .dark class on <html>, but Tailwind v4 does not read
+ * darkMode:'class' out of tailwind.config.js — every dark: utility was keying
+ * off the OS setting instead, so a light page rendered dark-mode text colours.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * One scale, one set of surfaces. Before this the whole page ran on 12/14/16/18px
+ * — a 1.5:1 range — so the answer and the question carried identical weight.
+ */
+:root {
+  /* Tells the browser which way to paint scrollbars, form controls, spell-check
+     underlines and autofill — the parts of the page CSS never reaches. */
+  color-scheme: light;
+
+  /* Format hues. The one idea in here that is actually about identifiers, so
+     it drives the surfaces instead of hiding in an 11px badge. */
+  /* Five hues far enough apart to be told apart at 11px and at a 7% tint:
+     teal, orange, violet, blue, rose. Yellow and indigo are gone — the first
+     went muddy over white, the second was a second blue. */
+  --fmt-uuid: rgb(17, 94, 89);
+  --fmt-base64: rgb(154, 52, 18);
+  --fmt-ulid: rgb(109, 40, 217);
+  --fmt-highlow: rgb(30, 64, 175);
+  --fmt-bytes: rgb(190, 24, 93);
+  /* Four 32-bit words: a cousin of high/low, one step round the wheel. */
+  --fmt-words: rgb(6, 95, 70);
+  --fmt: var(--fmt-highlow);
+
+  --ui-2xs: 0.6875rem; /* 11px - labels, badges */
+  --ui-xs: 0.75rem;    /* 12px - secondary values */
+  --ui-sm: 0.8125rem;  /* 13px - controls */
+  --ui-base: 0.875rem; /* 14px - the answer */
+  --ui-lg: 1.0625rem;  /* 17px - panel titles */
+
+  --surface: rgb(255, 255, 255);
+  --surface-sunken: rgb(249, 250, 251);
+  --surface-raised: rgb(255, 255, 255);
+  --line: rgb(229, 231, 235);
+  --line-strong: rgb(209, 213, 219);
+  --ink: rgb(3, 7, 18);
+  --ink-muted: rgb(75, 85, 99);
+  --ink-muted-chip: rgb(75, 85, 99);
+  --accent: rgb(29, 78, 216);
+
+  /* The bit grid: one hue per role, so "fixed" and "random" are not a legend
+     you have to keep in your head. */
+  --bit-off: rgb(229, 231, 235);
+  --bit-random: rgb(15, 118, 110);
+  --bit-fixed: rgb(154, 52, 18);
+  --bit-time: rgb(30, 64, 175);
+  --bit-clock: rgb(190, 24, 93);
+  --bit-node: rgb(109, 40, 217);
+  --accent-soft: rgb(239, 246, 255);
+}
+
+.dark {
+  color-scheme: dark;
+
+  /* One step brighter than the light-theme mirror: on a tinted badge over a
+     grey row the 300-level hues only reached 3.2-3.9:1. */
+  --fmt-uuid: rgb(153, 246, 228);
+  --fmt-base64: rgb(254, 215, 170);
+  --fmt-ulid: rgb(221, 214, 254);
+  --fmt-highlow: rgb(191, 219, 254);
+  --fmt-bytes: rgb(251, 207, 232);
+  --fmt-words: rgb(167, 243, 208);
+
+  --surface: rgb(17, 24, 39);
+  --surface-sunken: rgb(24, 32, 46);
+  --surface-raised: rgb(31, 41, 55);
+  --line: rgb(55, 65, 81);
+  --line-strong: rgb(75, 85, 99);
+  --ink: rgb(243, 244, 246);
+  --ink-muted: rgb(156, 163, 175);
+  --ink-muted-chip: rgb(175, 182, 196);
+  --accent: rgb(147, 197, 253);
+
+  --bit-off: rgb(55, 65, 81);
+  --bit-random: rgb(94, 234, 212);
+  --bit-fixed: rgb(253, 186, 116);
+  --bit-time: rgb(147, 197, 253);
+  --bit-clock: rgb(251, 207, 232);
+  --bit-node: rgb(221, 214, 254);
+  --accent-soft: rgba(30, 58, 138, 0.35);
+}
+
 @layer base {
   body {
-    @apply flex min-h-screen flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors;
+    @apply flex min-h-screen flex-col transition-colors;
+    /* Driven by the tokens rather than by a bg-white/dark:bg-gray-900 pair:
+       the page canvas must not depend on which utility Tailwind emits last. */
+    background-color: var(--surface);
+    color: var(--ink);
   }
 
   #app {
     @apply flex flex-col flex-1;
+  }
+
+  /* The browser surfaces this design never drew, themed from the palette. */
+  ::selection {
+    background: var(--accent-soft);
+    color: var(--ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  textarea,
+  input,
+  select {
+    caret-color: var(--accent);
   }
 }
 
@@ -73,7 +183,7 @@
   }
 
   .custom-radio .radio-check {
-    @apply flex flex-shrink-0 relative cursor-pointer w-5 h-5 transition-all duration-150 rounded-full border-2 border-gray-500 dark:border-gray-400;
+    @apply flex shrink-0 relative cursor-pointer w-5 h-5 transition-all duration-150 rounded-full border-2 border-gray-500 dark:border-gray-400;
   }
 
   .custom-radio .radio-check.radio-link {
@@ -113,19 +223,19 @@
     @apply bg-blue-500;
   }
 
-  .custom-radio input[type="radio"]:focus + .radio-check {
+  .custom-radio input[type="radio"]:focus-visible + .radio-check {
     @apply ring-2 ring-gray-400/50 dark:ring-gray-500/50;
   }
 
-  .custom-radio input[type="radio"]:focus:checked + .radio-check {
+  .custom-radio input[type="radio"]:focus-visible:checked + .radio-check {
     @apply ring-2 ring-teal-400/50;
   }
 
-  .custom-radio input[type="radio"]:focus:checked + .radio-check.radio-link {
+  .custom-radio input[type="radio"]:focus-visible:checked + .radio-check.radio-link {
     @apply ring-blue-400;
   }
 
-  .custom-radio input[type="radio"]:focus:checked + .radio-check.radio-info {
+  .custom-radio input[type="radio"]:focus-visible:checked + .radio-check.radio-info {
     @apply ring-blue-400;
   }
 
@@ -169,18 +279,19 @@
     backdrop-filter: blur(8px);
   }
 
-  .tooltip-light {
-    background: rgb(17, 24, 39);
-    color: rgb(249, 250, 251);
-    border: 1px solid rgba(75, 85, 99, 0.6);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+  /*
+   * One themed tooltip. The old pair was inverted (.tooltip-dark painted white)
+   * and `dark:tooltip-light` generated no CSS at all, so it was white in both themes.
+   */
+  .tooltip {
+    background: var(--surface-raised);
+    color: var(--ink);
+    border: 1px solid var(--line-strong);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
   }
 
-  .tooltip-dark {
-    background: rgb(255, 255, 255);
-    color: rgb(3, 7, 18);
-    border: 1px solid rgba(209, 213, 219, 0.8);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+  .dark .tooltip {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.35);
   }
 
   .tooltip::after {
@@ -200,16 +311,14 @@
     border: 1px solid var(--tag-border-color, currentColor);
   }
 
-  .tooltip-light::after {
-    @apply bg-gray-900;
-  }
-
-  .tooltip-dark::after {
-    @apply bg-white border-r border-b border-gray-300;
+  .tooltip::after {
+    background: var(--surface-raised);
+    border-right: 1px solid var(--line-strong);
+    border-bottom: 1px solid var(--line-strong);
   }
 
   .history-item {
-    @apply pl-4 pr-3 py-2.5 relative transition-colors;
+    @apply pl-4 pr-3 py-2 relative transition-colors;
   }
 
   .history-content > div > .history-item:first-child {
@@ -239,63 +348,147 @@
     color: rgb(17, 24, 39);
   }
 
+  .type-uuid { --fmt: var(--fmt-uuid); }
+  .type-base64 { --fmt: var(--fmt-base64); }
+  .type-ulid { --fmt: var(--fmt-ulid); }
+  .type-highlow { --fmt: var(--fmt-highlow); }
+  .type-bytes { --fmt: var(--fmt-bytes); }
+  .type-words { --fmt: var(--fmt-words); }
+
   .history-type-badge {
     @apply text-[9px] px-1.5 py-0.5 rounded font-semibold bg-gray-200;
     color: rgb(3, 7, 18);
   }
 
-  .history-type-badge.type-ulid {
-    color: rgb(126, 34, 206);
+  .history-type-badge[class*="type-"] {
+    color: var(--fmt);
+    background-color: color-mix(in oklab, var(--fmt) 14%, transparent);
   }
 
-  .history-type-badge.type-uuid {
-    color: rgb(22, 163, 74);
+  .history-info-icon[class*="type-"] {
+    color: var(--fmt);
   }
 
-  .history-type-badge.type-base64 {
-    color: rgb(202, 138, 4);
+  /* A finding about the value, standing next to what the value is. */
+  .history-marker-badge {
+    @apply text-[9px] px-1.5 py-0.5 rounded-full font-semibold uppercase tracking-wider;
+    border: 1px solid currentColor;
+    background: transparent;
   }
 
-  .history-type-badge.type-highlow {
-    color: rgb(37, 99, 235);
+  .history-marker-badge.marker-nil {
+    color: rgb(75, 85, 99);
   }
 
-  .history-type-badge.type-bytes {
-    color: rgb(79, 70, 229);
+  .dark .history-marker-badge.marker-nil {
+    color: rgb(209, 213, 219);
+  }
+
+  .history-marker-badge.marker-max {
+    color: var(--fmt);
+  }
+
+  .history-marker-badge.marker-word {
+    color: rgb(180, 83, 9);
+  }
+
+  .dark .history-marker-badge.marker-word {
+    color: rgb(252, 211, 77);
+  }
+
+  .history-marker-badge.marker-palindrome {
+    color: var(--fmt);
+  }
+
+  /* Shaped like a UUID, but not one by the standard's own rules. */
+  .history-marker-badge.marker-non-rfc {
+    color: rgb(180, 83, 9);
+  }
+
+  .dark .history-marker-badge.marker-non-rfc {
+    color: rgb(252, 211, 77);
+  }
+
+  /* Its clock points somewhere it should not. */
+  .history-marker-badge.marker-time-traveler {
+    color: rgb(157, 23, 77);
+  }
+
+  .dark .history-marker-badge.marker-time-traveler {
+    color: rgb(249, 168, 212);
+  }
+
+  /* Not a finding about the value, a fact about how it was read. */
+  .history-marker-badge.marker-int {
+    @apply lowercase tracking-normal;
+    /* Muted ink is calibrated against the page surface; this chip sits on the
+       line colour, which is lighter, and dark theme fell to 4.06:1 there. */
+    color: var(--ink-muted-chip);
+    border-style: dashed;
   }
 
   .history-value-button {
-    @apply w-full px-3 py-2 text-xs font-mono border rounded-lg transition-all cursor-pointer flex items-center gap-2 relative bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm;
+    @apply w-full px-3 py-1.5 text-xs font-mono border rounded-lg transition-all cursor-pointer flex items-center gap-2 relative bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300 hover:shadow-sm;
     color: rgb(3, 7, 18);
+  }
+
+  /*
+   * The answer and the source used to be the same control down to the pixel,
+   * with a 9px label as the only difference. The result now carries the hue of
+   * the format it is in — the same language as its badge — so the two are told
+   * apart without changing a single measurement.
+   */
+  .history-value-button.is-output {
+    background-color: color-mix(in oklab, var(--fmt) 7%, rgb(255, 255, 255));
+    border-color: color-mix(in oklab, var(--fmt) 28%, transparent);
+  }
+
+  /*
+   * The all-zero and all-one identifiers, the two values the standard names.
+   * Nil sinks into the surface, max is lit from its own edge.
+   */
+  .history-value-button.is-nil {
+    background-color: color-mix(in oklab, rgb(3, 7, 18) 10%, var(--surface));
+    border-color: color-mix(in oklab, rgb(3, 7, 18) 28%, transparent);
+    box-shadow: inset 0 0 14px color-mix(in oklab, rgb(3, 7, 18) 16%, transparent);
+  }
+
+  .dark .history-value-button.is-nil {
+    background-color: rgb(3, 7, 18);
+    border-color: rgb(55, 65, 81);
+    box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.9);
+  }
+
+  .history-value-button.is-max {
+    border-color: color-mix(in oklab, var(--fmt) 60%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--fmt) 25%, transparent),
+                0 0 16px color-mix(in oklab, var(--fmt) 28%, transparent);
+  }
+
+  /* Hex folklore: deadbeef and friends, written in their own warmth. */
+  .history-value-button.is-word {
+    border-color: rgb(217, 119, 6);
+    box-shadow: 0 0 0 1px rgba(217, 119, 6, 0.25), 0 0 14px rgba(217, 119, 6, 0.22);
+  }
+
+  /* Reads the same from either end, and is lit from both. */
+  .history-value-button.is-palindrome {
+    border-color: color-mix(in oklab, var(--fmt) 45%, transparent);
+    box-shadow: inset 6px 0 12px -8px var(--fmt), inset -6px 0 12px -8px var(--fmt);
+  }
+
+  .history-value-button.is-output:hover {
+    background-color: color-mix(in oklab, var(--fmt) 12%, rgb(255, 255, 255));
+    border-color: color-mix(in oklab, var(--fmt) 45%, transparent);
   }
 
   .history-info-icon {
     @apply w-3.5 h-3.5 opacity-80;
   }
 
-  .history-info-icon.type-ulid {
-    @apply text-purple-600;
-  }
-
-  .history-info-icon.type-uuid {
-    @apply text-green-600;
-  }
-
-  .history-info-icon.type-base64 {
-    @apply text-yellow-600;
-  }
-
-  .history-info-icon.type-highlow {
-    @apply text-blue-600;
-  }
-
-  .history-info-icon.type-bytes {
-    @apply text-indigo-600;
-  }
-
   .history-container {
     @apply rounded-xl shadow-md border bg-white border-gray-200 w-full max-w-full;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
     display: flex;
     flex-direction: column;
     height: fit-content;
@@ -316,7 +509,6 @@
   }
 
   .history-content {
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
     padding: 0;
@@ -334,12 +526,21 @@
   }
 
   .history-header {
-    @apply px-5 py-4 rounded-t-xl flex items-center justify-between;
+    @apply px-5 py-4 rounded-t-xl flex items-center justify-between gap-3;
     color: rgb(3, 7, 18);
   }
   
   .history-header-title {
     color: rgb(3, 7, 18);
+  }
+
+  /* Names the contract the rows below were produced under. */
+  .history-target {
+    font-size: var(--ui-2xs);
+    @apply font-semibold uppercase tracking-wider px-2 py-0.5 rounded;
+    background-color: color-mix(in oklab, var(--fmt) 12%, transparent);
+    color: var(--fmt);
+    border: 1px solid color-mix(in oklab, var(--fmt) 35%, transparent);
   }
 
   .history-count-badge {
@@ -380,24 +581,10 @@
   background-color: rgba(75, 85, 99, 0.9);
 }
 
-.dark .history-type-badge.type-ulid {
-  color: rgb(196, 181, 253);
-}
-
-.dark .history-type-badge.type-uuid {
-  color: rgb(134, 239, 172);
-}
-
-.dark .history-type-badge.type-base64 {
-  color: rgb(253, 224, 71);
-}
-
-.dark .history-type-badge.type-highlow {
-  color: rgb(147, 197, 253);
-}
-
-.dark .history-type-badge.type-bytes {
-  color: rgb(165, 180, 252);
+/* On a dark row the hue tint lifts the badge background toward the text and
+   costs contrast, so it is halved here. */
+.dark .history-type-badge[class*="type-"] {
+  background-color: color-mix(in oklab, var(--fmt) 7%, rgba(55, 65, 81, 0.95));
 }
 
 .dark .history-value-button {
@@ -411,28 +598,19 @@
   border-color: rgb(75, 85, 99);
 }
 
+.dark .history-value-button.is-output {
+  background-color: color-mix(in oklab, var(--fmt) 14%, rgb(31, 41, 55));
+  border-color: color-mix(in oklab, var(--fmt) 32%, transparent);
+}
+
+.dark .history-value-button.is-output:hover {
+  background-color: color-mix(in oklab, var(--fmt) 20%, rgb(31, 41, 55));
+  border-color: color-mix(in oklab, var(--fmt) 50%, transparent);
+}
+
+
 .dark .history-info-icon {
   opacity: 0.7;
-}
-
-.dark .history-info-icon.type-ulid {
-  color: rgb(196, 181, 253);
-}
-
-.dark .history-info-icon.type-uuid {
-  color: rgb(134, 239, 172);
-}
-
-.dark .history-info-icon.type-base64 {
-  color: rgb(253, 224, 71);
-}
-
-.dark .history-info-icon.type-highlow {
-  color: rgb(147, 197, 253);
-}
-
-.dark .history-info-icon.type-bytes {
-  color: rgb(165, 180, 252);
 }
 
 .dark .history-container {
@@ -457,6 +635,1379 @@
     border-color: rgb(55, 65, 81);
   }
 
+/* The moment a time-based identifier is generated at. Sits inside the
+   generator strip, so it carries no border of its own. */
+.generator-moment {
+  padding: 0.25rem 0.375rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--ui-xs);
+  color-scheme: inherit;
+}
+
+.generator-moment:hover {
+  background: color-mix(in oklab, var(--ink) 6%, transparent);
+}
+
+.generator-moment:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* The search over the results: one field, the app's own surfaces. */
+.history-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.625rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-sunken);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.history-search:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.history-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.4375rem 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--ui-sm);
+}
+
+.history-search input:focus {
+  outline: none;
+}
+
+.history-search input::placeholder {
+  color: var(--ink-muted);
+}
+
+/* Safari draws its own clear button inside a type=search field. */
+.history-search input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.history-search-icon {
+  flex-shrink: 0;
+  color: var(--ink-muted);
+}
+
+.history-search-clear {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 1.375rem;
+  height: 1.375rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.history-search-clear:hover {
+  background: color-mix(in oklab, var(--ink) 10%, transparent);
+  color: var(--ink);
+}
+
+/* ---- One dialog shell for the whole app ----
+   The easter-egg list, the guessing game and the tag picker were three separate
+   looks with three hand-mixed palettes. They are one shell now: a plain sheet,
+   a rule under the title, and colours from the theme tokens. */
+
+/* A native <dialog>: the browser then owns the focus trap, the inert page
+   behind it, Escape, and the stacking. None of that was worth reimplementing. */
+.modal-panel {
+  display: flex;
+  flex-direction: column;
+  /* A dialog centres itself with auto margins, which Tailwind's reset zeroes
+     for every element; without this the modal sits in the top-left corner. */
+  margin: auto;
+  /* Sized by what is inside it: a board, a list and a number prompt are three
+     different widths, and none of them should be padded out to a common one.
+     The minimum keeps a one-line dialog from becoming a sliver. */
+  width: fit-content;
+  min-width: min(19rem, calc(100vw - 2rem));
+  max-width: min(30rem, calc(100vw - 2rem));
+  padding: 0;
+  border: 0;
+  max-height: min(82vh, 46rem);
+  border-radius: 14px;
+  /* The body paints its own background for the scroll shadow; without this it
+     paints a rectangle over the two bottom corners. */
+  overflow: hidden;
+  background: var(--surface-raised);
+  color: var(--ink);
+  /* Elevation is declared once, by shadow. A hairline under a soft shadow
+     is the ghost card. */
+  box-shadow:
+    0 2px 6px rgba(3, 7, 18, 0.12),
+    0 28px 64px -24px rgba(3, 7, 18, 0.55);
+  animation: modal-panel-in 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-panel::backdrop {
+  /* No animation on purpose: a keyframe starting at opacity 0 would leave the
+     page undimmed whenever the animation does not get to run. */
+  background: rgba(3, 7, 18, 0.62);
+}
+
+/* The same shell, living inside the history panel instead of over the page:
+   no elevation of its own, and it fills whatever it was given. */
+.modal-panel.is-embedded {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  height: 100%;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  animation: none;
+}
+
+.modal-panel.is-embedded .modal-head {
+  border-bottom-color: var(--line);
+}
+
+/* A game in the panel gets a column to lay itself out in, so a square board
+   can be sized by the height that is actually left over. */
+.modal-panel.is-embedded .modal-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* The scroll shadow belongs to a dialog that scrolls; in the panel it read
+     as a stray dark band under the board. */
+  background: none;
+}
+
+/* Auto margins on the board: it takes the space left over and sits in the
+   middle of it rather than hanging off the toolbar. */
+.modal-panel.is-embedded .mine-grid,
+.modal-panel.is-embedded .tile-grid,
+.modal-panel.is-embedded .lights-grid {
+  margin: auto;
+}
+
+.panel-game {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Three widths, because a keyboard reference and a number prompt are not the
+   same object: a narrow prompt, the default, and the two-column list. */
+.modal-panel.is-narrow {
+  max-width: min(23rem, calc(100vw - 2rem));
+}
+
+.modal-panel.is-wide {
+  max-width: min(51rem, calc(100vw - 2rem));
+}
+
+.modal-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 1rem;
+  padding: 1.25rem 1.375rem 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.modal-subtitle {
+  margin: 0.375rem 0 0;
+  max-width: 40ch;
+  font-size: var(--ui-xs);
+  line-height: 1.55;
+  color: var(--ink-muted);
+}
+
+.modal-close {
+  display: grid;
+  place-items: center;
+  width: 1.875rem;
+  height: 1.875rem;
+  margin: -0.25rem -0.375rem 0 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.modal-close:hover {
+  background: color-mix(in oklab, var(--ink) 8%, transparent);
+  color: var(--ink);
+}
+
+.modal-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.5rem 0.75rem 1rem;
+  /* The last gradient is pinned to the content, the shadow to the frame: the
+     bottom edge darkens only while there is more list below it. */
+  background:
+    radial-gradient(farthest-side at 50% 100%, color-mix(in oklab, var(--ink) 16%, transparent), transparent)
+      bottom / 100% 10px no-repeat,
+    linear-gradient(transparent, var(--surface-raised)) bottom / 100% 22px local no-repeat;
+}
+
+/* Each group answers one question: what do I actually do to see this. */
+.lab-group {
+  padding: 0.875rem 0.625rem 0.25rem;
+  margin: 0;
+  font-size: var(--ui-2xs);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.lab-group:first-child {
+  padding-top: 0.5rem;
+}
+
+/* A field inside a dialog: the app's input, without the utility soup. */
+.modal-input {
+  width: 100%;
+  padding: 0.5625rem 0.75rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--surface-sunken);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--ui-sm);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.modal-input::placeholder {
+  color: var(--ink-muted);
+}
+
+.modal-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.modal-hint {
+  margin: 0.625rem 0 0;
+  font-size: var(--ui-xs);
+  line-height: 1.6;
+  color: var(--ink-muted);
+}
+
+.modal-empty {
+  padding: 2.5rem 0.625rem;
+  text-align: center;
+  font-size: var(--ui-sm);
+  color: var(--ink-muted);
+}
+
+.modal-empty span {
+  display: block;
+  margin-top: 0.375rem;
+  font-size: var(--ui-xs);
+}
+
+/* The picker scrolls, the dialog does not: the header and the field stay put
+   however many tags there are. */
+.tag-list {
+  margin-top: 0.875rem;
+  max-height: 17rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.125rem;
+}
+
+/* One tag, offered for picking. The dot carries the tag colour, so the row
+   itself never needs a second one. */
+.tag-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.tag-option + .tag-option {
+  margin-top: 0.375rem;
+}
+
+.tag-option:hover {
+  background: var(--surface-sunken);
+  border-color: var(--line-strong);
+}
+
+.tag-option.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.tag-option.is-create {
+  border-style: dashed;
+  border-color: var(--line-strong);
+  margin-bottom: 0.625rem;
+}
+
+.tag-option-dot {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.tag-option-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.tag-option-name {
+  font-size: var(--ui-sm);
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.tag-option-meta {
+  margin-top: 0.125rem;
+  font-size: var(--ui-2xs);
+  color: var(--ink-muted);
+}
+
+.tag-option-mark {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+/* Two columns so the whole list stands on one screen: nobody should have to
+   scroll a reference to find out what to type. */
+.lab-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 2rem;
+  align-items: start;
+}
+
+/* ---- The report on one identifier ----
+   A reading instrument, not a dialog full of controls: a quiet sheet, one
+   specimen under glass, and a typographic hierarchy doing the work that boxes
+   would otherwise do. Its own names throughout — nothing borrowed from the
+   demo panels, which answer a different question. */
+
+.report {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  /* A sheet needs a measure: without a minimum the panel shrinks to the widest
+     value in it, and the specimen ends up narrower than the text under it. */
+  width: min(46rem, calc(100vw - 4rem));
+  padding: 0 0.625rem 0.25rem;
+}
+
+.report-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+}
+
+.report-when {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.report-when-relative {
+  font-size: var(--ui-sm);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.report-when-exact {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--ui-xs);
+  color: var(--ink-muted);
+}
+
+.report-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+/* The specimen: characters, their bits, and a ruler naming the fields. The
+   three rows share one grid width, so a character sits over its four bits and
+   over the run it belongs to. */
+/* The specimen takes the full measure of the sheet: it is the one thing here
+   that deserves the width, and its three rows stay locked to one grid. */
+.report-specimen {
+  width: 100%;
+}
+
+.report-chars {
+  display: grid;
+  grid-template-columns: repeat(32, minmax(0, 1fr));
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: clamp(0.8125rem, 2.4vw, 1.375rem);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.report-char {
+  padding: 0;
+  border: 0;
+  border-radius: 3px 3px 0 0;
+  background: transparent;
+  color: var(--field);
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 130ms ease, opacity 130ms ease;
+}
+
+.report-char:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.report-bits {
+  display: grid;
+  grid-template-columns: repeat(128, minmax(0, 1fr));
+  gap: 1px;
+  height: 1.75rem;
+  margin-top: 3px;
+}
+
+.report-bit {
+  height: 100%;
+  border-radius: 1px;
+  background: color-mix(in oklab, var(--field) 22%, var(--surface-sunken));
+  transition: opacity 130ms ease;
+}
+
+.report-bit.is-on {
+  background: var(--field);
+}
+
+/* Where the canonical form puts a dash: the same four positions in both rows,
+   shifted by the same amount, so the columns stay in step. */
+.report-char.is-group,
+.report-bit.is-group {
+  margin-left: 5px;
+}
+
+.report-ruler {
+  display: flex;
+  gap: 1px;
+  margin-top: 4px;
+}
+
+/* A byte scale: this map is read next to a byte array often enough that the
+   two should be tied together on screen. */
+.report-octets {
+  display: grid;
+  grid-template-columns: repeat(16, minmax(0, 1fr));
+  margin-top: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9px;
+  color: var(--ink-muted);
+  opacity: 0.75;
+}
+
+.report-run {
+  flex-basis: 0;
+  min-width: 0;
+  padding: 0.1875rem 0.25rem;
+  border-top: 2px solid var(--field);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--ui-2xs);
+  color: var(--ink-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: default;
+  transition: color 130ms ease;
+}
+
+/* A four-bit field has no room for its name; the colour says which it is and
+   the reading names it. Only runs wide enough to hold a word get one. */
+.report-run.is-narrow {
+  color: transparent;
+}
+
+/* Picking: the chosen field keeps its colour, everything else steps back. The
+   characters stay legible — this is still the identifier. */
+.report-chars:has(.is-picked) .report-char:not(.is-picked) { opacity: 0.55; }
+.report-bits:has(.is-picked) .report-bit:not(.is-picked) { opacity: 0.28; }
+.report-ruler:has(.is-picked) .report-run:not(.is-picked) { opacity: 0.5; }
+
+.report-char.is-picked {
+  background: color-mix(in oklab, var(--field) 20%, transparent);
+}
+
+.report-run.is-picked {
+  color: var(--ink);
+}
+
+/* The reading. Fixed height so that moving along the characters does not make
+   everything below it jump. */
+.report-reading {
+  min-height: 5.25rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: 10px;
+  background: var(--surface-sunken);
+}
+
+.report-reading-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.report-reading-name {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--ui-sm);
+  font-weight: 600;
+}
+
+.report-reading-copy {
+  flex-shrink: 0;
+  padding: 0.125rem 0.375rem;
+  margin-right: -0.375rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--ui-2xs);
+  letter-spacing: 0.06em;
+  cursor: copy;
+  transition: background-color 130ms ease, color 130ms ease;
+}
+
+.report-reading-copy:hover {
+  background: color-mix(in oklab, var(--ink) 8%, transparent);
+  color: var(--ink);
+}
+
+/* Empty for a wide field; the row simply collapses. */
+.report-reading-binary {
+  margin: 0.1875rem 0 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--ui-xs);
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+}
+
+.report-reading-binary:empty {
+  display: none;
+}
+
+.report-reading-value {
+  margin: 0.1875rem 0 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--ui-sm);
+  color: var(--accent);
+  overflow-wrap: anywhere;
+}
+
+.report-reading-note {
+  margin: 0.375rem 0 0;
+  max-width: 68ch;
+  font-size: var(--ui-xs);
+  line-height: 1.55;
+  color: var(--ink-muted);
+}
+
+.report-heading {
+  margin: 0 0 -0.5rem;
+  font-size: var(--ui-2xs);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+/* Every spelling of the same value, each one a click away from the clipboard.
+   Rows, not cards: the values are long and want the full width. */
+.report-copy {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.report-copy-row {
+  display: grid;
+  grid-template-columns: 9.5rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.875rem;
+  padding: 0.3125rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.report-copy-row:last-child {
+  border-bottom: 0;
+}
+
+.report-copy-label {
+  margin: 0;
+  font-size: var(--ui-2xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.report-copy-cell {
+  margin: 0;
+  min-width: 0;
+}
+
+.report-copy-value {
+  display: block;
+  width: 100%;
+  padding: 0.125rem 0.375rem;
+  margin-left: -0.375rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--ui-xs);
+  line-height: 1.5;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: copy;
+  transition: background-color 130ms ease, color 130ms ease;
+}
+
+.report-copy-value:hover {
+  background: color-mix(in oklab, var(--ink) 7%, transparent);
+}
+
+/* The answer arrives where the click was, not only in a corner of the screen. */
+.report-copy-value.is-copied {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.report-copy-value.is-copied::after {
+  content: " copied";
+  font-size: var(--ui-2xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Two label/value pairs per row: these are short facts, and one pair per row
+   left the sheet twice as tall as it needed to be. */
+.report-properties {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) max-content minmax(0, 1fr);
+  gap: 0.375rem 0.875rem;
+  margin: 0;
+}
+
+@media (max-width: 40rem) {
+  .report-properties {
+    grid-template-columns: max-content minmax(0, 1fr);
+  }
+}
+
+.report-property-name {
+  margin: 0;
+  font-size: var(--ui-2xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+.report-property-value {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--ui-xs);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.report-footnote {
+  margin: 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
+  max-width: 78ch;
+  font-size: var(--ui-xs);
+  line-height: 1.6;
+  color: var(--ink-muted);
+}
+
+@media (max-width: 40rem) {
+  .report-copy-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.125rem;
+  }
+
+  .report-ruler {
+    display: none;
+  }
+}
+
+/* The group is the grid, not the row: every chip in a group then shares one
+   column edge, however wide the widest badge turns out to be. */
+.lab-list {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.5rem 0.875rem;
+  margin: 0;
+  padding: 0 0.625rem;
+}
+
+.lab-trigger {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+/* What you type, drawn the way this app already draws keys in the input hint. */
+.lab-key {
+  display: inline-block;
+  padding: 0.125rem 0.4375rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--surface-sunken);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--ui-xs);
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.lab-count {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--ui-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-muted);
+}
+
+.lab-aside {
+  margin: 1.25rem 0.625rem 0;
+  padding-top: 0.875rem;
+  border-top: 1px solid var(--line);
+  max-width: 42ch;
+  font-size: var(--ui-2xs);
+  line-height: 1.65;
+  color: var(--ink-muted);
+}
+
+.lab-what {
+  margin: 0;
+  align-self: center;
+  font-size: var(--ui-xs);
+  line-height: 1.6;
+  color: var(--ink-muted);
+}
+
+.lab-what code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+/* ---- Controls the two demos share ---- */
+.lab-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0.625rem 0.875rem;
+}
+
+.lab-seg {
+  display: inline-flex;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.lab-seg button {
+  padding: 0.25rem 0.5625rem;
+  border: 0;
+  background: var(--surface);
+  color: var(--ink-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--ui-xs);
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.lab-seg button + button {
+  border-left: 1px solid var(--line);
+}
+
+.lab-seg button:hover {
+  background: var(--surface-sunken);
+  color: var(--ink);
+}
+
+.lab-seg button.is-on {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+.lab-btn {
+  padding: 0.25rem 0.625rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: var(--ui-xs);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.lab-btn:hover {
+  background: var(--surface-sunken);
+}
+
+.lab-stats {
+  display: flex;
+  gap: 1.75rem;
+  padding: 0 0.625rem;
+}
+
+.lab-stat-label {
+  margin: 0;
+  font-size: var(--ui-2xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.lab-stat-value {
+  margin: 0.125rem 0 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+/* The odds curve, with a marker walking it as the run goes. */
+.lab-curve {
+  display: block;
+  width: calc(100% - 1.25rem);
+  height: 90px;
+  margin: 0.875rem 0.625rem 0;
+  overflow: visible;
+}
+
+.lab-curve-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.lab-curve-half {
+  stroke: var(--line-strong);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  vector-effect: non-scaling-stroke;
+}
+
+.lab-curve-marker {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.lab-axis {
+  margin: 0.4375rem 0 0;
+  padding: 0 0.625rem;
+  font-size: var(--ui-2xs);
+  color: var(--ink-muted);
+}
+
+/* ---- The bit grid ---- */
+.lab-readout {
+  margin: 0.75rem 0 0;
+  padding: 0 0.625rem;
+  min-height: 1.4em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--ui-xs);
+  color: var(--ink-muted);
+}
+
+.lab-uuid {
+  margin: 0.5rem 0 0;
+  padding: 0 0.625rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--ui-sm);
+  overflow-wrap: anywhere;
+}
+
+.lab-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem 1rem;
+  padding: 0.875rem 0.625rem 0;
+  font-size: var(--ui-2xs);
+  color: var(--ink-muted);
+}
+
+.lab-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.lab-legend-item[hidden] {
+  display: none;
+}
+
+.lab-legend-key {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 2px;
+}
+
+/* ---- Motion ----
+   Two boards that only read as boards once things move: a tile that slid, a
+   square that just opened, a mine that just went off. */
+@keyframes tile-pop {
+  from { transform: scale(0.55); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+@keyframes tile-merge {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.16); }
+  100% { transform: none; }
+}
+
+@keyframes mine-reveal {
+  from { transform: scale(0.82); opacity: 0.25; }
+  to { transform: none; opacity: 1; }
+}
+
+@keyframes board-recoil {
+  10%, 90% { transform: translateX(-2px); }
+  30%, 70% { transform: translateX(3px); }
+  50% { transform: translateX(-4px); }
+}
+
+@keyframes flag-plant {
+  from { transform: scale(0.4) rotate(-12deg); }
+  to { transform: none; }
+}
+
+/* ---- 2048 ---- */
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  width: min(100% - 1.25rem, 18rem);
+  margin: 0 auto;
+  padding: 6px;
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--ink) 10%, var(--surface-sunken));
+}
+
+.tile-grid:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.tile-cell {
+  display: grid;
+  place-items: center;
+  /* The slide: the tile starts displaced by its travel and rides this back. */
+  transition: transform 110ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  aspect-ratio: 1;
+  border-radius: 7px;
+  background: color-mix(in oklab, var(--ink) 6%, var(--surface-sunken));
+  color: var(--ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--ui-base);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.tile-cell.is-new {
+  animation: tile-pop 180ms cubic-bezier(0.2, 0.9, 0.3, 1.4);
+}
+
+.tile-cell.is-merged {
+  animation: tile-merge 220ms ease-out;
+}
+
+/* The value carries the colour: the higher the tile, the further from the
+   page it sits. Four digits need to shrink to keep fitting. */
+.tile-cell.is-set {
+  background: color-mix(in oklab, var(--accent) 14%, var(--surface-raised));
+}
+
+.tile-cell.v-8,
+.tile-cell.v-16 {
+  background: color-mix(in oklab, var(--accent) 26%, var(--surface-raised));
+}
+
+.tile-cell.v-32,
+.tile-cell.v-64 {
+  background: color-mix(in oklab, var(--accent) 40%, var(--surface-raised));
+}
+
+.tile-cell.v-128,
+.tile-cell.v-256 {
+  background: color-mix(in oklab, var(--bit-fixed) 40%, var(--surface-raised));
+  font-size: var(--ui-sm);
+}
+
+.tile-cell.v-512,
+.tile-cell.v-1024,
+.tile-cell.v-2048 {
+  /* The full hue rather than a mix: at 65% the page surface reads 3.3:1 on it
+     in light. Undiluted, the pair is 7:1 or better in both themes. */
+  background: var(--bit-fixed);
+  color: var(--surface);
+  font-size: var(--ui-sm);
+}
+
+/* ---- Lights Out ---- */
+.lights-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  width: min(100% - 1.25rem, 18rem);
+  margin: 0 auto;
+}
+
+.lights-cell {
+  aspect-ratio: 1;
+  border: 0;
+  border-radius: 8px;
+  background: color-mix(in oklab, var(--ink) 14%, var(--surface-sunken));
+  cursor: pointer;
+  transition: background-color 140ms ease, box-shadow 140ms ease;
+}
+
+.lights-cell:hover {
+  background: color-mix(in oklab, var(--ink) 22%, var(--surface-sunken));
+}
+
+.lights-cell.is-on {
+  background: var(--accent);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent) 60%, transparent),
+    0 6px 16px -6px var(--accent);
+}
+
+/* ---- Minesweeper ---- */
+.mine-status {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0 0.625rem 0.75rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--ui-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-muted);
+}
+
+.mine-verdict {
+  margin-left: auto;
+  font-family: inherit;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.mine-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--mine-side, 9), minmax(0, 1fr));
+  gap: 2px;
+  margin: 0 auto;
+  /* The board is square, so it is sized by whichever runs out first: the width
+     of the panel, the height left under the toolbar, or a comfortable cell.
+     Sizing it by width alone is what made 16x16 scroll. */
+  aspect-ratio: 1;
+  flex: 0 1 auto;
+  min-height: 0;
+  height: min(100%, calc(var(--mine-side, 9) * 2.75rem));
+  width: auto;
+  max-width: 100%;
+}
+
+.mine-cell {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  min-width: 0;
+  border: 0;
+  border-radius: 3px;
+  /* Closed cells are the raised surface; opening one drops it into the page. */
+  background: color-mix(in oklab, var(--ink) 18%, var(--surface-sunken));
+  color: var(--ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: clamp(0.625rem, 2.2vw, 0.8125rem);
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  transition: background-color 120ms ease;
+}
+
+.mine-cell svg {
+  width: 68%;
+  height: 68%;
+}
+
+.mine-cell:hover {
+  background: color-mix(in oklab, var(--ink) 26%, var(--surface-sunken));
+}
+
+.mine-cell.is-open {
+  background: var(--surface-sunken);
+  cursor: default;
+}
+
+/* The flood arrives in the order it spread, one wave out from the click. */
+.mine-cell.just-opened {
+  animation: mine-reveal 200ms ease-out both;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+
+.mine-cell.is-flag svg {
+  animation: flag-plant 170ms cubic-bezier(0.2, 0.9, 0.3, 1.4);
+}
+
+.mine-grid.is-boom {
+  animation: board-recoil 380ms ease-in-out;
+}
+
+.mine-cell.is-open:hover {
+  background: color-mix(in oklab, var(--ink) 6%, var(--surface-sunken));
+}
+
+.mine-cell.is-flag {
+  color: var(--accent);
+}
+
+.mine-cell.is-maybe {
+  color: var(--ink-muted);
+}
+
+/* A number clicked before its flags are placed: say no by moving, not by
+   staying silent. */
+.mine-cell.is-nudge {
+  background: color-mix(in oklab, var(--accent) 35%, var(--surface-sunken));
+}
+
+.mine-cell.is-mine {
+  background: color-mix(in oklab, var(--bit-clock) 28%, var(--surface-sunken));
+}
+
+/* The one that ended the game reads louder than the ones merely revealed. */
+.mine-cell.is-boom {
+  background: var(--bit-clock);
+  color: var(--surface);
+}
+
+/* A flag that turned out to be wrong is the one thing worth pointing at.
+   (line-through would do nothing here: the flag is an SVG, not a glyph.) */
+.mine-cell.is-wrong {
+  background: color-mix(in oklab, var(--bit-clock) 22%, var(--surface-sunken));
+  color: var(--bit-clock);
+  opacity: 0.75;
+}
+
+/* Counts get their own hues; a wall of one colour is unreadable at speed. */
+.mine-cell[data-n="1"] { color: var(--bit-time); }
+.mine-cell[data-n="2"] { color: var(--bit-random); }
+.mine-cell[data-n="3"] { color: var(--bit-clock); }
+.mine-cell[data-n="4"] { color: var(--bit-node); }
+.mine-cell[data-n="5"],
+.mine-cell[data-n="6"],
+.mine-cell[data-n="7"],
+.mine-cell[data-n="8"] { color: var(--bit-fixed); }
+
+.lab-status {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--ui-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-muted);
+}
+
+/* The birthday demo: one number, given room to be read. */
+.lab-figure {
+  margin: 0;
+  padding: 0.5rem 0.625rem 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  color: var(--accent);
+}
+
+.lab-note {
+  margin: 0.625rem 0 0;
+  padding: 0 0.625rem;
+  font-size: var(--ui-xs);
+  line-height: 1.65;
+  color: var(--ink-muted);
+}
+
+.lab-note strong {
+  color: var(--ink);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.lab-grid {
+  display: grid;
+  /* The cells fill the row rather than sitting in the left third of it: the
+     panel is as wide as the text above them, and so is the grid. */
+  grid-template-columns: repeat(16, minmax(0, 1fr));
+  gap: 3px;
+  padding: 0 0.625rem;
+  /* Keeps a wide panel from turning 128 bits into 128 buttons. */
+  max-width: 32rem;
+}
+
+.lab-bit,
+.lab-legend-key {
+  border: 0;
+  padding: 0;
+  background: var(--bit-off);
+}
+
+.lab-bit {
+  aspect-ratio: 1;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background-color 180ms ease;
+}
+
+.lab-bit:hover {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.k-version,
+.k-variant {
+  background: color-mix(in oklab, var(--bit-fixed) 30%, var(--bit-off));
+}
+
+.k-time {
+  background: color-mix(in oklab, var(--bit-time) 30%, var(--bit-off));
+}
+
+.k-clock {
+  background: color-mix(in oklab, var(--bit-clock) 30%, var(--bit-off));
+}
+
+.k-node,
+.k-hash {
+  background: color-mix(in oklab, var(--bit-node) 30%, var(--bit-off));
+}
+
+.is-on.k-random {
+  background: var(--bit-random);
+}
+
+.is-on.k-version,
+.is-on.k-variant {
+  background: var(--bit-fixed);
+}
+
+.is-on.k-time {
+  background: var(--bit-time);
+}
+
+.is-on.k-clock {
+  background: var(--bit-clock);
+}
+
+.is-on.k-node,
+.is-on.k-hash {
+  background: var(--bit-node);
+}
+
+@media (max-width: 46rem) {
+  .lab-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 26rem) {
+  .lab-list {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+  }
+
+  .lab-what {
+    padding-bottom: 0.375rem;
+  }
+}
+
+@keyframes modal-scrim-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-panel-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-panel,
+  .modal-panel::backdrop,
+  .tile-cell.is-new,
+  .tile-cell.is-merged,
+  .mine-cell.just-opened,
+  .mine-cell.is-flag svg,
+  .mine-grid.is-boom {
+    animation: none;
+  }
+
+  .tile-cell {
+    transition: none;
+  }
+}
+
 .footer-main {
   @apply mt-auto border-t;
   border-color: rgb(229, 231, 235);
@@ -479,7 +2030,7 @@
 }
 
 .footer-text {
-  color: rgb(156, 163, 175);
+  color: rgb(107, 114, 128);
 }
 
 .footer-link {
@@ -491,8 +2042,21 @@
   color: rgb(37, 99, 235);
 }
 
+/* A button wearing a link's clothes: same row, same weight, no chrome. */
+.footer-eggs {
+  border: 0;
+  padding: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.footer-eggs[hidden] {
+  display: none;
+}
+
 .footer-separator {
-    color: rgb(209, 213, 219);
+    color: rgb(107, 114, 128);
   }
 
 .dark .footer-main {
@@ -505,7 +2069,7 @@
 }
 
 .dark .footer-text {
-  color: rgb(107, 114, 128);
+  color: rgb(156, 163, 175);
 }
 
 .dark .footer-link {
@@ -517,7 +2081,8 @@
 }
 
   .dark .footer-separator {
-    color: rgb(75, 85, 99);
+    /* 3.04:1 against the dark footer; a separator nobody can see is a gap. */
+    color: rgb(156, 163, 175);
   }
 
   .spin-animation-active {

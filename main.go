@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"errors"
 	"io/fs"
@@ -8,47 +9,96 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
+	"strings"
+	"syscall"
+	"time"
 )
 
 //go:embed public
 var staticFiles embed.FS
 
-// main is the entry point of the program.
-// It serves the HTML content from the "public" directory.
-// It listens on the address specified by the environment variables HOST and PORT,
-// defaulting to "127.0.0.1:8080" if the variables are not set.
+const (
+	defaultPort     = "8080"
+	shutdownTimeout = 10 * time.Second
+	readTimeout     = 15 * time.Second
+	writeTimeout    = 30 * time.Second
+	idleTimeout     = 60 * time.Second
+)
+
+// withHeaders adds baseline security headers and cache policy.
+//
+// Everything under /assets/ carries a content hash in its filename, so it is
+// safe to cache immutably. Everything else (index.html above all) must be
+// revalidated or clients keep loading a bundle that no longer exists.
+func withHeaders(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		header := w.Header()
+		header.Set("X-Content-Type-Options", "nosniff")
+		header.Set("X-Frame-Options", "SAMEORIGIN")
+		header.Set("Referrer-Policy", "strict-origin-when-cross-origin")
+
+		if strings.HasPrefix(r.URL.Path, "/assets/") {
+			header.Set("Cache-Control", "public, max-age=31536000, immutable")
+		} else {
+			header.Set("Cache-Control", "no-cache")
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+// main serves the embedded "public" directory over HTTP.
+// It listens on HOST:PORT, defaulting to ":8080" when PORT is not set,
+// and shuts down gracefully on SIGINT/SIGTERM.
 func main() {
-	// Load the embedded file system and get the "public" directory.
 	htmlContent, err := fs.Sub(staticFiles, "public")
 	if err != nil {
-		log.Fatal("Failed to load embedded file system:", err) // Exit if the embedded file system cannot be loaded
+		log.Fatal("Failed to load embedded file system:", err)
 	}
 
-	// Create a file server to serve the HTML content.
-	fileServer := http.FileServer(http.FS(htmlContent))
+	mux := http.NewServeMux()
+	mux.Handle("/", http.FileServer(http.FS(htmlContent)))
+	mux.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.Header().Set("Cache-Control", "no-store")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("ok"))
+	})
 
-	// Set the handler for the root path ("/") to the file server.
-	http.Handle("/", fileServer)
-
-	// Get the host and port from the environment variables.
-	host, _ := os.LookupEnv("HOST")  // Get the host from the environment variable, defaulting to "" if not set
-	port, ok := os.LookupEnv("PORT") // Get the port from the environment variable, defaulting to "" if not set
+	host, _ := os.LookupEnv("HOST")
+	port, ok := os.LookupEnv("PORT")
 	if !ok {
-		port = "8080" // Default port is 8080
+		port = defaultPort
 	}
 
-	// Create the address to listen on.
-	addr := net.JoinHostPort(host, port) // Join the host and port with a colon separator
+	server := &http.Server{
+		Addr:              net.JoinHostPort(host, port),
+		Handler:           withHeaders(mux),
+		ReadHeaderTimeout: readTimeout,
+		ReadTimeout:       readTimeout,
+		WriteTimeout:      writeTimeout,
+		IdleTimeout:       idleTimeout,
+	}
 
-	// Log the address we are listening on.
-	log.Printf("Listening on %s...\n", addr)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 
-	// Start the server.
-	// The server will listen indefinitely until it is stopped.
-	// If an error occurs that is not due to the server being closed,
-	// the error will be logged and the program will exit.
-	err = http.ListenAndServe(addr, nil)
-	if err != nil && !errors.Is(err, http.ErrServerClosed) {
-		log.Fatal("Server error:", err) // Exit if there is an error other than the server being closed
+	go func() {
+		log.Printf("Listening on %s...\n", server.Addr)
+
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatal("Server error:", err)
+		}
+	}()
+
+	<-ctx.Done()
+	log.Println("Shutting down...")
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	defer cancel()
+
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		log.Fatal("Shutdown error:", err)
 	}
 }

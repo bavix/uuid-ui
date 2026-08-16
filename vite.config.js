@@ -1,8 +1,10 @@
 import { defineConfig } from 'vite';
-import { resolve } from 'path';
-import { copyFileSync, rmSync, readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync } from 'fs';
-import { join } from 'path';
+import { dirname, join, resolve } from 'path';
+import { fileURLToPath } from 'url';
+import { rmSync, readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync } from 'fs';
 import preact from '@preact/preset-vite';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   root: 'src',
@@ -120,7 +122,9 @@ export default defineConfig({
         chunkFileNames: 'assets/[name]-[hash].js'
       }
     },
-    sourcemap: true,
+    // Sourcemaps are committed and deployed with the site; keep them out of
+    // production and opt in locally with `vite build --sourcemap`.
+    sourcemap: false,
     minify: 'esbuild',
     write: true
   },
