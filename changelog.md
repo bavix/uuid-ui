@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.8.1 - 2026-08-16
+
+### What's Changed
+
+* modal fix by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/467
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.8.0...v1.8.1
+
 ## v1.8.0 - 2026-08-16
 
 ### What's Changed
