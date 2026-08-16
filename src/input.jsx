@@ -1,26 +1,22 @@
-import { useState, useEffect } from 'preact/hooks';
 import React from 'preact/compat';
+import { SIGNED, intTypeList } from './int-type.js';
 import { toast } from 'sonner';
-import { v4 } from 'uuid';
-import { createMagneticFieldEffect, createPulseWaveEffect, startNumberGuessingGame, shakeElement } from './effects.js';
-import { TYPE_BASE64, TYPE_BYTES, TYPE_HIGH_LOW, TYPE_ULID, typeDetector, uuidTypeList } from "./type-detector.js";
-import { bytesToUuid, uuidToBytesString } from "./uuid-bytes.js";
+import { createConfetti, createMagneticFieldEffect, createPulseWaveEffect, startNumberGuessingGame, shakeElement } from './effects.js';
+import { trackEgg } from './analytics.js';
+import { specialValues } from './special-values.js';
+import { extractComment, stripComment } from './comment.js';
+import { mergeItems } from './merge-items.js';
+import { toUuid } from './to-uuid.js';
+import { TYPE_BASE64, TYPE_BYTES, TYPE_HEX, TYPE_HIGH_LOW, TYPE_ULID, TYPE_WORDS, typeDetector, uuidTypeList } from "./type-detector.js";
+import { bytesToUuid, uuidToBytes, uuidToBytesString, uuidToHex } from "./uuid-bytes.js";
 import { objectParse } from "./object-parser.js";
-import { intsToUuid, uintsToUuid, uuidToInts, uuidToUints } from "./uuid-high-low.js";
-import { base64StdToUuid, uuidToBase64Std } from "./base64.js";
+import { uuidToWords } from "./uuid-words.js";
+import { uuidToInts, uuidToUints } from "./uuid-high-low.js";
+import { normalizeBase64, uuidToBase64Std } from "./base64.js";
 import { uuidFormatter } from "./uuid-formatter.js";
-import { ulidToUuid, uuidToUlid } from './uuid-ulid.js';
+import { uuidToUlid } from './uuid-ulid.js';
 
-const SIGNED = 2 ** 0;
-const UNSIGNED = 2 ** 1;
 const nrg = /"(-?\d+)"/g;
-
-export function intTypeList() {
-    const list = []
-    list[SIGNED] = 'signed'
-    list[UNSIGNED] = 'unsigned'
-    return list
-}
 
 export class Item {
     constructor(input, output, info) {
@@ -34,11 +30,42 @@ export class Item {
     }
 }
 
+function readInformerClosed() {
+    try {
+        return JSON.parse(localStorage.getItem('informerClosed') || 'false');
+    } catch {
+        return false;
+    }
+}
+
 export default class InputComponent extends React.Component {
     state = {
-        resultType: TYPE_HIGH_LOW,
-        intType: SIGNED,
         text: '',
+        isClosedInformer: readInformerClosed(),
+    }
+
+    onTextareaKeyDown = (e) => {
+        if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+            e.preventDefault();
+            this.convertNow();
+        }
+    }
+
+    convertNow = () => {
+        const { text } = this.state;
+        if (!text.trim()) {
+            return;
+        }
+        this.handle(text);
+    }
+
+    closeInformer = () => {
+        this.setState({ isClosedInformer: true });
+
+        try {
+            localStorage.setItem('informerClosed', 'true');
+        } catch (e) {
+        }
     }
 
     constructor(props) {
@@ -49,27 +76,27 @@ export default class InputComponent extends React.Component {
         this.lastIntTypeClick = null;
         this.lastConfettiTime = 0;
         this.confettiThrottle = 500;
+        this.isPasting = false;
     }
 
     onKeyboardInput = (e) => {
         const text = e.target.value
+        const pasted = this.isPasting
+        this.isPasting = false
+
         this.setState({ text })
 
-        if (text[text.length - 1] !== "\n") {
-            return
+        // Typing converts on the closing newline; a paste converts as soon as
+        // it contains one, even without a trailing newline.
+        if (pasted ? text.includes('\n') : text.endsWith('\n')) {
+            this.handle(text)
         }
-
-        this.handle(text)
     }
 
-    onPaste = (e) => {
-        setTimeout(() => {
-            const text = e.target.value;
-            if (text && text.includes('\n')) {
-                this.handle(text);
-                this.setState({ text: '' });
-            }
-        }, 10);
+    // preact/compat maps onChange to the input event, so this always runs
+    // before onKeyboardInput sees the pasted value.
+    onPaste = () => {
+        this.isPasting = true
     }
 
     handle = (text) => {
@@ -88,7 +115,7 @@ export default class InputComponent extends React.Component {
                 do {
                     const currentLine = lines[j];
                     block += currentLine;
-                    const lineWithoutComment = this.removeComment(currentLine);
+                    const lineWithoutComment = stripComment(currentLine);
 
                     openBraces += (lineWithoutComment.match(/{/g) || []).length;
                     openBraces -= (lineWithoutComment.match(/}/g) || []).length;
@@ -110,60 +137,15 @@ export default class InputComponent extends React.Component {
         this.addItems(result);
     }
 
-    removeComment(line) {
-        const idxDoubleSlash = line.indexOf('//');
-        const idxHash = line.indexOf('#');
-        
-        if (idxDoubleSlash === -1 && idxHash === -1) {
-            return line;
-        }
-        
-        if (idxDoubleSlash === -1) {
-            return line.slice(0, idxHash);
-        }
-        
-        if (idxHash === -1) {
-            return line.slice(0, idxDoubleSlash);
-        }
-        
-        // Use the one that appears first
-        return line.slice(0, Math.min(idxDoubleSlash, idxHash));
-    }
-
-    extractComment(line) {
-        const idxDoubleSlash = line.indexOf('//');
-        const idxHash = line.indexOf('#');
-        
-        if (idxDoubleSlash === -1 && idxHash === -1) {
-            return null;
-        }
-        
-        if (idxDoubleSlash === -1) {
-            return line.slice(idxHash + 1).trim();
-        }
-        
-        if (idxHash === -1) {
-            return line.slice(idxDoubleSlash + 2).trim();
-        }
-        
-        // Use the one that appears first
-        const firstIdx = Math.min(idxDoubleSlash, idxHash);
-        if (firstIdx === idxDoubleSlash) {
-            return line.slice(idxDoubleSlash + 2).trim();
-        } else {
-            return line.slice(idxHash + 1).trim();
-        }
-    }
-
     moveCommentsToEnd(block) {
         const lines = block.split('\n');
         const comments = [];
         const codeLines = [];
 
         for (const line of lines) {
-            const comment = this.extractComment(line);
+            const comment = extractComment(line);
             if (comment !== null) {
-                codeLines.push(this.removeComment(line).trimEnd());
+                codeLines.push(stripComment(line).trimEnd());
                 comments.push(comment);
             } else {
                 codeLines.push(line.trimEnd());
@@ -173,42 +155,78 @@ export default class InputComponent extends React.Component {
         return codeLines.join('\n') + (comments.length ? ` // ${comments.join(' ')}` : '');
     }
 
+    // The badges are the quiet half of the easter eggs. Reported once per kind
+    // per session, and by kind only: which curiosity was met, never the value.
+    seenMarkers = new Set()
+
+    reportMarkers = (converted) => {
+        for (const item of converted) {
+            for (const marker of specialValues(item.input)) {
+                if (!this.seenMarkers.has(marker)) {
+                    this.seenMarkers.add(marker);
+                    trackEgg(marker, 'converted');
+                }
+            }
+        }
+    }
+
     addItems = (items) => {
-        let result = new Map()
+        const converted = []
 
-        for (let i = items.length - 1; i >= 0; i--) {
-            const obj = this.newItem(items[i])
+        for (const line of items) {
+            const obj = this.newItem(line)
             if (obj !== null) {
-                result.set(obj.toString(), obj)
+                converted.push(obj)
             }
         }
 
-        for (const item of this.props.items) {
-            if (!result.has(item.toString())) {
-                result.set(item.toString(), item)
+        // Newest on top, the same rule the rest of the list follows: the last
+        // line of a paste is the most recent thing that happened.
+        this.props.setItems(mergeItems(converted.reverse(), this.props.items))
+
+        this.reportMarkers(converted)
+
+        // Below lg the history panel sits under a tall column of controls, so a
+        // successful conversion used to produce no visible change at all.
+        if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches) {
+            const panel = document.getElementById('history-cp');
+            if (panel) {
+                requestAnimationFrame(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }));
             }
         }
-
-        this.props.setItems([...result.values()])
     }
 
     newItem = (line) => {
         try {
             const { input, comment } = this.parse(line)
-            const uuid = this.castToUuid(input)
-            const output = this.castFromUuid(uuid)
+
+            const target = uuidTypeList()[this.props.resultType] || 'the selected format'
 
             const nInput = this.normalize(input)
             if (nInput === null) {
-                toast.error('Failed to process string', {
+                // Naming the accepted shapes is the only documentation a failed
+                // line ever gets; "Failed to process string" named none of them.
+                toast.error('Not a recognized identifier', {
+                    description: `${line} — expected a UUID, base64, ULID, high/low pair or byte array`
+                });
+                return null
+            }
+
+            const uuid = this.castToUuid(input)
+            const output = uuid === null ? null : this.castFromUuid(uuid)
+            const nOutput = output === null ? null : this.normalizeOutput(output)
+
+            // Conversion helpers return null on malformed input; without this
+            // the line used to disappear with no feedback at all.
+            if (nOutput === null) {
+                toast.error(`Cannot convert to ${target}`, {
                     description: line
                 });
                 return null
             }
 
-            const nOutput = this.normalize(output)
             if (nInput === nOutput) {
-                toast.warning('The result of the conversion matches the entered value', {
+                toast.warning(`Already ${target}`, {
                     description: line
                 });
                 return null
@@ -221,8 +239,8 @@ export default class InputComponent extends React.Component {
     }
 
     parse = (line) => {
-        const comment = this.extractComment(line);
-        const input = this.removeComment(line).trim().replace(/,$/g, '').trimRight();
+        const comment = extractComment(line);
+        const input = stripComment(line).trim().replace(/,$/g, '').trimEnd();
 
         if (comment !== null) {
             return { input: input.toString(), comment: comment.toString() }
@@ -231,15 +249,33 @@ export default class InputComponent extends React.Component {
         return { input: input.toString(), comment: undefined }
     }
 
+    // The output is already in the shape the chosen format asks for; only the
+    // formats that have several legal spellings go through the normalizer.
+    normalizeOutput = (output) => {
+        const { resultType } = this.props
+
+        if (resultType === TYPE_HEX) {
+            return output
+        }
+
+        return this.normalize(output)
+    }
+
     normalize = (input) => {
+        if (typeof input !== 'string') {
+            return null;
+        }
+
         switch (typeDetector(input)) {
             case TYPE_BYTES:
                 return JSON.stringify(objectParse(input)).replace(/,$/g, '');
             case TYPE_HIGH_LOW:
+            case TYPE_WORDS: {
                 const result = JSON.stringify(objectParse(input)).replace(/,$/g, '');
                 return result.replace(nrg, "$1");
+            }
             case TYPE_BASE64:
-                return btoa(atob(input));
+                return normalizeBase64(input);
             case TYPE_ULID:
                 return input;
         }
@@ -253,48 +289,45 @@ export default class InputComponent extends React.Component {
             return uuid;
         }
 
-        return null;
+        // Spellings the formatter cannot handle on its own — `urn:uuid:` above
+        // all — still round-trip through the byte parser.
+        const bytes = uuidToBytes(input);
+
+        return bytes === null ? null : bytesToUuid(bytes);
     }
 
     castToUuid = (input) => {
-        const { intType } = this.state
-
-        switch (typeDetector(input)) {
-            case TYPE_BYTES:
-                return bytesToUuid(objectParse(input))
-            case TYPE_HIGH_LOW:
-                const u = objectParse(input)
-                const fn = intType === SIGNED ? intsToUuid : uintsToUuid
-                return fn(u.high, u.low)
-            case TYPE_BASE64:
-                return base64StdToUuid(input)
-            case TYPE_ULID:
-                return ulidToUuid(input)
-        }
-
-        return input
+        return toUuid(input, this.props.intType)
     }
 
     castFromUuid = (uuid) => {
-        const { resultType, intType } = this.state
+        const { resultType, intType } = this.props
 
         switch (resultType) {
             case TYPE_BYTES:
                 return uuidToBytesString(uuid);
-            case TYPE_HIGH_LOW:
+            case TYPE_HIGH_LOW: {
                 const u = intType === SIGNED ? uuidToInts(uuid) : uuidToUints(uuid)
-                return JSON.stringify(u)
+                return u === null ? null : JSON.stringify(u)
+            }
+            case TYPE_WORDS: {
+                const words = uuidToWords(uuid, intType === SIGNED)
+                return words === null ? null : JSON.stringify(words)
+            }
             case TYPE_BASE64:
                 return uuidToBase64Std(uuid)
             case TYPE_ULID:
                 return uuidToUlid(uuid)
+            case TYPE_HEX:
+                return uuidToHex(uuid)
         }
 
         return uuid
     }
 
     setResultType = (type, event) => {
-        const { text, resultType } = this.state
+        const { text } = this.state
+        const { resultType } = this.props
         const now = Date.now();
         
         if (type === resultType) {
@@ -306,6 +339,7 @@ export default class InputComponent extends React.Component {
             this.lastResultTypeClick = now;
             
             if (this.resultTypeClickCount === 5) {
+                trackEgg('magnetic-field', 'clicked');
                 this.resultTypeClickCount = 0;
                 
                 const now = Date.now();
@@ -319,7 +353,9 @@ export default class InputComponent extends React.Component {
                     
                     if (!targetElement) {
                         const radioButtons = document.querySelectorAll('.custom-radio');
-                        const typeIndex = Array.from(uuidTypeList()).findIndex((_, idx) => idx === resultType);
+                        // uuidTypeList() is indexed by bitmask (1/2/4/8/16) while the
+                        // rendered radios are a dense list, so count the entries before it.
+                        const typeIndex = uuidTypeList().filter((_, idx) => idx < resultType).length;
                         if (radioButtons[typeIndex]) {
                             targetElement = radioButtons[typeIndex];
                         }
@@ -343,13 +379,16 @@ export default class InputComponent extends React.Component {
             this.lastResultTypeClick = null;
         }
         
-        this.setState({ resultType: type }, () => {
-            this.handle(text)
+        this.props.setResultType(type, () => {
+            if (text.trim()) {
+                this.handle(text)
+            }
         })
     }
 
     setIntType = (type, event) => {
-        const { text, intType } = this.state
+        const { text } = this.state
+        const { intType } = this.props
         const now = Date.now();
         
         if (type === intType) {
@@ -361,12 +400,15 @@ export default class InputComponent extends React.Component {
             this.lastIntTypeClick = now;
             
             if (this.intTypeClickCount === 5) {
+                trackEgg('guess-the-number', 'clicked');
                 this.intTypeClickCount = 0;
-                
+
                 shakeElement('#input-cp', 15, 600);
                 
                 setTimeout(() => {
                     startNumberGuessingGame((won, attempts, targetNumber) => {
+                        trackEgg('guess-the-number', won ? 'won' : 'lost');
+
                         if (won) {
                             toast.success('🎮 You won!', {
                                 description: `Congratulations! You guessed the number in ${attempts} attempt${attempts > 1 ? 's' : ''}!`,
@@ -393,34 +435,21 @@ export default class InputComponent extends React.Component {
             this.lastIntTypeClick = null;
         }
         
-        this.setState({ intType: type }, () => {
-            this.handle(text)
+        this.props.setIntType(type, () => {
+            if (text.trim()) {
+                this.handle(text)
+            }
         })
     }
 
-    render({ items, isToggled }, { resultType, intType }) {
-        const [isClosedInformer, setClosedInformer] = useState(() => {
-            try {
-                return JSON.parse(localStorage.getItem('informerClosed') || 'false');
-            } catch {
-                return false;
-            }
-        });
-
-        useEffect(() => {
-            try {
-                localStorage.setItem('informerClosed', JSON.stringify(isClosedInformer));
-            } catch (e) {
-            }
-        }, [isClosedInformer]);
-
+    render({ resultType, intType }, { isClosedInformer, text }) {
         return (
             <div className="space-y-5">
                 {!isClosedInformer && (
-                    <div className={`bg-gradient-to-r ${isToggled ? 'from-blue-900/30 to-indigo-900/30 border-blue-800' : 'from-blue-50 to-indigo-50 border-blue-200'} border rounded-xl p-4 relative shadow-sm`}>
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 dark:from-blue-900/30 dark:to-indigo-900/30 dark:border-blue-800 border rounded-xl p-4 relative shadow-sm">
                         <button 
-                            className={`absolute top-3 right-3 w-7 h-7 flex items-center justify-center ${isToggled ? 'text-blue-400 hover:bg-blue-900/50' : 'text-blue-600 hover:bg-blue-100'} rounded-full transition-all hover:scale-110`}
-                            onClick={() => setClosedInformer(true)}
+                            className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/50 rounded-full transition-all hover:scale-110"
+                            onClick={this.closeInformer}
                             aria-label="Close"
                         >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -428,10 +457,10 @@ export default class InputComponent extends React.Component {
                             </svg>
                         </button>
                         <div className="flex items-start space-x-2 pr-8">
-                            <svg className={`w-5 h-5 ${isToggled ? 'text-blue-400' : 'text-blue-600'} mt-0.5 flex-shrink-0`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <p className={`${isToggled ? 'text-blue-200' : 'text-blue-800'} text-sm leading-relaxed`}>
+                            <p className="text-blue-800 dark:text-blue-200 text-sm leading-relaxed">
                                 This project is provided "as is". Updates will only be made when absolutely necessary.
                             </p>
                         </div>
@@ -439,7 +468,7 @@ export default class InputComponent extends React.Component {
                 )}
 
                 <div className="relative">
-                    <label className={`block mb-2 text-sm font-medium ${isToggled ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                         <span className="flex items-center space-x-2">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -448,12 +477,15 @@ export default class InputComponent extends React.Component {
                         </span>
                     </label>
                     <textarea
-                        className={`w-full px-4 py-3 border-2 ${isToggled ? 'border-gray-600 bg-gray-800 text-gray-100 placeholder-gray-500 focus:border-blue-500' : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-blue-500'} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y font-mono text-sm transition-colors transition-shadow shadow-sm hover:shadow-md min-h-[200px]`}
+                        className="w-full px-4 py-3 border-2 border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500 dark:focus:border-blue-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y font-mono text-sm transition-colors transition-shadow shadow-sm hover:shadow-md min-h-[200px]"
+                        value={this.state.text}
                         onChange={this.onKeyboardInput}
                         onPaste={this.onPaste}
+                        onKeyDown={this.onTextareaKeyDown}
                         spellCheck={false}
                         autoComplete="off"
-                        aria-label="UUID input field"
+                        aria-label="Identifiers to convert"
+                        aria-describedby="input-hint"
                         placeholder={`Enter UUID. Input examples:
 0;1 // comment
 0;1 # comment
@@ -469,15 +501,19 @@ huW65O9YQDGzT16f+RTNVQ== # comment new
 `}
                         rows="15"
                     ></textarea>
+
+                    <p id="input-hint" className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+                        One identifier per line. Press <kbd className="px-1.5 py-0.5 rounded border font-mono text-[11px] border-gray-300 bg-gray-100 text-gray-800 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200">Enter</kbd> or paste to convert; <kbd className="px-1.5 py-0.5 rounded border font-mono text-[11px] border-gray-300 bg-gray-100 text-gray-800 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200">⌘↵</kbd> converts without a trailing newline.
+                    </p>
                 </div>
 
-                <div className={`${isToggled ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-xl shadow-md border p-5 hover:shadow-lg transition-shadow`}>
-                    <label className={`block text-sm font-semibold ${isToggled ? 'text-gray-300' : 'text-gray-700'} mb-4 flex items-center space-x-2`}>
+                <fieldset className="bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700 rounded-xl shadow-md border px-5 pb-5 pt-3 hover:shadow-lg transition-shadow">
+                    <legend className="px-1 text-sm font-semibold flex items-center space-x-2 text-gray-700 dark:text-gray-300">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <span>Select result type</span>
-                    </label>
+                    </legend>
                     <div className="flex flex-wrap gap-3">
                         {uuidTypeList().map((v, k) => (
                             <label 
@@ -496,19 +532,19 @@ huW65O9YQDGzT16f+RTNVQ== # comment new
                                     onChange={(e) => this.setResultType(k, e)}
                                 />
                                 <span className="radio-check radio-link group-hover:scale-110 transition-transform"></span>
-                                <span className={`radio-label text-sm font-medium ${isToggled ? 'text-gray-300 group-hover:text-blue-400' : 'text-gray-700 group-hover:text-blue-600'} transition-colors`}>{v}</span>
+                                <span className="radio-label text-sm font-medium text-gray-700 group-hover:text-blue-600 dark:text-gray-300 dark:group-hover:text-blue-400 transition-colors">{v}</span>
                             </label>
                         ))}
                     </div>
-                </div>
+                </fieldset>
 
-                <div className={`${isToggled ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-xl shadow-md border p-5 hover:shadow-lg transition-shadow`}>
-                    <label className={`block text-sm font-semibold ${isToggled ? 'text-gray-300' : 'text-gray-700'} mb-4 flex items-center space-x-2`}>
+                <fieldset className="bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700 rounded-xl shadow-md border px-5 pb-5 pt-3 hover:shadow-lg transition-shadow">
+                    <legend className="px-1 text-sm font-semibold flex items-center space-x-2 text-gray-700 dark:text-gray-300">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
                         </svg>
                         <span>Integer type</span>
-                    </label>
+                    </legend>
                     <div className="flex flex-wrap gap-3">
                         {intTypeList().map((v, k) => (
                             <label 
@@ -527,11 +563,11 @@ huW65O9YQDGzT16f+RTNVQ== # comment new
                                     onChange={(e) => this.setIntType(k, e)}
                                 />
                                 <span className="radio-check radio-info group-hover:scale-110 transition-transform"></span>
-                                <span className={`radio-label text-sm font-medium ${isToggled ? 'text-gray-300 group-hover:text-blue-400' : 'text-gray-700 group-hover:text-blue-600'} transition-colors`}>{v}</span>
+                                <span className="radio-label text-sm font-medium text-gray-700 group-hover:text-blue-600 dark:text-gray-300 dark:group-hover:text-blue-400 transition-colors">{v}</span>
                             </label>
                         ))}
                     </div>
-                </div>
+                </fieldset>
             </div>
         );
     }

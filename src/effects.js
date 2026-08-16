@@ -59,92 +59,126 @@ export function createConfetti(x, y, colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', 
     return confetti;
 }
 
-let rainbowAnimationId = null;
-let rainbowTimeoutId = null;
-
-export function createRainbowEffect(duration = 3000) {
-    const body = document.body;
-    const originalClass = body.className;
-    
-    if (rainbowTimeoutId) {
-        clearTimeout(rainbowTimeoutId);
-    }
-    if (rainbowAnimationId) {
-        cancelAnimationFrame(rainbowAnimationId);
-    }
-    
-    let startTime = Date.now();
-    const colors = [
-        'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-        'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-        'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-        'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-        'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
-    ];
-    
-    let colorIndex = 0;
-    
-    const animate = () => {
-        const elapsed = Date.now() - startTime;
-        if (elapsed < duration) {
-            body.style.background = colors[colorIndex % colors.length];
-            body.style.transition = 'background 0.25s ease';
-            body.style.willChange = 'background';
-            colorIndex++;
-            rainbowTimeoutId = setTimeout(animate, 250);
-        } else {
-            body.style.background = '';
-            body.style.transition = 'background 0.3s ease';
-            body.style.willChange = 'auto';
-            body.className = originalClass;
-            rainbowTimeoutId = null;
-            rainbowAnimationId = null;
-        }
-    };
-    
-    animate();
-}
-
 export function startNumberGuessingGame(onComplete) {
     const targetNumber = Math.floor(Math.random() * 100) + 1;
-    let attempts = 0;
     const maxAttempts = 7;
-    
-    const showPrompt = () => {
-        const userInput = prompt(`🎮 Number Guessing Game!\n\nI'm thinking of a number between 1 and 100.\nYou have ${maxAttempts - attempts} attempts left.\n\nEnter your guess:`);
-        
-        if (userInput === null) {
-            return;
-        }
-        
-        const guess = parseInt(userInput, 10);
-        attempts++;
-        
-        if (isNaN(guess)) {
-            alert('Please enter a valid number!');
-            if (attempts < maxAttempts) {
-                showPrompt();
-            }
-            return;
-        }
-        
-        if (guess === targetNumber) {
-            if (onComplete) onComplete(true, attempts);
-            return;
-        }
-        
-        if (attempts >= maxAttempts) {
-            if (onComplete) onComplete(false, attempts, targetNumber);
-            return;
-        }
-        
-        const hint = guess < targetNumber ? 'higher' : 'lower';
-        alert(`Try ${hint}! You have ${maxAttempts - attempts} attempts left.`);
-        showPrompt();
+    let attempts = 0;
+
+    // A real <dialog> rather than prompt()/alert(): those freeze the tab, are
+    // blocked in sandboxed iframes, and cannot be styled. The shell is the
+    // app's (.modal-*), so it matches every other dialog.
+    const panel = document.createElement('dialog');
+    panel.className = 'modal-panel is-narrow';
+    panel.setAttribute('aria-label', 'Guess the number');
+    panel.dataset.modal = 'guess';
+
+    const head = document.createElement('div');
+    head.className = 'modal-head';
+
+    const heading = document.createElement('div');
+    const title = document.createElement('p');
+    title.className = 'modal-title';
+    title.textContent = 'Guess the number';
+    const subtitle = document.createElement('p');
+    subtitle.className = 'modal-subtitle';
+    subtitle.textContent = `Between 1 and 100, in ${maxAttempts} attempts.`;
+    heading.append(title, subtitle);
+
+    const closeButton = document.createElement('button');
+    closeButton.type = 'button';
+    closeButton.className = 'modal-close';
+    closeButton.setAttribute('aria-label', 'Give up');
+    closeButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">' +
+        '<path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>';
+
+    head.append(heading, closeButton);
+
+    const body = document.createElement('div');
+    body.className = 'modal-body';
+    body.style.padding = '1.25rem 1.375rem 1.375rem';
+
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.min = '1';
+    input.max = '100';
+    input.className = 'modal-input';
+    input.setAttribute('aria-label', 'Your guess, 1 to 100');
+
+    const hint = document.createElement('p');
+    hint.className = 'modal-hint';
+    // Announced, because the only feedback this game gives is this one line.
+    hint.setAttribute('role', 'status');
+
+    body.append(input, hint);
+    panel.append(head, body);
+    document.body.appendChild(panel);
+    panel.showModal();
+    input.focus();
+
+    const attemptsLeft = () => {
+        const left = maxAttempts - attempts;
+        return `${left} attempt${left === 1 ? '' : 's'} left. Enter to try, Esc to give up.`;
     };
-    
-    showPrompt();
+
+    hint.textContent = attemptsLeft();
+
+    let finished = false;
+    const finish = (won) => {
+        if (finished) {
+            return;
+        }
+
+        finished = true;
+        panel.remove();
+
+        if (onComplete) {
+            onComplete(won, attempts, targetNumber);
+        }
+    };
+
+    const close = (won) => {
+        panel.close();
+        finish(won);
+    };
+
+    // Escape closes the dialog without going through close(); giving up counts
+    // as a loss either way.
+    panel.addEventListener('close', () => finish(false));
+
+    const submit = () => {
+        const guess = parseInt(input.value, 10);
+        if (isNaN(guess)) {
+            hint.textContent = `Numbers only. ${attemptsLeft()}`;
+            return;
+        }
+
+        attempts++;
+        input.value = '';
+
+        if (guess === targetNumber) {
+            close(true);
+            return;
+        }
+
+        if (attempts >= maxAttempts) {
+            close(false);
+            return;
+        }
+
+        hint.textContent = `${guess} is too ${guess < targetNumber ? 'low' : 'high'}. ${attemptsLeft()}`;
+    };
+
+    // Escape is the dialog's own; only Enter needs handling.
+    function onKeyDown(e) {
+        if (e.key === 'Enter') {
+            e.stopPropagation();
+            submit();
+        }
+    }
+
+    panel.addEventListener('keydown', onKeyDown);
+    closeButton.addEventListener('click', () => close(false));
+    panel.addEventListener('click', e => { if (e.target === panel) close(false); });
 }
 
 export function shakeElement(selector, intensity = 10, duration = 500) {
@@ -183,10 +217,6 @@ export function createMagneticFieldEffect(targetElement, duration = 3000) {
     const originalTransforms = new Map();
 
     radioButtons.forEach(radio => {
-        const rect = radio.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        
         originalTransforms.set(radio, {
             transform: radio.style.transform || '',
             zIndex: radio.style.zIndex || ''
@@ -230,11 +260,13 @@ export function createMagneticFieldEffect(targetElement, duration = 3000) {
             requestAnimationFrame(animate);
         } else {
             radioButtons.forEach(radio => {
-                const original = originalTransforms.get(radio);
+                // A re-render between the two passes swaps the elements out,
+                // and the lookup then yields undefined.
+                const original = originalTransforms.get(radio) || { transform: '', zIndex: '' };
                 radio.style.transition = 'transform 0.5s ease-out';
                 radio.style.transform = original.transform;
                 radio.style.zIndex = original.zIndex;
-                
+
                 setTimeout(() => {
                     radio.style.transition = '';
                 }, 500);
@@ -321,3 +353,82 @@ export function spinElement(selector, rotations = 3, duration = 1000) {
     activeSpinAnimations.set(element, { resetTimeout });
 }
 
+
+/**
+ * Columns of hex raining down the page. Cheap enough to run over the real UI:
+ * one canvas, one animation frame, and it removes itself when it is done.
+ */
+export function uuidRain(duration = 6000) {
+    if (document.querySelector('[data-uuid-rain]')) {
+        return;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.setAttribute('data-uuid-rain', '');
+    canvas.setAttribute('aria-hidden', 'true');
+    canvas.style.cssText = 'position:fixed;inset:0;z-index:99996;pointer-events:none;opacity:0;transition:opacity .4s ease';
+    document.body.appendChild(canvas);
+    // Not requestAnimationFrame: a hidden tab never fires one, and the layer
+    // would stay invisible even after the user came back to it.
+    setTimeout(() => { canvas.style.opacity = '1'; }, 0);
+
+    const ctx = canvas.getContext('2d');
+    const scale = Math.min(window.devicePixelRatio || 1, 2);
+    const resize = () => {
+        canvas.width = window.innerWidth * scale;
+        canvas.height = window.innerHeight * scale;
+        ctx.setTransform(scale, 0, 0, scale, 0, 0);
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const isDark = document.documentElement.classList.contains('dark');
+    const glyphs = '0123456789abcdef-';
+    const step = 14;
+    const columns = Math.ceil(window.innerWidth / step);
+    const drops = Array.from({ length: columns }, () => Math.random() * -40);
+
+    const startedAt = Date.now();
+    let frame = null;
+
+    const draw = () => {
+        const elapsed = Date.now() - startedAt;
+        const fading = Math.max(0, 1 - Math.max(0, elapsed - (duration - 800)) / 800);
+
+        ctx.fillStyle = isDark ? 'rgba(17,24,39,0.18)' : 'rgba(255,255,255,0.22)';
+        ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
+        ctx.font = '12px ui-monospace, SFMono-Regular, Menlo, monospace';
+        ctx.fillStyle = isDark
+            ? `rgba(94,234,212,${0.85 * fading})`
+            : `rgba(15,118,110,${0.75 * fading})`;
+
+        for (let i = 0; i < columns; i++) {
+            ctx.fillText(glyphs[Math.floor(Math.random() * glyphs.length)], i * step, drops[i] * step);
+            drops[i] = drops[i] * step > window.innerHeight && Math.random() > 0.975 ? 0 : drops[i] + 1;
+        }
+
+        if (elapsed < duration) {
+            frame = requestAnimationFrame(draw);
+            return;
+        }
+
+        window.removeEventListener('resize', resize);
+        canvas.style.opacity = '0';
+        setTimeout(() => canvas.remove(), 400);
+    };
+
+    frame = requestAnimationFrame(draw);
+
+    return () => {
+        if (frame) {
+            cancelAnimationFrame(frame);
+        }
+        window.removeEventListener('resize', resize);
+        canvas.remove();
+    };
+}

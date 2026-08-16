@@ -4,13 +4,36 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>UUIDConv UI</title>
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)">
+
+    <!--
+      The theme has to be on <html> before the first paint. Applying it from the
+      component ran after the page had already painted in light, so every dark
+      load started with a white flash.
+    -->
+    <script>
+        (function () {
+            try {
+                // Kept in step with src/theme.js by hand: this runs before any
+                // bundle exists, so it cannot import the module.
+                var stored = localStorage.getItem('theme');
+                var dark = stored === 'dark' || stored === 'true'
+                    || ((stored === null || stored === '') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                if (dark) {
+                    document.documentElement.classList.add('dark');
+                }
+            } catch (e) {
+            }
+        })();
+    </script>
 
     <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
     <link rel="manifest" href="./site.webmanifest">
-  <script type="module" crossorigin src="./assets/bundle-mJJAHMg6.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-BK23Gy-x.css">
+  <script type="module" crossorigin src="./assets/bundle-DTEOVfSU.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-D-JUnNwp.css">
 </head>
 <body>
     <div id="app"></div>
@@ -28,7 +51,7 @@
                 >
                     Babichev Maksim
                 </a>
-                <span class="footer-separator">•</span>
+                <span class="footer-separator" aria-hidden="true">•</span>
                 <span class="footer-text">Idea author</span>
                 <a 
                     href="https://github.com/dandreyanov" 
@@ -38,7 +61,7 @@
                 >
                     Andreyanov Denis
                 </a>
-                <span class="footer-separator">•</span>
+                <span class="footer-separator" aria-hidden="true">•</span>
                 <a 
                     href="https://github.com/bavix/uuid-ui" 
                     class="footer-link"
@@ -47,7 +70,7 @@
                 >
                     Source Code
                 </a>
-                <span class="footer-separator">•</span>
+                <span class="footer-separator" aria-hidden="true">•</span>
                 <a 
                     href="https://github.com/bavix/uuid-ui/blob/master/LICENSE" 
                     class="footer-link"
@@ -56,6 +79,12 @@
                 >
                     MIT License
                 </a>
+                <!-- Revealed by src/eggs-button.js after an hour of real work in
+                     the tool. Markup lives here so the footer stays one block. -->
+                <span class="footer-separator" data-eggs-part hidden aria-hidden="true">•</span>
+                <button type="button" class="footer-link footer-eggs" id="eggs-help" data-eggs-part hidden>
+                    Easter eggs
+                </button>
             </div>
         </div>
     </footer>

@@ -9,3 +9,42 @@ jobs:
     uses: bavix/.github/.github/workflows/npm-test.yml@0.5.0
     with:
       nodejs: 24.x
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24.x
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24.x
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      # The pipeline ran tests and lint but never built: a broken build passed.
+      - name: Build the app
+        run: npm run build
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Build the server
+        run: go build ./...
+      - name: Vet the server
+        run: go vet ./...

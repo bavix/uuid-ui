@@ -1,5 +1,5 @@
-import React from 'preact/compat';
 import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
+import { isTypingTarget } from './key-sequence.js';
 
 const PLAYER_SIZE = 20;
 const PLAYER_SPEED = 3.5;
@@ -9,7 +9,6 @@ const ASTEROID_SIZE = 15;
 const COMET_SIZE = 12;
 const FAST_ENEMY_SIZE = 8;
 const BIG_ENEMY_SIZE = 22;
-const BOSS_SIZE = 40;
 const ENERGY_SIZE = 10;
 const POWERUP_SIZE = 12;
 const SPAWN_RATE = 0.015;
@@ -96,17 +95,11 @@ const BOSS_CONFIG = {
   }
 };
 
+// The key handlers live on window, so they also see keystrokes meant for the
 export default function SpaceRunner({ onClose }) {
   const canvasRef = useRef(null);
   const bgCanvasRef = useRef(null);
   const [score, setScore] = useState(0);
-  const [highScore, setHighScore] = useState(() => {
-    try {
-      return parseInt(localStorage.getItem('spaceRunnerHighScore') || '0', 10);
-    } catch {
-      return 0;
-    }
-  });
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -115,9 +108,29 @@ export default function SpaceRunner({ onClose }) {
   const [combo, setCombo] = useState(0);
   const [level, setLevel] = useState(1);
   const [kills, setKills] = useState(0);
-  const [comboFlash, setComboFlash] = useState(0);
-  const [scoreFlash, setScoreFlash] = useState(0);
   const [lives, setLives] = useState(3);
+
+  // Frame-local counters. They used to be state, and since they tick down on
+  // every frame while a flash is active — and sat in the game loop's dependency
+  // array — the whole loop effect tore itself down and re-registered its window
+  // listeners 60 times a second after every kill.
+  const comboFlashRef = useRef(0);
+  const scoreFlashRef = useRef(0);
+
+  // Mirrors of score/highScore/lives, so the game loop can read and update them
+  // synchronously instead of hiding side effects inside setState updaters.
+  const scoreRef = useRef(0);
+  // Canvas-only value: nothing in the JSX reads it, so a ref is enough and it
+  // keeps the high score correct within the frame that sets it.
+  const highScoreRef = useRef((() => {
+    try {
+      const stored = parseInt(localStorage.getItem('spaceRunnerHighScore') || '0', 10);
+      return Number.isFinite(stored) && stored >= 0 ? stored : 0;
+    } catch {
+      return 0;
+    }
+  })());
+  const livesRef = useRef(3);
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -152,6 +165,8 @@ export default function SpaceRunner({ onClose }) {
   const isBlurDisabledRef = useRef(false);
 
   useEffect(() => {
+    // Shipped on purpose: anyone who opens the console and wants to cheat at
+    // the easter egg is welcome to.
     window.spaceRunnerWallHack = (enabled) => {
       if (enabled === undefined) {
         isWallHackActiveRef.current = !isWallHackActiveRef.current;
@@ -169,20 +184,19 @@ export default function SpaceRunner({ onClose }) {
         isBlurDisabledRef.current = Boolean(enabled);
       }
       console.log(`Blur ${isBlurDisabledRef.current ? 'DISABLED' : 'ENABLED'}`);
-      
+
+      // Clear it here; the hyperspeed effect owns the filter and reapplies it
+      // on the next transition. Recomputing it from a captured isHyperspeed
+      // read a value that was stale from the moment this effect mounted.
       const canvas = canvasRef.current;
       const bgCanvas = bgCanvasRef.current;
       if (bgCanvas) {
-        if (isBlurDisabledRef.current) {
-          bgCanvas.style.filter = 'none';
-        } else {
-          bgCanvas.style.filter = isHyperspeed ? 'blur(3px) brightness(1.3)' : 'none';
-        }
+        bgCanvas.style.filter = 'none';
       }
       if (canvas) {
         canvas.style.filter = 'none';
       }
-      
+
       return isBlurDisabledRef.current;
     };
     
@@ -290,6 +304,7 @@ export default function SpaceRunner({ onClose }) {
     starsRef.current = [];
     floatingTextsRef.current = [];
     keysRef.current = { up: false, down: false, left: false, right: false, shoot: false };
+    scoreRef.current = 0;
     setScore(0);
     setGameOver(false);
     setGameStarted(false);
@@ -299,8 +314,9 @@ export default function SpaceRunner({ onClose }) {
     setCombo(0);
     setLevel(1);
     setKills(0);
-    setComboFlash(0);
-    setScoreFlash(0);
+    comboFlashRef.current = 0;
+    scoreFlashRef.current = 0;
+    livesRef.current = 3;
     setLives(3);
     hyperspeedEndTimeRef.current = 0;
     tripleShotEndTimeRef.current = 0;
@@ -327,6 +343,10 @@ export default function SpaceRunner({ onClose }) {
   }, [gameHeight]);
 
   const handleKeyDown = useCallback((e) => {
+    if (isTypingTarget(e.target)) {
+      return;
+    }
+
     if (!gameStarted && !gameOver) {
       setGameStarted(true);
       return;
@@ -375,6 +395,10 @@ export default function SpaceRunner({ onClose }) {
   }, [gameStarted, gameOver, isPaused, resetGame]);
 
   const handleKeyUp = useCallback((e) => {
+    if (isTypingTarget(e.target)) {
+      return;
+    }
+
     switch (e.key) {
       case 'ArrowUp':
         keysRef.current.up = false;
@@ -414,41 +438,51 @@ export default function SpaceRunner({ onClose }) {
     height: PLAYER_SIZE
   });
 
+  const addLives = (delta, max = 5) => {
+    livesRef.current = Math.min(livesRef.current + delta, max);
+    setLives(livesRef.current);
+    return livesRef.current;
+  };
+
   const handlePlayerDamage = (damageColor, isDark) => {
     createParticles(playerRef.current.x, playerRef.current.y, 50, damageColor, isDark, 'explosion');
-    setLives(prev => {
-      const newLives = prev - 1;
-      if (newLives <= 0) {
-        setGameOver(true);
-        if (animationFrameRef.current) {
-          cancelAnimationFrame(animationFrameRef.current);
-        }
-      } else {
-        createFloatingText(playerRef.current.x, playerRef.current.y, `-1 LIFE`, damageColor, 10);
+
+    livesRef.current -= 1;
+    setLives(livesRef.current);
+
+    if (livesRef.current <= 0) {
+      setGameOver(true);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
       }
-      return newLives;
-    });
+      return;
+    }
+
+    createFloatingText(playerRef.current.x, playerRef.current.y, `-1 LIFE`, damageColor, 10);
   };
 
   const updateScoreWithHighScore = (points, flashDuration = 8, checkHyperspeed = true) => {
-    setScore(prev => {
-      const newScore = prev + points;
-      if (newScore > highScore) {
-        setHighScore(newScore);
-        try {
-          localStorage.setItem('spaceRunnerHighScore', newScore.toString());
-        } catch {}
-      }
-      if (checkHyperspeed) {
-        const prevScore = prev;
-        if (newScore % 50 === 0 && newScore > 0 && prevScore % 50 !== 0) {
-          setIsHyperspeed(true);
-          hyperspeedEndTimeRef.current = Date.now() + HYPERSPEED_DURATION;
-        }
-      }
-      setScoreFlash(flashDuration);
-      return newScore;
-    });
+    const prevScore = scoreRef.current;
+    const newScore = prevScore + points;
+
+    scoreRef.current = newScore;
+    setScore(newScore);
+
+    // Compared against the ref, not the state: several kills can land in one
+    // frame, and the state value would still be the pre-frame one.
+    if (newScore > highScoreRef.current) {
+      highScoreRef.current = newScore;
+      try {
+        localStorage.setItem('spaceRunnerHighScore', newScore.toString());
+      } catch {}
+    }
+
+    if (checkHyperspeed && newScore > 0 && newScore % 50 === 0 && prevScore % 50 !== 0) {
+      setIsHyperspeed(true);
+      hyperspeedEndTimeRef.current = Date.now() + HYPERSPEED_DURATION;
+    }
+
+    scoreFlashRef.current = flashDuration;
   };
 
   const createBossBullet = (bossX, bossY, playerX, playerY, bulletSpeed) => {
@@ -487,12 +521,9 @@ export default function SpaceRunner({ onClose }) {
       createParticles(x, y, 30, isDark ? '#10b981' : '#16a34a', isDark, 'explosion');
       createFloatingText(x, y, 'SHIELD!', isDark ? '#10b981' : '#16a34a', 9);
     } else if (type === 'life') {
-      setLives(prev => {
-        const newLives = Math.min(prev + 1, 5);
-        createParticles(x, y, 30, isDark ? '#ef4444' : '#dc2626', isDark, 'explosion');
-        createFloatingText(x, y, '+1 LIFE!', isDark ? '#ef4444' : '#dc2626', 9);
-        return newLives;
-      });
+      addLives(1);
+      createParticles(x, y, 30, isDark ? '#ef4444' : '#dc2626', isDark, 'explosion');
+      createFloatingText(x, y, '+1 LIFE!', isDark ? '#ef4444' : '#dc2626', 9);
     }
   };
 
@@ -867,7 +898,6 @@ export default function SpaceRunner({ onClose }) {
     const config = BOSS_CONFIG[bossType] || BOSS_CONFIG[BOSS_TYPES.FORTRESS];
     const r = Math.floor(config.size / 2);
     const colors = isDark ? config.color.dark : config.color.light;
-    const pulse = Math.sin(pattern * 0.15) * 0.15 + 0.85;
     
     if (bossType === BOSS_TYPES.FORTRESS) {
       ctx.fillStyle = colors.main;
@@ -1585,11 +1615,8 @@ export default function SpaceRunner({ onClose }) {
             createFloatingText(bossRef.current.x, bossRef.current.y, `+${points}`, isDark ? '#fbbf24' : '#d97706', 10);
             updateScoreWithHighScore(points, 10, false);
             setKills(prev => prev + 1);
-            setLives(prev => {
-              const newLives = Math.min(prev + livesReward, 5);
-              createFloatingText(bossRef.current.x, bossRef.current.y - 15, `+${livesReward} LIFE${livesReward > 1 ? 'S' : ''}!`, isDark ? '#ef4444' : '#dc2626', 9);
-              return newLives;
-            });
+            addLives(livesReward);
+            createFloatingText(bossRef.current.x, bossRef.current.y - 15, `+${livesReward} LIFE${livesReward > 1 ? 'S' : ''}!`, isDark ? '#ef4444' : '#dc2626', 9);
             bossRef.current = null;
             bossPatternRef.current = 0;
             bossBulletsRef.current = [];
@@ -1616,11 +1643,11 @@ export default function SpaceRunner({ onClose }) {
           if (timeSinceLastKill < COMBO_TIMEOUT) {
             newCombo = combo + 1;
             setCombo(newCombo);
-            setComboFlash(15);
+            comboFlashRef.current = 15;
           } else {
             newCombo = 1;
             setCombo(1);
-            setComboFlash(10);
+            comboFlashRef.current = 10;
           }
           
           lastKillTimeRef.current = now;
@@ -1656,11 +1683,11 @@ export default function SpaceRunner({ onClose }) {
       isShieldActiveRef.current = false;
     }
 
-    if (comboFlash > 0) {
-      setComboFlash(prev => prev - 1);
+    if (comboFlashRef.current > 0) {
+      comboFlashRef.current -= 1;
     }
-    if (scoreFlash > 0) {
-      setScoreFlash(prev => prev - 1);
+    if (scoreFlashRef.current > 0) {
+      scoreFlashRef.current -= 1;
     }
 
     const spawnRate = SPAWN_RATE * (1 + level * 0.1);
@@ -1803,8 +1830,8 @@ export default function SpaceRunner({ onClose }) {
     const textColor = isDark ? '#e5e7eb' : '#0f172a';
     const lineColor = isDark ? '#374151' : '#cbd5e1';
 
-    const comboPulse = comboFlash > 0 ? 1 + Math.sin(Date.now() / 100) * 0.3 : 1;
-    const scorePulse = scoreFlash > 0 ? 1 + Math.sin(Date.now() / 150) * 0.2 : 1;
+    const comboPulse = comboFlashRef.current > 0 ? 1 + Math.sin(Date.now() / 100) * 0.3 : 1;
+    const scorePulse = scoreFlashRef.current > 0 ? 1 + Math.sin(Date.now() / 150) * 0.2 : 1;
 
     ctx.fillStyle = textColor;
     ctx.font = 'bold 10px monospace';
@@ -1815,7 +1842,7 @@ export default function SpaceRunner({ onClose }) {
     ctx.font = `${8 * scorePulse}px monospace`;
     ctx.fillText(`SCORE: ${score}`, 8, 22);
     ctx.font = '8px monospace';
-    ctx.fillText(`HIGH: ${highScore}`, 8, 34);
+    ctx.fillText(`HIGH: ${highScoreRef.current}`, 8, 34);
     ctx.fillText(`LVL: ${level}`, 8, 46);
     ctx.fillText(`KILLS: ${kills}`, 8, 58);
     
@@ -1913,7 +1940,7 @@ export default function SpaceRunner({ onClose }) {
       ctx.fillText(`FINAL SCORE: ${score}`, width / 2, height / 2 - 20);
       ctx.fillText(`KILLS: ${kills}`, width / 2, height / 2 - 10);
       ctx.fillText(`LEVEL REACHED: ${level}`, width / 2, height / 2);
-      if (score === highScore && score > 0) {
+      if (scoreRef.current === highScoreRef.current && scoreRef.current > 0) {
         ctx.fillStyle = isDark ? '#fbbf24' : '#ea580c';
         ctx.font = 'bold 9px monospace';
         ctx.fillText('NEW HIGH SCORE!', width / 2, height / 2 + 12);
@@ -2066,7 +2093,7 @@ export default function SpaceRunner({ onClose }) {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [gameStarted, gameOver, isPaused, score, isHyperspeed, isTripleShot, isDark, gameWidth, gameHeight, combo, level, kills, comboFlash, scoreFlash, highScore, handleKeyDown, handleKeyUp]);
+  }, [gameStarted, gameOver, isPaused, score, isHyperspeed, isTripleShot, isDark, gameWidth, gameHeight, combo, level, kills, handleKeyDown, handleKeyUp]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

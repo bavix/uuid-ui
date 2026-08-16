@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "lint": "eslint .",
     "test": "node --test ./tests/*"
   },
   "repository": {
@@ -24,19 +25,21 @@
   "author": "Maksim Babichev",
   "license": "MIT",
   "dependencies": {
-    "@preact/preset-vite": "^2.10.6",
-    "@tailwindcss/postcss": "^4.3.3",
     "@theme-toggles/react": "^4.1.0",
     "json5": "^2.2.3",
-    "postcss": "^8.5.26",
     "preact": "^10.29.8",
     "sonner": "^2.0.7",
-    "tailwindcss": "^4.2.1",
-    "uuid": "^14.0.1",
-    "vite": "^8.2.1"
+    "uuid": "^14.0.1"
   },
   "devDependencies": {
+    "@preact/preset-vite": "^2.10.6",
+    "@tailwindcss/postcss": "^4.3.3",
     "baseline-browser-mapping": "^2.11.13",
-    "esbuild": "^0.28.2"
+    "esbuild": "^0.28.2",
+    "eslint": "^10.8.1",
+    "globals": "^17.11.0",
+    "postcss": "^8.5.26",
+    "tailwindcss": "^4.2.1",
+    "vite": "^8.2.1"
   }
 }
