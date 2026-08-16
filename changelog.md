@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.8.0 - 2026-08-16
+
+### What's Changed
+
+* chore(npm-deps): bump baseline-browser-mapping from 2.11.10 to 2.11.11 in the npm group by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/460
+* chore(npm-deps): bump baseline-browser-mapping from 2.11.11 to 2.11.12 in the npm group by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/461
+* chore(npm-deps): bump the npm group with 2 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/462
+* chore(npm-deps): bump the npm group with 2 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/463
+* adding a modal window about uuid by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/465
+* chore(npm-deps): bump sonner from 2.0.7 to 2.0.8 in the npm group across 1 directory by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/464
+* search fix by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/466
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.7.8...v1.8.0
+
 ## v1.7.8 - 2026-08-05
 
 ### What's Changed
