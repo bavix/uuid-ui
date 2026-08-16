@@ -645,7 +645,7 @@ export default class HistoryComponent extends React.Component {
           )}
         </div>
         {items.length > 0 && (
-          <div className="px-4 pt-2">
+          <div className="px-5 pb-3">
             <div className="history-search">
               <svg className="history-search-icon" width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                 <circle cx="7" cy="7" r="4.25" stroke="currentColor" strokeWidth="1.5" />
@@ -681,7 +681,7 @@ export default class HistoryComponent extends React.Component {
           </div>
         )}
         {favoriteListNames.length > 0 && (
-          <div className="px-4 py-2">
+          <div className="px-5 pb-3">
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => this.handleFilterChange('all')}
