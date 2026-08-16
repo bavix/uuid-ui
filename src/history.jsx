@@ -65,6 +65,29 @@ export default class HistoryComponent extends React.Component {
     };
   }
 
+  // Ten taps on the empty-state icon wakes the game up. A button, not the svg
+  // itself, so the keyboard reaches it the same way the mouse does.
+  handleEmptyIconClick = () => {
+    const now = Date.now();
+    if (this.lastEmptyIconClick && now - this.lastEmptyIconClick > 2000) {
+      this.emptyIconClickCount = 0;
+    }
+
+    this.emptyIconClickCount++;
+    this.lastEmptyIconClick = now;
+
+    if (this.emptyIconClickCount === 10) {
+      trackEgg('space-runner', 'clicked');
+      this.emptyIconClickCount = 0;
+      this.showGame = true;
+      this.forceUpdate();
+      toast.success('🚀 Secret unlocked!', {
+        description: 'Space Runner game activated!',
+        duration: 3000,
+      });
+    }
+  };
+
   showMore = () => {
     this.setState(({ visibleCount }) => ({ visibleCount: visibleCount + PAGE_SIZE }));
   }
@@ -569,7 +592,7 @@ export default class HistoryComponent extends React.Component {
     const { activeFilter } = this.state;
     // Space Runner or one of the lab games; either way the panel is theirs.
     const expanded = this.showGame || !!panelGame;
-    const favoriteListNames = Object.keys(favorites || {}).sort();
+    const favoriteListNames = Object.keys(favorites || {}).sort((a, b) => a.localeCompare(b));
     const filteredItems = this.getFilteredItems();
 
     return (
@@ -737,34 +760,22 @@ export default class HistoryComponent extends React.Component {
                    </Suspense>
                  ) : filteredItems.length === 0 ? (
             <div className="px-4 py-12 text-center">
-              <svg 
-                className="w-10 h-10 mx-auto mb-2 text-gray-400 dark:text-gray-600" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-                onClick={(e) => {
-                  const now = Date.now();
-                  if (this.lastEmptyIconClick && now - this.lastEmptyIconClick > 2000) {
-                    this.emptyIconClickCount = 0;
-                  }
-                  
-                  this.emptyIconClickCount++;
-                  this.lastEmptyIconClick = now;
-                  
-                  if (this.emptyIconClickCount === 10) {
-                    trackEgg('space-runner', 'clicked');
-                    this.emptyIconClickCount = 0;
-                    this.showGame = true;
-                    this.forceUpdate();
-                           toast.success('🚀 Secret unlocked!', {
-                             description: 'Space Runner game activated!',
-                             duration: 3000,
-                           });
-                  }
-                }}
+              <button
+                type="button"
+                aria-label="Empty history"
+                className="block mx-auto mb-2 p-0 border-0 bg-transparent cursor-default"
+                onClick={this.handleEmptyIconClick}
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-              </svg>
+                <svg
+                  className="w-10 h-10 text-gray-400 dark:text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+              </button>
               <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
                 {this.state.query.trim() !== ''
                   ? `Nothing matches "${this.state.query.trim()}"`

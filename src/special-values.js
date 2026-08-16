@@ -144,9 +144,12 @@ export function hexWordUuid(word) {
  * puts them: it is a palindrome first and a UUID second.
  */
 export function randomPalindromeUuid() {
+    const nibbles = new Uint8Array(16);
+    crypto.getRandomValues(nibbles);
+
     let half = '';
-    for (let i = 0; i < 16; i++) {
-        half += '0123456789abcdef'[Math.floor(Math.random() * 16)];
+    for (const nibble of nibbles) {
+        half += '0123456789abcdef'[nibble & 0x0f];
     }
 
     return uuidFormatter(half + [...half].reverse().join(''));
