@@ -54,6 +54,9 @@
   --bit-time: rgb(30, 64, 175);
   --bit-clock: rgb(190, 24, 93);
   --bit-node: rgb(109, 40, 217);
+  /* How much of a field's own colour an unlit bit keeps. Dark ink on a dark
+     sheet needs more of it to read as the same step away from the surface. */
+  --bit-mix: 26%;
   --accent-soft: rgb(239, 246, 255);
 }
 
@@ -85,6 +88,7 @@
   --bit-time: rgb(147, 197, 253);
   --bit-clock: rgb(251, 207, 232);
   --bit-node: rgb(221, 214, 254);
+  --bit-mix: 34%;
   --accent-soft: rgba(30, 58, 138, 0.35);
 }
 
@@ -1034,6 +1038,17 @@
   padding: 0 0.625rem 0.25rem;
 }
 
+/* One property carries a field's colour to all three rows of the specimen: the
+   character, its four bits and the run on the ruler are one field seen at three
+   scales, and they must never drift apart. */
+.report .k-time { --field: var(--bit-time); }
+.report .k-version,
+.report .k-variant { --field: var(--bit-fixed); }
+.report .k-random { --field: var(--bit-random); }
+.report .k-clock { --field: var(--bit-clock); }
+.report .k-node,
+.report .k-hash { --field: var(--bit-node); }
+
 .report-meta {
   display: flex;
   flex-wrap: wrap;
@@ -1064,6 +1079,24 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.375rem;
+  /* Exceptions belong at the end of the line: what it is comes first, and only
+     then what is odd about it. */
+  margin-left: auto;
+}
+
+/* A chip is for the exception only. An RFC variant is the norm and lives in
+   Properties; deadbeef and non-rfc are what earn one. */
+.report-chip {
+  padding: 0.125rem 0.5rem;
+  border: 1px solid var(--field, var(--line-strong));
+  border-radius: 999px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--ui-2xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--field, var(--ink-muted));
+  white-space: nowrap;
 }
 
 /* The specimen: characters, their bits, and a ruler naming the fields. The
@@ -1112,7 +1145,7 @@
 .report-bit {
   height: 100%;
   border-radius: 1px;
-  background: color-mix(in oklab, var(--field) 22%, var(--surface-sunken));
+  background: color-mix(in oklab, var(--field) var(--bit-mix), var(--surface-sunken));
   transition: opacity 130ms ease;
 }
 
@@ -1160,12 +1193,6 @@
   transition: color 130ms ease;
 }
 
-/* A four-bit field has no room for its name; the colour says which it is and
-   the reading names it. Only runs wide enough to hold a word get one. */
-.report-run.is-narrow {
-  color: transparent;
-}
-
 /* Picking: the chosen field keeps its colour, everything else steps back. The
    characters stay legible — this is still the identifier. */
 .report-chars:has(.is-picked) .report-char:not(.is-picked) { opacity: 0.55; }
@@ -1178,6 +1205,13 @@
 
 .report-run.is-picked {
   color: var(--ink);
+}
+
+/* A four-bit field has no room for its name; the colour says which it is and
+   the reading names it. Only runs wide enough to hold a word get one — picked
+   or not, which is why this rule comes last. */
+.report-run.is-narrow {
+  color: transparent;
 }
 
 /* The reading. Fixed height so that moving along the characters does not make
@@ -1925,43 +1959,43 @@
   outline-offset: 1px;
 }
 
-.k-version,
-.k-variant {
+:is(.lab-bit, .lab-legend-key).k-version,
+:is(.lab-bit, .lab-legend-key).k-variant {
   background: color-mix(in oklab, var(--bit-fixed) 30%, var(--bit-off));
 }
 
-.k-time {
+:is(.lab-bit, .lab-legend-key).k-time {
   background: color-mix(in oklab, var(--bit-time) 30%, var(--bit-off));
 }
 
-.k-clock {
+:is(.lab-bit, .lab-legend-key).k-clock {
   background: color-mix(in oklab, var(--bit-clock) 30%, var(--bit-off));
 }
 
-.k-node,
-.k-hash {
+:is(.lab-bit, .lab-legend-key).k-node,
+:is(.lab-bit, .lab-legend-key).k-hash {
   background: color-mix(in oklab, var(--bit-node) 30%, var(--bit-off));
 }
 
-.is-on.k-random {
+:is(.lab-bit, .lab-legend-key).is-on.k-random {
   background: var(--bit-random);
 }
 
-.is-on.k-version,
-.is-on.k-variant {
+:is(.lab-bit, .lab-legend-key).is-on.k-version,
+:is(.lab-bit, .lab-legend-key).is-on.k-variant {
   background: var(--bit-fixed);
 }
 
-.is-on.k-time {
+:is(.lab-bit, .lab-legend-key).is-on.k-time {
   background: var(--bit-time);
 }
 
-.is-on.k-clock {
+:is(.lab-bit, .lab-legend-key).is-on.k-clock {
   background: var(--bit-clock);
 }
 
-.is-on.k-node,
-.is-on.k-hash {
+:is(.lab-bit, .lab-legend-key).is-on.k-node,
+:is(.lab-bit, .lab-legend-key).is-on.k-hash {
   background: var(--bit-node);
 }
 

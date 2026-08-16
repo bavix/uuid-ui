@@ -427,9 +427,14 @@ function since(iso) {
     return 'just now';
 }
 
+const FACT_IDENTITY = 'What it is';
+const FACT_CLOCK = 'Its clock';
+const FACT_SPELLINGS = 'The same value, other spellings';
+
 /**
  * Everything this app can say about one identifier, in three groups: what it
- * is, what its clock reads, and every other way to write the same 128 bits.
+ * is, what its clock reads, and every other way to write the same 128 bits. A
+ * group with nothing in it is dropped, so read the result by name.
  */
 function factsAbout(uuid, hex, version) {
     const identity = [];
@@ -443,7 +448,7 @@ function factsAbout(uuid, hex, version) {
     };
 
     const markers = specialValues(uuid);
-    add('Version', version >= 1 && version <= 8 ? String(version) : 'none — Nil and Max have none');
+    add('Version', version >= 1 && version <= 8 ? String(version) : `none — nibble reads ${version}`);
     add('Variant', variantOf(hex));
     add('Notable', markers.length > 0 ? markers.join(', ') : null);
     add('Uniqueness from', UNIQUENESS[version] ?? 'nothing the standard specifies');
@@ -514,9 +519,9 @@ function factsAbout(uuid, hex, version) {
     add('Words, int32', iwords ? JSON.stringify(iwords) : null, true);
 
     return [
-        ['What it is', identity],
-        ['Its clock', clock],
-        ['The same value, other spellings', spellings],
+        [FACT_IDENTITY, identity],
+        [FACT_CLOCK, clock],
+        [FACT_SPELLINGS, spellings],
     ].filter(([, rows]) => rows.length > 0);
 }
 
@@ -588,6 +593,20 @@ const FIELD_NOTES = {
     custom_b: 'Version 8 leaves this to whoever generated it.',
     custom_c: 'Version 8 leaves this to whoever generated it.',
     random: 'Random bits, and nothing else is promised about them.',
+};
+
+/**
+ * Which field's colour a chip borrows. A chip names an exception, so it takes
+ * the colour of the field that exception is about: the version bits for a shape
+ * the standard does not define, the clock for one pointing the wrong way. The
+ * hex words are about the bytes as a whole, and take the node colour.
+ */
+const CHIP_KINDS = {
+    'nil': 'k-variant',
+    'max': 'k-variant',
+    'non-rfc': 'k-version',
+    'time traveler': 'k-time',
+    'palindrome': 'k-clock',
 };
 
 /** The value of one field, as hex and — when it is small enough — as a number. */
@@ -668,7 +687,7 @@ export function inspectBits(uuid) {
             const chips = element('div', 'report-chips');
 
             for (const marker of markers) {
-                chips.appendChild(element('span', `history-marker-badge marker-${marker.replace(/\s+/g, '-')}`, marker.toUpperCase()));
+                chips.appendChild(element('span', `report-chip ${CHIP_KINDS[marker] ?? 'k-node'}`, marker.toUpperCase()));
             }
 
             meta.appendChild(chips);
@@ -817,13 +836,19 @@ export function inspectBits(uuid) {
     show(versionLabel, versionFrom, versionTo);
 
     // ---- 3. the same value, other spellings ----
-    const [identity, clock, spellings] = factsAbout(uuid, hex, version);
+    // By name, not by position: an identifier with no clock has no clock group,
+    // and reading these off an array would then hand the spellings to
+    // Properties and leave this section empty.
+    const facts = Object.fromEntries(factsAbout(uuid, hex, version));
+    const identity = facts[FACT_IDENTITY] ?? [];
+    const clock = facts[FACT_CLOCK] ?? [];
+    const spellings = facts[FACT_SPELLINGS] ?? [];
 
-    if (spellings && spellings[1].length > 0) {
-        report.appendChild(element('p', 'report-heading', spellings[0]));
+    if (spellings.length > 0) {
+        report.appendChild(element('p', 'report-heading', FACT_SPELLINGS));
         const list = element('dl', 'report-copy');
 
-        for (const [label, text] of spellings[1]) {
+        for (const [label, text] of spellings) {
             const row = element('div', 'report-copy-row');
             row.append(element('dt', 'report-copy-label', label));
 
@@ -849,7 +874,9 @@ export function inspectBits(uuid) {
     }
 
     // ---- 4. the small print ----
-    const properties = [...(clock ? clock[1] : []), ...(identity ? identity[1] : [])];
+    // What it is before what its clock reads, and no Timestamp row: the head of
+    // the sheet already gives the time twice, relative and exact.
+    const properties = [...identity, ...clock.filter(([label]) => label !== 'Timestamp')];
 
     if (properties.length > 0) {
         report.appendChild(element('p', 'report-heading', 'Properties'));
