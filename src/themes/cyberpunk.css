@@ -62,9 +62,6 @@
   --radius-md: 7px;
   --radius-lg: 9px;
   --radius-pill: 999px;
-  --radius-xl: 10px;
-  --radius-2xl: 12px;
-  --radius-3xl: 14px;
   --output-edge: 1px;
 
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.1);
@@ -159,9 +156,6 @@
   --radius-md: 7px;
   --radius-lg: 9px;
   --radius-pill: 999px;
-  --radius-xl: 10px;
-  --radius-2xl: 12px;
-  --radius-3xl: 14px;
   --output-edge: 1px;
 
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.35);
