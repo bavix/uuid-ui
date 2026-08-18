@@ -37,7 +37,7 @@
   "devDependencies": {
     "@preact/preset-vite": "^2.10.6",
     "@tailwindcss/postcss": "^4.3.3",
-    "baseline-browser-mapping": "^2.11.13",
+    "baseline-browser-mapping": "^2.11.14",
     "esbuild": "^0.28.2",
     "eslint": "^10.8.1",
     "globals": "^17.11.0",
