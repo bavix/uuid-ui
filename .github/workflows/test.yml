@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
       - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v7
         with:
           node-version: 24.x
           cache: npm
@@ -31,7 +31,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
       - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v7
         with:
           node-version: 24.x
           cache: npm
@@ -41,7 +41,7 @@ jobs:
       - name: Build the app
         run: npm run build
       - name: Setup Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
       - name: Build the server
