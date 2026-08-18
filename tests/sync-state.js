@@ -166,7 +166,7 @@ test('a profile written before the split is carried over whole', (t) => {
     assert.strictEqual(state.readSecret('gist'), 'v1:sealed');
     assert.strictEqual(state.acquireLock('tab-1', NOW), false, 'the lock another tab held is still held');
 
-    assert.deepStrictEqual(Object.keys(local._keys()).sort(), ['sync', 'sync.secret.gist', 'uuidActiveSeconds']);
+    assert.deepStrictEqual(Object.keys(local._keys()).sort((a, b) => a.localeCompare(b)), ['sync', 'sync.secret.gist', 'uuidActiveSeconds']);
 });
 
 test('a secret kept only for the session moves without touching the other storage', (t) => {

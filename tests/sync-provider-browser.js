@@ -62,7 +62,7 @@ test('writing merges into the browser instead of replacing it', async (t) => {
     const result = await session.write(BROWSER_TARGET, snapshotOf({ items: [row('theirs', NOW)] }));
 
     assert.strictEqual(result.applied, true);
-    assert.deepStrictEqual(store.snapshot().items.map(r => r.input).sort(), ['mine', 'theirs']);
+    assert.deepStrictEqual(store.snapshot().items.map(r => r.input).sort((a, b) => a.localeCompare(b)), ['mine', 'theirs']);
 });
 
 test('writing what is already here changes nothing and says so', async (t) => {

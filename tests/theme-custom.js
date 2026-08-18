@@ -102,7 +102,7 @@ test('the shapes a theme may bend are checked by kind', async (t) => {
         'shadow-lg': 'url(x.png)',
     }));
 
-    assert.deepStrictEqual(Object.keys(held.tokens).sort(), ['font-ui', 'logo-filter', 'motion-base', 'shadow-md', 'ui-sm']);
+    assert.deepStrictEqual(Object.keys(held.tokens).sort((a, b) => a.localeCompare(b)), ['font-ui', 'logo-filter', 'motion-base', 'shadow-md', 'ui-sm']);
     assert.strictEqual(problems.length, 1, 'the one that fetches is refused');
     assert.match(problems[0], /shadow-lg/);
 });
@@ -127,7 +127,7 @@ test('a theme may carry both of its variants', async (t) => {
     }));
 
     assert.deepStrictEqual(problems, ['light/not-a-token: not a token this build reads.']);
-    assert.deepStrictEqual(theme.modes.sort(), ['dark', 'light']);
+    assert.deepStrictEqual(theme.modes.sort((a, b) => a.localeCompare(b)), ['dark', 'light']);
     assert.strictEqual(theme.variants.dark.surface, '#0e1012');
     assert.strictEqual(theme.variants.light.surface, '#eceeed');
     assert.strictEqual(theme.mode, 'dark');

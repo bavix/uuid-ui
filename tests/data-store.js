@@ -466,8 +466,8 @@ test('settings that belong to this browser alone never reach a snapshot', async 
 
     const held = store.snapshot().settings;
 
-    assert.deepStrictEqual(Object.keys(held).sort(), ['case', 'customTheme', 'intRead', 'intWrite', 'palette', 'resultType', 'spelling', 'theme', 'uuidType']);
-    assert.deepStrictEqual(Object.keys(buildSnapshot(store.snapshot(), NOW).settings).sort(), ['customTheme', 'palette', 'theme', 'uuidType']);
+    assert.deepStrictEqual(Object.keys(held).sort((a, b) => a.localeCompare(b)), ['case', 'customTheme', 'intRead', 'intWrite', 'palette', 'resultType', 'spelling', 'theme', 'uuidType']);
+    assert.deepStrictEqual(Object.keys(buildSnapshot(store.snapshot(), NOW).settings).sort((a, b) => a.localeCompare(b)), ['customTheme', 'palette', 'theme', 'uuidType']);
 });
 
 test('a local setting does not ask the sync to run', async (t) => {

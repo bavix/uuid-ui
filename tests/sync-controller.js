@@ -121,7 +121,7 @@ test('a sync writes remote data into the store without inventing deletions', asy
 
     await controller.sync();
 
-    assert.deepStrictEqual(store.snapshot().items.map(r => r.input).sort(), ['local', 'remote']);
+    assert.deepStrictEqual(store.snapshot().items.map(r => r.input).sort((a, b) => a.localeCompare(b)), ['local', 'remote']);
     assert.deepStrictEqual(store.snapshot().tombstones, {});
     assert.ok(state.readCursor('stub'));
     assert.ok(state.readLastSync() > 0);
@@ -241,7 +241,7 @@ test('one sync covers both directions: create, then fetch, then send', async (t)
     store.setRows([{ input: 'local', output: 'local-out', info: '' }, ...store.snapshot().items]);
     await controller.sync();
 
-    const stored = JSON.parse(session.calls.body).items.map(r => r.input).sort();
+    const stored = JSON.parse(session.calls.body).items.map(r => r.input).sort((a, b) => a.localeCompare(b));
     assert.deepStrictEqual(stored, ['local', 'remote'], 'work done here goes out on the next sync');
 });
 
@@ -350,7 +350,7 @@ test('writes made while an exchange is in flight are not lost', async (t) => {
     held();
     await quiet(session);
 
-    const stored = JSON.parse(session.calls.body).items.map(item => item.input).sort();
+    const stored = JSON.parse(session.calls.body).items.map(item => item.input).sort((a, b) => a.localeCompare(b));
     assert.deepStrictEqual(stored, ['first', 'second'], 'the write that happened mid-flight still went out');
 
     stop();
@@ -470,7 +470,7 @@ test('what was typed during an exchange is not overwritten by what comes back', 
 
     assert.ok(held, 'the store was written to');
     assert.deepStrictEqual(
-        store.snapshot().items.map(r => r.input).sort(),
+        store.snapshot().items.map(r => r.input).sort((a, b) => a.localeCompare(b)),
         ['local', 'remote', 'typed-meanwhile'],
         'the row written mid-exchange survived the snapshot coming back',
     );

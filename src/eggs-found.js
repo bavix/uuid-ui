@@ -4,7 +4,15 @@ export const EGGS_KEY = 'uuid.eggs';
 
 const LIMIT = 64;
 
+function kept() {
+    return typeof localStorage === 'undefined' ? null : localStorage;
+}
+
 function read(storage) {
+    if (!storage) {
+        return [];
+    }
+
     try {
         const raw = storage.getItem(EGGS_KEY);
         const held = raw === null ? [] : JSON.parse(raw);
@@ -15,12 +23,16 @@ function read(storage) {
     }
 }
 
-export function foundEggs(storage = localStorage) {
+export function foundEggs(storage = kept()) {
     return new Set(read(storage));
 }
 
-export function markFound(id, storage = localStorage) {
+export function markFound(id, storage = kept()) {
     if (typeof id !== 'string' || id === '') {
+        return false;
+    }
+
+    if (!storage) {
         return false;
     }
 
@@ -39,7 +51,11 @@ export function markFound(id, storage = localStorage) {
     }
 }
 
-export function forgetEggs(storage = localStorage) {
+export function forgetEggs(storage = kept()) {
+    if (!storage) {
+        return false;
+    }
+
     try {
         storage.removeItem(EGGS_KEY);
     } catch (e) {
