@@ -1,0 +1,189 @@
+/* Solarized: Ethan Schoonover's pair, the one palette designed as a light and
+   a dark of the same thing. Cyan-green glass by night, warm cream by day, and
+   a monospaced interface — this palette came from terminals.
+
+   Two departures, both for readability: body ink is one step brighter than the
+   published body tone (base0/base1 lands at 4.4:1 on our raised surface), and
+   the light accents are darkened, because Solarized's own accents are drawn
+   for text on a page, not for 11px labels on a tint. */
+
+:root[data-theme="solarized"] {
+  color-scheme: light;
+
+  --surface: rgb(248, 240, 219);
+  --surface-sunken: rgb(235, 228, 206);
+  --surface-raised: rgb(255, 251, 240);
+  --surface-hover: rgb(242, 234, 212);
+  --row-alt: rgb(247, 240, 222);
+
+  --line: rgb(218, 209, 186);
+  --line-strong: rgb(176, 168, 148);
+
+  --ink: rgb(7, 54, 66);
+  /* base01 is 4.2:1 on this card and the app sets secondary text at 13px, so
+     it comes down two steps. */
+  --ink-muted: rgb(82, 103, 110);
+  --ink-muted-chip: rgb(76, 96, 103);
+
+  --accent: rgb(18, 122, 116);
+  --accent-soft: rgb(226, 240, 233);
+  --accent-fill: rgb(15, 110, 105);
+  --accent-ink: rgb(253, 246, 227);
+
+  --brand-1: rgb(18, 122, 116);
+  --brand-2: rgb(25, 105, 165);
+  --brand-3: rgb(168, 40, 104);
+
+  --fmt-uuid: rgb(21, 122, 116);
+  --fmt-base64: rgb(180, 66, 20);
+  --fmt-ulid: rgb(88, 92, 170);
+  --fmt-highlow: rgb(25, 105, 165);
+  --fmt-bytes: rgb(168, 40, 104);
+  --fmt-words: rgb(106, 122, 0);
+  --fmt: var(--fmt-highlow);
+
+  --warn: rgb(160, 122, 0);
+  --warn-strong: rgb(180, 66, 20);
+  --alarm: rgb(190, 42, 40);
+  /* The all-zero value sinks into the theme's own night. */
+  --void: rgb(0, 43, 54);
+
+  --bit-off: rgb(230, 223, 203);
+  --bit-random: rgb(21, 122, 116);
+  --bit-fixed: rgb(180, 66, 20);
+  --bit-time: rgb(25, 105, 165);
+  --bit-clock: rgb(168, 40, 104);
+  --bit-node: rgb(88, 92, 170);
+  --bit-mix: 26%;
+  --map-mix: 58%;
+
+  --tint-badge: 14%;
+  --tint-output: 10%;
+  --tint-nil: 10%;
+  --tint-nil-glow: 16%;
+
+  --sync-danger: rgb(190, 42, 40);
+  --sync-good: rgb(106, 122, 0);
+
+  /* Terminal manners: small corners, flat, monospaced. */
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-pill: 6px;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  /* A terminal answers promptly. */
+  --motion-scale: 0.9;
+  --title-tracking: 0.01em;
+  /* Every panel carries a lit edge along its top, the way a terminal window
+     wears its title bar. */
+  --panel-mark: linear-gradient(
+    to top,
+    color-mix(in oklab, var(--accent) 55%, transparent) 0 1px,
+    transparent 1px
+  );
+  --chip-on-bg: var(--accent-fill);
+  --chip-on-ink: var(--accent-ink);
+  --chip-on-dot: var(--accent-ink);
+  --seg-on-bg: var(--accent-fill);
+  --seg-on-ink: var(--accent-ink);
+  --output-edge: 2px;
+  --mark-note: color-mix(in oklab, var(--ink-muted) 100%, var(--surface-raised));
+  --mark-bad: color-mix(in oklab, var(--alarm) 75%, var(--surface-raised));
+  --signature-time: 220ms;
+  --signature-ink: rgb(18, 122, 116);
+  --logo-filter: grayscale(1) sepia(1) hue-rotate(125deg) saturate(2.2) brightness(0.9);
+}
+
+:root[data-theme="solarized"].dark {
+  color-scheme: dark;
+
+  --surface: rgb(0, 38, 48);
+  --surface-sunken: rgb(0, 28, 36);
+  --surface-raised: rgb(6, 52, 64);
+  --surface-hover: rgb(12, 68, 82);
+  --row-alt: rgb(3, 44, 55);
+
+  --line: rgb(16, 70, 83);
+  --line-strong: rgb(88, 110, 117);
+
+  --ink: rgb(238, 232, 213);
+  --ink-muted: rgb(158, 171, 171);
+  --ink-muted-chip: rgb(176, 187, 187);
+
+  --accent: rgb(42, 161, 152);
+  --accent-soft: rgba(42, 161, 152, 0.18);
+  --accent-fill: rgb(42, 161, 152);
+  --accent-ink: rgb(0, 33, 42);
+
+  --brand-1: rgb(42, 161, 152);
+  --brand-2: rgb(102, 182, 240);
+  --brand-3: rgb(240, 120, 180);
+
+  /* Solarized's accents are drawn for body text on base03; at 9px on a tinted
+     badge they land near 3:1, so the six are lifted to clear 4.5. */
+  --fmt-uuid: rgb(63, 192, 181);
+  /* Published orange lands at 2.8:1 on a dark card; lifted, hue kept. */
+  --fmt-base64: rgb(239, 125, 58);
+  --fmt-ulid: rgb(176, 182, 246);
+  --fmt-highlow: rgb(102, 182, 240);
+  --fmt-bytes: rgb(240, 120, 180);
+  --fmt-words: rgb(168, 192, 0);
+  --fmt: var(--fmt-highlow);
+
+  --warn: rgb(181, 137, 0);
+  --warn-strong: rgb(239, 125, 58);
+  --alarm: rgb(240, 130, 120);
+  --void: rgb(0, 24, 31);
+
+  --bit-off: rgb(16, 70, 83);
+  --bit-random: rgb(63, 192, 181);
+  --bit-fixed: rgb(239, 125, 58);
+  --bit-time: rgb(102, 182, 240);
+  --bit-clock: rgb(240, 120, 180);
+  --bit-node: rgb(176, 182, 246);
+  --bit-mix: 34%;
+  --map-mix: 46%;
+
+  /* A lighter wash under the badge: at 12% the tint lifted the ground toward
+     the label and the smallest text in the app fell under 4.5:1. */
+  --tint-badge: 8%;
+  --tint-output: 12%;
+  --tint-nil: 55%;
+  --tint-nil-glow: 60%;
+
+  --sync-danger: rgb(240, 130, 120);
+  --sync-good: rgb(168, 192, 0);
+
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-pill: 6px;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  /* A terminal answers promptly. */
+  --motion-scale: 0.9;
+  --title-tracking: 0.01em;
+  /* Every panel carries a lit edge along its top, the way a terminal window
+     wears its title bar. */
+  --panel-mark: linear-gradient(
+    to top,
+    color-mix(in oklab, var(--accent) 40%, transparent) 0 1px,
+    transparent 1px
+  );
+  --chip-on-bg: var(--accent-fill);
+  --chip-on-ink: var(--accent-ink);
+  --chip-on-dot: var(--accent-ink);
+  --seg-on-bg: var(--accent-fill);
+  --seg-on-ink: var(--accent-ink);
+  --output-edge: 2px;
+  --mark-note: color-mix(in oklab, var(--ink-muted) 100%, var(--surface-raised));
+  --mark-bad: color-mix(in oklab, var(--alarm) 75%, var(--surface-raised));
+  --signature-time: 220ms;
+  --signature-ink: rgb(42, 161, 152);
+  --logo-filter: grayscale(1) sepia(1) hue-rotate(125deg) saturate(2.4) brightness(0.95);
+}

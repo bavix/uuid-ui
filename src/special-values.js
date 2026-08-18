@@ -1,38 +1,14 @@
 'use strict';
 
 import {MAX, NIL} from 'uuid';
-import {uuidToBytesString, uuidToHex} from './uuid-bytes.js';
+import {uuidToHex} from './uuid-bytes.js';
 import {uuidFormatter} from './uuid-formatter.js';
 import {timestampFromUlid, timestampFromUuid} from './uuid-timestamp.js';
 import {isValid as isUlid} from './uuid-ulid.js';
-import {uuidToBase64Std} from './base64.js';
-import {uuidToUlid} from './uuid-ulid.js';
-import {uuidToInts, uuidToUints} from './uuid-high-low.js';
+import {formsOf} from './identifier-forms.js';
 
-/**
- * The two identifiers the standard singles out: all zero bits and all one bits.
- * Every spelling the app can produce for them is enumerated from the app's own
- * encoders, so a new output format is covered the moment it is added here.
- */
-const QUOTED_NUMBERS = /"(-?\d+)"/g;
-
-function spellings(uuid) {
-    const ints = uuidToInts(uuid);
-    const uints = uuidToUints(uuid);
-
-    return [
-        uuid,
-        uuidToHex(uuid),
-        uuidToBytesString(uuid),
-        uuidToBase64Std(uuid),
-        uuidToUlid(uuid),
-        ints && JSON.stringify(ints).replace(QUOTED_NUMBERS, '$1'),
-        uints && JSON.stringify(uints).replace(QUOTED_NUMBERS, '$1'),
-    ].filter(Boolean).map(value => value.toLowerCase());
-}
-
-const NIL_FORMS = new Set(spellings(NIL));
-const MAX_FORMS = new Set(spellings(MAX));
+const NIL_FORMS = new Set(formsOf(NIL));
+const MAX_FORMS = new Set(formsOf(MAX));
 
 // Hex words old enough to be folklore. The whole identifier has to be one of
 // them repeated four times, so stumbling on one is a deliberate act.
@@ -101,10 +77,15 @@ export function specialValues(value) {
         found.push('max', 'palindrome');
     }
 
-    // Everything below is a property of the bytes, so it needs the hex form.
     const hex = uuidToHex(normalized);
     if (hex === null) {
         return found;
+    }
+
+    if (found.length === 0 && /^0{32}$/.test(hex)) {
+        found.push('nil', 'palindrome');
+    } else if (found.length === 0 && /^f{32}$/i.test(hex)) {
+        found.push('max', 'palindrome');
     }
 
     const word = WORD_FORMS.get(hex);

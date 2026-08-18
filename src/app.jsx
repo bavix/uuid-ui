@@ -1,16 +1,21 @@
 import React from 'preact/compat';
 import { Toaster } from 'sonner';
-import InputComponent, {Item} from "./input.jsx"
-import { INT_TYPE_NAMES, SIGNED } from './int-type.js'
+import InputComponent from "./input.jsx"
+import { INT_TYPE_NAMES, SIGNED, UNSIGNED } from './int-type.js'
 import HistoryComponent from "./history.jsx"
 import NavComponent from './nav.jsx'
-import { TYPE_HIGH_LOW } from './type-detector.js'
-import { readIntType, readTarget, writeState } from './url-state.js'
-import { HISTORY_LIMIT } from './limits.js'
+import { TYPE_HEX, TYPE_HIGH_LOW, TYPE_UUID } from './type-detector.js'
+import { readIntTypes, readTarget, readUuidStyle, readUuidUpper, writeState } from './url-state.js'
+import { STYLE_HEX } from './uuid-style.js'
+import { defaultSpelling, isSpelling, spellingLabel, usesInts } from './spellings.js'
 import { watchSequence } from './key-sequence.js'
 import { readActiveSeconds, trackActiveTime } from './active-time.js'
 import { mountEggsButton } from './eggs-button.js'
-import { readStoredTheme, writeStoredTheme } from './theme.js'
+import { foundEggs } from './eggs-found.js'
+import AppearanceDrawer from './appearance.jsx'
+import { CUSTOM_PALETTE, applyCustom, clearCustom, readTheme as readCustomTheme } from './themes/custom.js'
+import { DARK, DEFAULT_PALETTE, SYSTEM, applyTheme, paintChrome, readTheme, variantOf } from './theme.js'
+import { selectFavorites, selectItems } from './data/selectors.js'
 import { trackEgg } from './analytics.js'
 import { uuidRain } from './effects.js'
 import { toast } from 'sonner'
@@ -18,32 +23,74 @@ import './app.css'
 
 const EGGS_AFTER_SECONDS = 60 * 60;
 
-function currentTheme() {
-    // The inline script in index.html has already decided and applied this
-    // before first paint; read back what it did so the two never disagree.
-    return readStoredTheme() ?? document.documentElement.classList.contains('dark');
+// The inline script in index.html has already decided and applied this before
+// first paint; the stored pair is what it read, so the two never disagree.
+const startingTheme = () => readTheme();
+
+const INT_BY_NAME = (value) => (value === 'unsigned' ? UNSIGNED : SIGNED);
+
+function kept(data, name, fallback, read) {
+    const held = data?.settings?.[name]?.value;
+
+    return typeof held === 'string' ? read(held) : fallback;
+}
+
+function startingResultType(data) {
+    const target = readTarget();
+
+    if (target === TYPE_HEX) {
+        return TYPE_UUID;
+    }
+
+    if (target !== null) {
+        return target;
+    }
+
+    const held = Number(data?.settings?.resultType?.value);
+
+    return Number.isFinite(held) && held > 0 ? held : TYPE_HIGH_LOW;
+}
+
+function startingSpelling(data) {
+    if (readTarget() === TYPE_HEX) {
+        return STYLE_HEX;
+    }
+
+    const held = readUuidStyle() ?? data?.settings?.spelling?.value ?? null;
+    const type = startingResultType(data);
+
+    return isSpelling(type, held) ? held : defaultSpelling(type);
 }
 
 export default class AppComponent extends React.Component {
-    state = {
-        items: [],
-        favorites: {}, // { listName: [items] }
-        isToggled: currentTheme(),
-        // Shown only once the tool has actually been worked in for an hour.
-        // Read at mount: someone who earned it yesterday should not have to wait
-        // for the first tick of a timer today.
-        eggsUnlocked: readActiveSeconds() >= EGGS_AFTER_SECONDS,
-        // A game takes over the history panel, the way Space Runner always has:
-        // it is something to play beside the converter, not on top of it.
-        panelGame: null,
-        // Lifted out of InputComponent so the history panel can name the format
-        // it is showing. A result is meaningless without its target format.
-        resultType: readTarget() ?? TYPE_HIGH_LOW,
-        intType: readIntType() ?? SIGNED,
+    constructor(props) {
+        super(props);
+
+        const { read, write } = readIntTypes();
+
+        this.state = {
+            // Shown only once the tool has actually been worked in for an hour.
+            eggsUnlocked: readActiveSeconds() >= EGGS_AFTER_SECONDS,
+            // Light and dark stay on the switch in the header. The palettes are
+            // the thing to find: type the word and the drawer arrives.
+            themesFound: foundEggs().has('themes'),
+            panelGame: null,
+            resultType: startingResultType(props.data),
+            intType: read ?? kept(props.data, 'intRead', SIGNED, INT_BY_NAME),
+            writeIntType: write ?? kept(props.data, 'intWrite', SIGNED, INT_BY_NAME),
+            uuidStyle: startingSpelling(props.data),
+            uuidUpper: readUuidUpper() || kept(props.data, 'case', false, value => value === 'upper'),
+            intLinked: read === null || write === null || read === write,
+        };
     }
 
     setResultType = (resultType, onApplied) => {
-        this.setState({ resultType }, () => {
+        const spelling = isSpelling(resultType, this.state.uuidStyle)
+            ? this.state.uuidStyle
+            : defaultSpelling(resultType);
+
+        this.setState({ resultType, uuidStyle: spelling }, () => {
+            this.remember();
             writeState(this.state);
             if (onApplied) {
                 onApplied();
@@ -54,16 +101,32 @@ export default class AppComponent extends React.Component {
     // Someone editing #to= by hand, or following a second link, should land on
     // that format rather than on whatever was selected before.
     handleHashChange = () => {
-        const target = readTarget();
-        const int = readIntType();
+        const held = readTarget();
+        const target = held === TYPE_HEX ? TYPE_UUID : held;
+        const { read, write } = readIntTypes();
+        const style = held === TYPE_HEX ? STYLE_HEX : readUuidStyle();
+        const upper = readUuidUpper();
         const next = {};
+
+        if (style !== null && style !== this.state.uuidStyle) {
+            next.uuidStyle = style;
+        }
+
+        if (upper !== this.state.uuidUpper) {
+            next.uuidUpper = upper;
+        }
 
         if (target !== null && target !== this.state.resultType) {
             next.resultType = target;
         }
 
-        if (int !== null && int !== this.state.intType) {
-            next.intType = int;
+        if (read !== null && read !== this.state.intType) {
+            next.intType = read;
+        }
+
+        if (write !== null && write !== this.state.writeIntType) {
+            next.writeIntType = write;
+            next.intLinked = write === (read ?? this.state.intType);
         }
 
         if (Object.keys(next).length > 0) {
@@ -72,7 +135,10 @@ export default class AppComponent extends React.Component {
     }
 
     setIntType = (intType, onApplied) => {
-        this.setState({ intType }, () => {
+        const next = this.state.intLinked ? { intType, writeIntType: intType } : { intType };
+
+        this.setState(next, () => {
+            this.remember();
             writeState(this.state);
             if (onApplied) {
                 onApplied();
@@ -80,19 +146,158 @@ export default class AppComponent extends React.Component {
         });
     }
 
+    setUuidStyle = (uuidStyle, onApplied) => {
+        this.setState({ uuidStyle }, () => {
+            this.remember();
+            writeState(this.state);
+            if (onApplied) {
+                onApplied();
+            }
+        });
+    }
+
+    setUuidUpper = (uuidUpper, onApplied) => {
+        this.setState({ uuidUpper }, () => {
+            this.remember();
+            writeState(this.state);
+            if (onApplied) {
+                onApplied();
+            }
+        });
+    }
+
+    setWriteIntType = (writeIntType, onApplied) => {
+        this.setState({ writeIntType, intLinked: false }, () => {
+            this.remember();
+            writeState(this.state);
+            if (onApplied) {
+                onApplied();
+            }
+        });
+    }
+
+    toggleIntLink = (onApplied) => {
+        const { intLinked, intType } = this.state;
+        const next = intLinked
+            ? { intLinked: false }
+            : { intLinked: true, writeIntType: intType };
+
+        this.setState(next, () => {
+            this.remember();
+            writeState(this.state);
+            if (onApplied) {
+                onApplied();
+            }
+        });
+    }
+
+    remember = () => {
+        const { resultType, intType, writeIntType, uuidStyle, uuidUpper } = this.state;
+        const store = this.props.store;
+
+        store.setSetting('resultType', String(resultType));
+        store.setSetting('intRead', INT_TYPE_NAMES[intType]);
+        store.setSetting('intWrite', INT_TYPE_NAMES[writeIntType]);
+        store.setSetting('spelling', uuidStyle);
+        store.setSetting('case', uuidUpper ? 'upper' : 'lower');
+    }
+
     setToggle = (isToggled) => {
-        this.setState({ isToggled }, () => this.applyTheme());
+        this.props.store.setSetting('theme', isToggled ? 'dark' : 'light');
+    }
+
+    unlockThemes = (how) => {
+        if (this.state.themesFound) {
+            return;
+        }
+
+        trackEgg('themes', how);
+        this.setState({ themesFound: true });
+        toast.success('🎨 Secret unlocked!', {
+            description: 'Palettes. The tab at the right edge opens them.',
+            duration: 5000,
+        });
+    }
+
+    setMode = (mode) => {
+        this.props.store.setSetting('theme', mode);
+    }
+
+    setPalette = (palette) => {
+        this.props.store.setSetting('palette', palette);
+    }
+
+    /** Which theme and which of its variants the settings come down to. */
+    theme() {
+        const { theme, palette } = this.props.data.settings;
+        const kept = startingTheme();
+
+        return {
+            palette: palette?.value ?? kept.palette ?? DEFAULT_PALETTE,
+            mode: theme?.value ?? kept.mode ?? SYSTEM,
+        };
+    }
+
+    dark() {
+        return variantOf(this.theme(), window) === DARK;
+    }
+
+    /** The theme somebody wrote, if this browser is holding one. */
+    customTheme() {
+        const held = this.props.data.settings.customTheme?.value;
+
+        return held ? readCustomTheme(held).theme : null;
+    }
+
+    setCustomTheme = (text) => {
+        this.props.store.setSetting('customTheme', text);
     }
 
     applyTheme = () => {
-        // Written on mount as well as on a toggle, so a value left by the old
-        // build turns into a word the first time the page is opened.
-        writeStoredTheme(this.state.isToggled);
-        document.documentElement.classList.toggle('dark', this.state.isToggled);
+        const theme = this.theme();
+
+        applyTheme(theme, document.documentElement, window);
+
+        // A written theme is a set of values on the root, not a stylesheet, so
+        // it is put on and taken off here rather than by a selector.
+        if (theme.palette === CUSTOM_PALETTE) {
+            applyCustom(this.customTheme(), document.documentElement);
+            paintChrome(document.documentElement, window);
+
+            return;
+        }
+
+        clearCustom(document.documentElement);
+    }
+
+    // Following the machine means following it while the page is open, not only
+    // at load: the system switch at sunset has to reach an open tab.
+    watchSystemTheme = () => {
+        try {
+            const query = window.matchMedia('(prefers-color-scheme: dark)');
+
+            const onChange = () => {
+                if (this.theme().mode === SYSTEM) {
+                    this.applyTheme();
+                    this.forceUpdate();
+                }
+            };
+
+            query.addEventListener('change', onChange);
+
+            return () => query.removeEventListener('change', onChange);
+        } catch (e) {
+            return () => {};
+        }
+    }
+
+    componentDidUpdate() {
+        this.applyTheme();
     }
 
     componentDidMount() {
         this.applyTheme();
+        this.stopWatchingSystemTheme = this.watchSystemTheme();
         window.addEventListener('hashchange', this.handleHashChange);
 
         // Typed like the game's own trigger, and it says what it does.
@@ -151,6 +356,10 @@ export default class AppComponent extends React.Component {
             });
         });
 
+        this.stopWatchingThemes = watchSequence(['p', 'a', 'l', 'e', 't', 't', 'e'], () => {
+            this.unlockThemes('typed');
+        });
+
         this.stopWatchingRain = watchSequence(['r', 'a', 'i', 'n'], () => {
             trackEgg('rain', 'typed');
             uuidRain(6000);
@@ -160,71 +369,57 @@ export default class AppComponent extends React.Component {
             });
         });
 
-        try {
-            const itemsFromLocalStorage = JSON.parse(localStorage.getItem('uuidItems') || '[]');
-            const items = [];
-            const seen = new Set();
-            
-            for (const item of itemsFromLocalStorage) {
-                try {
-                    if (!item || typeof item !== 'object') {
-                        continue;
-                    }
-                    
-                    const newItem = new Item(
-                        item.input || '',
-                        item.output || '',
-                        item.info || ''
-                    );
-                    const uniqueKey = `${newItem.input}:${newItem.output}:${newItem.info || ''}`;
-                    if (!seen.has(uniqueKey)) {
-                        seen.add(uniqueKey);
-                        items.push(newItem);
-                    }
-                } catch (e) {
-                    console.warn('Error loading item from storage:', e, item);
-                }
-            }
+        this.applyTheme();
+    }
 
-            let favorites = {};
-            try {
-                const favoritesFromStorage = JSON.parse(localStorage.getItem('uuidFavorites') || '{}');
-                if (favoritesFromStorage && typeof favoritesFromStorage === 'object') {
-                    for (const [listName, regionItems] of Object.entries(favoritesFromStorage)) {
-                        if (Array.isArray(regionItems)) {
-                            const validItems = regionItems.map(item => {
-                                try {
-                                    if (!item || typeof item !== 'object') {
-                                        return null;
-                                    }
-                                    return new Item(
-                                        item.input || '',
-                                        item.output || '',
-                                        item.info || ''
-                                    );
-                                } catch (e) {
-                                    console.warn('Error creating Item from favorites storage:', e, item);
-                                    return null;
-                                }
-                            }).filter(item => item !== null);
+    items() {
+        return selectItems(this.props.data.items);
+    }
 
-                            favorites[listName] = validItems;
-                        }
-                    }
-                }
-            } catch (e) {
-                console.error('Error loading favorites from localStorage:', e);
-            }
+    favorites() {
+        return selectFavorites(this.props.data.favorites);
+    }
 
-            this.setState({ items, favorites });
-        } catch (e) {
-            console.error('Error in componentDidMount:', e);
-            this.setState({ items: [], favorites: {} });
+    setItems = (items, meta) => {
+        this.props.store.setRows(items.map(item => ({
+            input: item.input,
+            output: item.output,
+            info: item.info,
+            readAs: item.readAs,
+            writeAs: item.writeAs,
+        })), meta);
+
+        this.syncFavoritesWithHistory(items);
+    }
+
+    writeFavorites = (favorites) => {
+        const serialized = {};
+
+        for (const [listName, items] of Object.entries(favorites)) {
+            serialized[listName] = {
+                items: items.map(item => ({
+                    input: item.input || '',
+                    output: item.output || '',
+                    info: item.info || '',
+                    readAs: item.readAs,
+                    writeAs: item.writeAs,
+                })),
+            };
         }
+
+        this.props.store.setTags(serialized);
     }
 
     componentWillUnmount() {
         window.removeEventListener('hashchange', this.handleHashChange);
+
+        if (this.stopWatchingSystemTheme) {
+            this.stopWatchingSystemTheme();
+        }
+
+        if (this.stopListening) {
+            this.stopListening();
+        }
 
         if (this.stopTrackingTime) {
             this.stopTrackingTime();
@@ -232,6 +427,10 @@ export default class AppComponent extends React.Component {
 
         if (this.stopWatchingRain) {
             this.stopWatchingRain();
+        }
+
+        if (this.stopWatchingThemes) {
+            this.stopWatchingThemes();
         }
 
         if (this.stopWatchingSudo) {
@@ -259,37 +458,15 @@ export default class AppComponent extends React.Component {
         }
     }
 
-    componentDidUpdate(prevProps, prevState) {
-        const itemsChanged = prevState.items.length !== this.state.items.length || 
-            prevState.items.some((item, idx) => {
-                const currentItem = this.state.items[idx];
-                if (!currentItem) return true;
-                return item.input !== currentItem.input || 
-                       item.output !== currentItem.output || 
-                       item.info !== currentItem.info;
-            });
-        
-        if (itemsChanged) {
-            try {
-                const itemsToSave = this.state.items.slice(0, HISTORY_LIMIT).map(item => ({
-                    input: item.input,
-                    output: item.output,
-                    info: item.info
-                }));
-                localStorage.setItem('uuidItems', JSON.stringify(itemsToSave));
-            } catch (e) {
-                console.error('Error saving items to localStorage:', e);
-            }
-            
-            this.syncFavoritesWithHistory(this.state.items);
-        }
+    clearItems = () => {
+        this.props.store.clearRows();
     }
 
     // Favorites are their own collection, not a view over history. A starred
     // item survives "Clear history" and survives falling past the history cap;
     // only its comment follows the history entry it came from.
     syncFavoritesWithHistory = (currentItems) => {
-        const { favorites } = this.state;
+        const favorites = this.favorites();
         let favoritesChanged = false;
         const newFavorites = { ...favorites };
 
@@ -309,9 +486,7 @@ export default class AppComponent extends React.Component {
         }
 
         if (favoritesChanged) {
-            this.setState({ favorites: newFavorites }, () => {
-                this.saveFavoritesToStorage(newFavorites);
-            });
+            this.writeFavorites(newFavorites);
         }
     }
 
@@ -321,7 +496,7 @@ export default class AppComponent extends React.Component {
             return;
         }
 
-        const { favorites } = this.state;
+        const favorites = this.favorites();
         const newFavorites = { ...favorites };
         const trimmedListName = listName.trim();
         
@@ -339,9 +514,7 @@ export default class AppComponent extends React.Component {
             ? list.map(favItem => (`${favItem.input}:${favItem.output}` === itemKey ? item : favItem))
             : [...list, item];
         
-        this.setState({ favorites: newFavorites }, () => {
-            this.saveFavoritesToStorage(newFavorites);
-        });
+        this.writeFavorites(newFavorites);
     }
 
     removeFromFavorites = (item, listName) => {
@@ -350,7 +523,7 @@ export default class AppComponent extends React.Component {
             return;
         }
 
-        const { favorites } = this.state;
+        const favorites = this.favorites();
         const trimmedListName = listName.trim();
         
         if (!favorites[trimmedListName] || favorites[trimmedListName].length === 0) {
@@ -363,16 +536,14 @@ export default class AppComponent extends React.Component {
             `${favItem.input}:${favItem.output}` !== itemKey
         );
         
-        this.setState({ favorites: newFavorites }, () => {
-            this.saveFavoritesToStorage(newFavorites);
-        });
+        this.writeFavorites(newFavorites);
     }
 
     // Deleting a tag is now something the user asks for, not a side effect of
     // unstarring the last item in it.
     deleteFavoriteList = (listName) => {
         const trimmedListName = (listName || '').trim();
-        const { favorites } = this.state;
+        const favorites = this.favorites();
 
         if (!trimmedListName || !(trimmedListName in favorites)) {
             return;
@@ -381,13 +552,11 @@ export default class AppComponent extends React.Component {
         const newFavorites = { ...favorites };
         delete newFavorites[trimmedListName];
 
-        this.setState({ favorites: newFavorites }, () => {
-            this.saveFavoritesToStorage(newFavorites);
+        this.writeFavorites(newFavorites);
 
-            if (this.historyComponentRef) {
-                this.historyComponentRef.handleFilterChange('all');
-            }
-        });
+        if (this.historyComponentRef) {
+            this.historyComponentRef.handleFilterChange('all');
+        }
     }
 
     restoreFavoriteList = (listName, items) => {
@@ -396,10 +565,8 @@ export default class AppComponent extends React.Component {
             return;
         }
 
-        const newFavorites = { ...this.state.favorites, [trimmedListName]: [...items] };
-        this.setState({ favorites: newFavorites }, () => {
-            this.saveFavoritesToStorage(newFavorites);
-        });
+        const newFavorites = { ...this.favorites(), [trimmedListName]: [...items] };
+        this.writeFavorites(newFavorites);
     }
 
     createFavoriteList = (listName) => {
@@ -408,57 +575,22 @@ export default class AppComponent extends React.Component {
             return;
         }
 
-        const { favorites } = this.state;
+        const favorites = this.favorites();
         const trimmedListName = listName.trim();
         
         if (!favorites[trimmedListName]) {
             const newFavorites = { ...favorites, [trimmedListName]: [] };
-            this.setState({ favorites: newFavorites }, () => {
-                this.saveFavoritesToStorage(newFavorites);
-            });
-        }
-    }
-
-    saveFavoritesToStorage = (favoritesToSave) => {
-        if (!favoritesToSave || typeof favoritesToSave !== 'object') {
-            console.error('saveFavoritesToStorage: invalid favorites object', favoritesToSave);
-            return;
-        }
-
-        try {
-            const serialized = {};
-            for (const [listName, items] of Object.entries(favoritesToSave)) {
-                if (!Array.isArray(items)) {
-                    console.warn(`saveFavoritesToStorage: items for list "${listName}" is not an array`, items);
-                    continue;
-                }
-                
-                {
-                    serialized[listName] = items.map(item => {
-                        if (!item || typeof item !== 'object') {
-                            console.warn('saveFavoritesToStorage: invalid item', item);
-                            return null;
-                        }
-                        return {
-                            input: item.input || '',
-                            output: item.output || '',
-                            info: item.info || ''
-                        };
-                    }).filter(item => item !== null);
-                }
-            }
-            
-            localStorage.setItem('uuidFavorites', JSON.stringify(serialized));
-        } catch (e) {
-            console.error('Error saving favorites to localStorage:', e);
+            this.writeFavorites(newFavorites);
         }
     }
 
     render() {
-        const { items, isToggled, resultType, intType } = this.state;
+        const { resultType, intType, writeIntType, intLinked, uuidStyle, uuidUpper } = this.state;
+        const isToggled = this.dark();
+        const items = this.items();
 
         return (
-            <div className="uuid-ui--wrapper flex-1 bg-white dark:bg-gray-900">
+            <div className="uuid-ui--wrapper flex-1">
                 {/* Bottom-right: at top-right it landed on the History header
                     and covered the newest result it was announcing. */}
                 <Toaster
@@ -467,34 +599,57 @@ export default class AppComponent extends React.Component {
                     closeButton
                     theme={isToggled ? "dark" : "light"}
                 />
+                {this.state.themesFound && (
+                    <AppearanceDrawer
+                        theme={this.theme()}
+                        custom={this.customTheme()}
+                        customText={this.props.data.settings.customTheme?.value || ''}
+                        onMode={this.setMode}
+                        onPalette={this.setPalette}
+                        onCustom={this.setCustomTheme}
+                    />
+                )}
                 <NavComponent
                     isToggled={isToggled}
                     setToggle={this.setToggle}
+                    store={this.props.store}
+                    bus={this.props.bus}
+                    data={this.props.data}
+                    onGenerated={this.keepGenerated}
                 />
-                <main className="container mx-auto py-6 max-w-7xl px-4 text-gray-900 dark:text-gray-100">
+                <main className="container mx-auto py-6 max-w-7xl px-4 ink">
                     <h1 className="sr-only">Convert UUIDs between formats</h1>
                     <div className="flex flex-col lg:flex-row">
                         <div className="w-full lg:w-3/5 shrink-0" id="input-cp">
                             <InputComponent
+                                ref={(node) => { this.inputComponentRef = node; }}
                                 items={items}
-                                setItems={(items) => this.setState({items})}
+                                setItems={this.setItems}
                                 resultType={resultType}
                                 intType={intType}
+                                writeIntType={writeIntType}
+                                intLinked={intLinked}
                                 setResultType={this.setResultType}
                                 setIntType={this.setIntType}
+                                setWriteIntType={this.setWriteIntType}
+                                toggleIntLink={this.toggleIntLink}
+                                uuidStyle={uuidStyle}
+                                uuidUpper={uuidUpper}
+                                setUuidStyle={this.setUuidStyle}
+                                setUuidUpper={this.setUuidUpper}
                             />
                         </div>
                         <div className="w-full lg:w-2/5 shrink-0 max-w-full overflow-hidden lg:pl-4 flex flex-col m-0 p-0 mt-4 lg:mt-0" id="history-cp">
                             <HistoryComponent 
                                 ref={(ref) => { this.historyComponentRef = ref; }}
                                 items={items} 
-                                clearItems={() => {
-                                    this.setState({items: []});
-                                }}
-                                setItems={(items) => this.setState({items})}
+                                clearItems={this.clearItems}
+                                setItems={this.setItems}
                                 resultType={resultType}
-                                intTypeName={INT_TYPE_NAMES[intType]}
-                                favorites={this.state.favorites}
+                                spellingName={spellingLabel(resultType, uuidStyle, uuidUpper)}
+                                readIntName={usesInts(resultType) && !intLinked ? INT_TYPE_NAMES[intType] : null}
+                                writeIntName={usesInts(resultType) ? INT_TYPE_NAMES[intLinked ? intType : writeIntType] : null}
+                                favorites={this.favorites()}
                                 addToFavorites={this.addToFavorites}
                                 removeFromFavorites={this.removeFromFavorites}
                                 createFavoriteList={this.createFavoriteList}

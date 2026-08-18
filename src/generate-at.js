@@ -3,6 +3,10 @@
 /** The generator types that carry a clock, and can therefore be aimed at one. */
 export const TIMED_TYPES = ['v1', 'v6', 'v7', 'ulid'];
 
+export function isNamed(type) {
+    return type === 'v3' || type === 'v5';
+}
+
 export function isTimed(type) {
     return TIMED_TYPES.includes(type);
 }

@@ -1,0 +1,160 @@
+/* Catppuccin: the community's pastel pair, Latte by day and Mocha by night.
+   Soft corners, no glow, nothing shouting — the opposite of Gruvbox's hard
+   warmth and of Tokyo's neon. Tokens only, both variants fully stated. */
+
+:root[data-theme="catppuccin"] {
+  color-scheme: light;
+
+  /* Latte. */
+  /* Latte's base is nine points off its own card; the page is taken down a
+     step so the cards have somewhere to sit. */
+  --surface: rgb(232, 235, 242);
+  --surface-sunken: rgb(217, 221, 231);
+  --surface-raised: rgb(250, 251, 253);
+  --surface-hover: rgb(224, 228, 237);
+  --row-alt: rgb(243, 245, 249);
+
+  --line: rgb(204, 208, 218);
+  --line-strong: rgb(172, 176, 190);
+
+  --ink: rgb(76, 79, 105);
+  /* Latte's subtext0 reads 4.4:1 on the page itself; one step darker clears
+     the floor without leaving the palette. */
+  --ink-muted: rgb(88, 91, 112);
+  --ink-muted-chip: rgb(92, 95, 119);
+
+  --accent: rgb(136, 57, 239);
+  --accent-soft: rgb(233, 226, 251);
+  --accent-fill: rgb(136, 57, 239);
+  --accent-ink: rgb(248, 249, 251);
+
+  --brand-1: rgb(136, 57, 239);
+  --brand-2: rgb(234, 118, 203);
+  --brand-3: rgb(16, 110, 116);
+
+  --fmt-uuid: rgb(16, 110, 116);
+  --fmt-base64: rgb(224, 96, 8);
+  --fmt-ulid: rgb(136, 57, 239);
+  --fmt-highlow: rgb(26, 88, 214);
+  --fmt-bytes: rgb(210, 15, 57);
+  --fmt-words: rgb(64, 160, 43);
+  --fmt: var(--fmt-highlow);
+
+  --warn: rgb(190, 122, 25);
+  --warn-strong: rgb(224, 96, 8);
+  --alarm: rgb(210, 15, 57);
+  --void: rgb(30, 30, 46);
+
+  --bit-off: rgb(220, 224, 232);
+  --bit-random: rgb(16, 110, 116);
+  --bit-fixed: rgb(224, 96, 8);
+  --bit-time: rgb(26, 88, 214);
+  --bit-clock: rgb(210, 15, 57);
+  --bit-node: rgb(136, 57, 239);
+  --bit-mix: 26%;
+  --map-mix: 58%;
+
+  --tint-badge: 14%;
+  --tint-output: 10%;
+  --tint-nil: 10%;
+  --tint-nil-glow: 16%;
+
+  --sync-danger: rgb(210, 15, 57);
+  --sync-good: rgb(64, 160, 43);
+
+  /* Softer than anything else here: the corners are the point. */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+  /* Pastel moves slower — that is most of why it reads as soft. */
+  --motion-scale: 1.15;
+  --title-tracking: 0.01em;
+  /* Section titles in the accent: pastel themes say things quietly and in
+     colour rather than loudly and in grey. */
+  --label-ink: var(--accent);
+  --mark-note: color-mix(in oklab, var(--ink-muted) 92%, var(--surface-raised));
+  --mark-bad: color-mix(in oklab, var(--alarm) 88%, var(--surface-raised));
+  --label-pad: 0.3125rem;
+  --signature-time: 280ms;
+  --signature-ink: rgb(136, 57, 239);
+  --logo-filter: saturate(1.1);
+}
+
+:root[data-theme="catppuccin"].dark {
+  color-scheme: dark;
+
+  /* Mocha. */
+  --surface: rgb(30, 30, 46);
+  --surface-sunken: rgb(24, 24, 37);
+  --surface-raised: rgb(38, 38, 55);
+  --surface-hover: rgb(49, 50, 68);
+  --row-alt: rgb(33, 33, 47);
+
+  --line: rgb(49, 50, 68);
+  --line-strong: rgb(69, 71, 90);
+
+  --ink: rgb(205, 214, 244);
+  --ink-muted: rgb(166, 173, 200);
+  --ink-muted-chip: rgb(186, 194, 222);
+
+  /* Mocha's mauve at published saturation sits 53 away from its own text —
+     a link that reads as a word. Same hue, carried further. */
+  --accent: rgb(181, 123, 255);
+  --accent-soft: rgba(181, 123, 255, 0.18);
+  --accent-fill: rgb(181, 123, 255);
+  --accent-ink: rgb(30, 30, 46);
+
+  --brand-1: rgb(181, 123, 255);
+  --brand-2: rgb(245, 194, 231);
+  --brand-3: rgb(148, 226, 213);
+
+  --fmt-uuid: rgb(148, 226, 213);
+  --fmt-base64: rgb(250, 179, 135);
+  --fmt-ulid: rgb(203, 166, 247);
+  --fmt-highlow: rgb(137, 180, 250);
+  --fmt-bytes: rgb(243, 139, 168);
+  --fmt-words: rgb(166, 227, 161);
+  --fmt: var(--fmt-highlow);
+
+  --warn: rgb(249, 226, 175);
+  --warn-strong: rgb(250, 179, 135);
+  --alarm: rgb(243, 139, 168);
+  --void: rgb(17, 17, 27);
+
+  --bit-off: rgb(49, 50, 68);
+  --bit-random: rgb(148, 226, 213);
+  --bit-fixed: rgb(250, 179, 135);
+  --bit-time: rgb(137, 180, 250);
+  --bit-clock: rgb(243, 139, 168);
+  --bit-node: rgb(203, 166, 247);
+  --bit-mix: 34%;
+  --map-mix: 46%;
+
+  --tint-badge: 10%;
+  --tint-output: 12%;
+  --tint-nil: 55%;
+  --tint-nil-glow: 60%;
+
+  --sync-danger: rgb(243, 139, 168);
+  --sync-good: rgb(166, 227, 161);
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+  /* Pastel moves slower — that is most of why it reads as soft. */
+  --motion-scale: 1.15;
+  --title-tracking: 0.01em;
+  /* Section titles in the accent: pastel themes say things quietly and in
+     colour rather than loudly and in grey. */
+  --label-ink: var(--accent);
+  --mark-note: color-mix(in oklab, var(--ink-muted) 92%, var(--surface-raised));
+  --mark-bad: color-mix(in oklab, var(--alarm) 88%, var(--surface-raised));
+  --label-pad: 0.3125rem;
+  --signature-time: 280ms;
+  --signature-ink: rgb(181, 123, 255);
+  --logo-filter: saturate(1.1);
+}

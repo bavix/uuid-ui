@@ -1,6 +1,9 @@
 import assert from 'node:assert';
 import test from 'node:test';
 import { isWords, uuidToWords, wordsIntType, wordsToUuid } from '../src/uuid-words.js';
+import { objectParse } from '../src/object-parser.js';
+import { TYPE_WORDS, typeDetector } from '../src/type-detector.js';
+import { toUuid } from '../src/to-uuid.js';
 
 const UUID = '018f3c00-1122-7000-8000-0000deadbeef';
 
@@ -65,4 +68,36 @@ test('anything that is not four words names nothing', (t) => {
     assert.strictEqual(wordsIntType({ high: -1, low: -1 }), null);
     assert.strictEqual(wordsIntType(null), null);
     assert.strictEqual(wordsIntType({ w1: 'x', w2: 2, w3: 3, w4: 4 }), null);
+});
+
+test('four words written plainly are read like the high/low pair is', async (t) => {
+    for (const written of ['1;2;3;4', '1:2:3:4', '1,2,3,4', ' 1 ; 2 ; 3 ; 4 ']) {
+        assert.deepStrictEqual(objectParse(written), { w1: 1, w2: 2, w3: 3, w4: 4 }, written);
+        assert.strictEqual(typeDetector(written), TYPE_WORDS, written);
+        assert.strictEqual(toUuid(written), '00000001-0000-0002-0000-000300000004', written);
+    }
+});
+
+test('a plain quad and the written-out object mean the same thing', async (t) => {
+    assert.strictEqual(toUuid('1;2;3;4'), toUuid('{w1: 1, w2: 2, w3: 3, w4: 4}'));
+});
+
+test('negative words in the plain form are read as int32', async (t) => {
+    assert.deepStrictEqual(objectParse('-1;-2;-3;-4'), { w1: -1, w2: -2, w3: -3, w4: -4 });
+    assert.strictEqual(toUuid('-1;-2;-3;-4'), 'ffffffff-ffff-fffe-ffff-fffdfffffffc');
+});
+
+test('a plain pair is still the high/low pair, not two words', async (t) => {
+    assert.deepStrictEqual(objectParse('1;2'), { high: '1', low: '2' });
+    assert.notStrictEqual(typeDetector('1;2'), TYPE_WORDS);
+});
+
+test('three or five numbers are not a quad', async (t) => {
+    for (const written of ['1;2;3', '1;2;3;4;5']) {
+        assert.throws(() => objectParse(written), written);
+    }
+});
+
+test('a word out of int32 range is refused rather than wrapped', async (t) => {
+    assert.strictEqual(toUuid('4294967296;0;0;0'), null);
 });

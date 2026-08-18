@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import test from 'node:test';
 import { v1, v6, v7 } from 'uuid';
-import { isTimed, momentOptions, toFieldValue } from '../src/generate-at.js';
+import { isTimed, momentOptions, toFieldValue, isNamed} from '../src/generate-at.js';
 import { timestampFromUuid } from '../src/uuid-timestamp.js';
 
 test('only the clock-carrying types can be aimed', (t) => {
@@ -37,4 +37,12 @@ test('a field value round-trips through the field format', (t) => {
 
     assert.strictEqual(toFieldValue(date), '2024-05-03T01:09:44.064');
     assert.deepStrictEqual(momentOptions(toFieldValue(date)), { msecs: date.getTime() });
+});
+
+test('the name-based versions are the ones that ask for a name', async (t) => {
+    assert.strictEqual(isNamed('v3'), true);
+    assert.strictEqual(isNamed('v5'), true);
+    for (const type of ['v1', 'v4', 'v6', 'v7', 'v8', 'nil', 'ulid']) {
+        assert.strictEqual(isNamed(type), false, type);
+    }
 });

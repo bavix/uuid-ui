@@ -1,5 +1,27 @@
 import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
 import { isTypingTarget } from './key-sequence.js';
+import { readBestScores, writeBestScore } from './records.js';
+import { RUNNER, startingHighScore } from './runner-score.js';
+import { randomFloat } from './random.js';
+
+/**
+ * The ship and its enemies keep the arcade's own colours; the stage they play
+ * on belongs to the app, so the glass, the stars and the lettering are read
+ * off the theme every time it changes.
+ */
+function readStage(root = document.documentElement) {
+    const style = getComputedStyle(root);
+    const held = name => style.getPropertyValue(name).trim();
+    const dark = root.classList.contains('dark');
+
+    return {
+        dark,
+        back: held('--void') || (dark ? '#111827' : '#f8fafc'),
+        ink: held('--ink') || (dark ? '#e5e7eb' : '#0f172a'),
+        muted: held('--ink-muted') || (dark ? '#9ca3af' : '#475569'),
+        accent: held('--accent') || (dark ? '#60a5fa' : '#2563eb'),
+    };
+}
 
 const PLAYER_SIZE = 20;
 const PLAYER_SPEED = 3.5;
@@ -124,14 +146,17 @@ export default function SpaceRunner({ onClose }) {
   // keeps the high score correct within the frame that sets it.
   const highScoreRef = useRef((() => {
     try {
-      const stored = parseInt(localStorage.getItem('spaceRunnerHighScore') || '0', 10);
-      return Number.isFinite(stored) && stored >= 0 ? stored : 0;
+      return startingHighScore(readBestScores(), localStorage.getItem('spaceRunnerHighScore'));
     } catch {
       return 0;
     }
   })());
   const livesRef = useRef(3);
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
+  const [stage, setStage] = useState(() => readStage());
+  const stageRef = useRef(stage);
+
+  stageRef.current = stage;
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const containerRef = useRef(null);
@@ -209,12 +234,15 @@ export default function SpaceRunner({ onClose }) {
   useEffect(() => {
     const checkTheme = () => {
       setIsDark(document.documentElement.classList.contains('dark'));
+      setStage(readStage());
     };
 
     const observer = new MutationObserver(checkTheme);
+    // The palette lives on an attribute of its own, and a written theme lands
+    // as inline values: both change the stage without touching the class.
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['class']
+      attributeFilter: ['class', 'data-theme', 'style']
     });
 
     return () => observer.disconnect();
@@ -472,9 +500,7 @@ export default function SpaceRunner({ onClose }) {
     // frame, and the state value would still be the pre-frame one.
     if (newScore > highScoreRef.current) {
       highScoreRef.current = newScore;
-      try {
-        localStorage.setItem('spaceRunnerHighScore', newScore.toString());
-      } catch {}
+      writeBestScore(RUNNER, newScore);
     }
 
     if (checkHyperspeed && newScore > 0 && newScore % 50 === 0 && prevScore % 50 !== 0) {
@@ -543,7 +569,7 @@ export default function SpaceRunner({ onClose }) {
   const createParticles = (x, y, count, color, isDark, type = 'normal') => {
     for (let i = 0; i < count; i++) {
       const angle = (Math.PI * 2 * i) / count;
-      const speed = type === 'explosion' ? Math.random() * 6 + 3 : Math.random() * 5 + 2;
+      const speed = type === 'explosion' ? randomFloat() * 6 + 3 : randomFloat() * 5 + 2;
       particlesRef.current.push({
         x,
         y,
@@ -551,7 +577,7 @@ export default function SpaceRunner({ onClose }) {
         vy: Math.sin(angle) * speed,
         life: type === 'explosion' ? 50 : 40,
         maxLife: type === 'explosion' ? 50 : 40,
-        size: Math.random() * 3 + 1,
+        size: randomFloat() * 3 + 1,
         color: color || (isDark ? '#60a5fa' : '#1e3a8a')
       });
     }
@@ -562,8 +588,12 @@ export default function SpaceRunner({ onClose }) {
   };
 
   const drawStar = (ctx, x, y, brightness, isDark) => {
-    ctx.fillStyle = isDark ? `rgba(229, 231, 235, ${brightness})` : `rgba(15, 23, 42, ${Math.max(0.5, brightness * 0.8 + 0.5)})`;
+    const light = isDark ? brightness : Math.max(0.5, brightness * 0.8 + 0.5);
+
+    ctx.globalAlpha = light;
+    ctx.fillStyle = stageRef.current.ink;
     drawPixel(ctx, x, y, 1);
+    ctx.globalAlpha = 1;
   };
 
   const drawBullet = (ctx, x, y, isDark, isBossBullet = false) => {
@@ -1264,9 +1294,7 @@ export default function SpaceRunner({ onClose }) {
   };
 
   const drawBackground = (ctx, width, height, isDark) => {
-    const bgColor = isDark ? '#111827' : '#f8fafc';
-
-    ctx.fillStyle = bgColor;
+    ctx.fillStyle = stageRef.current.back;
     ctx.fillRect(0, 0, width, height);
     
     ctx.save();
@@ -1275,10 +1303,10 @@ export default function SpaceRunner({ onClose }) {
       const starCount = isDark ? 80 : 120;
       for (let i = 0; i < starCount; i++) {
         starsRef.current.push({
-          x: Math.random() * width,
-          y: Math.random() * height,
-          brightness: isDark ? (Math.random() * 0.8 + 0.2) : (Math.random() * 0.5 + 0.5),
-          speed: Math.random() * 1.2 + 0.2
+          x: randomFloat() * width,
+          y: randomFloat() * height,
+          brightness: isDark ? (randomFloat() * 0.8 + 0.2) : (randomFloat() * 0.5 + 0.5),
+          speed: randomFloat() * 1.2 + 0.2
         });
       }
     }
@@ -1287,7 +1315,7 @@ export default function SpaceRunner({ onClose }) {
       star.x -= star.speed * (isHyperspeed ? HYPERSPEED_MULTIPLIER : 1);
       if (star.x < 0) {
         star.x = width;
-        star.y = Math.random() * height;
+        star.y = randomFloat() * height;
       }
       drawStar(ctx, star.x, star.y, star.brightness, isDark);
     });
@@ -1523,7 +1551,7 @@ export default function SpaceRunner({ onClose }) {
       }
     } else if (score >= BOSS_SPAWN_SCORE && Math.floor(score / BOSS_SPAWN_SCORE) > Math.floor(lastBossScoreRef.current / BOSS_SPAWN_SCORE) && obstaclesRef.current.length === 0 && !bossRef.current) {
       const bossTypes = Object.values(BOSS_TYPES);
-      const randomType = bossTypes[Math.floor(Math.random() * bossTypes.length)];
+      const randomType = bossTypes[Math.floor(randomFloat() * bossTypes.length)];
       const config = BOSS_CONFIG[randomType];
       const bossHealth = config.health(level);
       const colors = isDark ? config.color.dark : config.color.light;
@@ -1691,8 +1719,8 @@ export default function SpaceRunner({ onClose }) {
     }
 
     const spawnRate = SPAWN_RATE * (1 + level * 0.1);
-    if (!bossRef.current && obstaclesRef.current.length < 15 && Math.random() < spawnRate * (isHyperspeed ? HYPERSPEED_MULTIPLIER : 1)) {
-      const rand = Math.random();
+    if (!bossRef.current && obstaclesRef.current.length < 15 && randomFloat() < spawnRate * (isHyperspeed ? HYPERSPEED_MULTIPLIER : 1)) {
+      const rand = randomFloat();
       let type, size;
       if (rand < 0.45) {
         type = 'asteroid';
@@ -1711,26 +1739,26 @@ export default function SpaceRunner({ onClose }) {
         size = ASTEROID_SIZE;
       }
       
-      const baseSpeed = type === 'fast' ? 5 : type === 'big' ? 1.5 : (Math.random() * 2 + 2);
+      const baseSpeed = type === 'fast' ? 5 : type === 'big' ? 1.5 : (randomFloat() * 2 + 2);
       obstaclesRef.current.push({
         x: width,
-        y: Math.random() * (height - size * 2) + size,
+        y: randomFloat() * (height - size * 2) + size,
         size,
         type,
         speed: baseSpeed * (1 + level * 0.2) * (isHyperspeed ? HYPERSPEED_MULTIPLIER : 1)
       });
     }
 
-    if (energiesRef.current.length < 5 && Math.random() < ENERGY_SPAWN_RATE) {
+    if (energiesRef.current.length < 5 && randomFloat() < ENERGY_SPAWN_RATE) {
       energiesRef.current.push({
         x: width,
-        y: Math.random() * (height - ENERGY_SIZE * 2) + ENERGY_SIZE,
+        y: randomFloat() * (height - ENERGY_SIZE * 2) + ENERGY_SIZE,
         size: ENERGY_SIZE
       });
     }
 
-    if (powerupsRef.current.length < 3 && Math.random() < POWERUP_SPAWN_RATE) {
-      const rand = Math.random();
+    if (powerupsRef.current.length < 3 && randomFloat() < POWERUP_SPAWN_RATE) {
+      const rand = randomFloat();
       let type;
       if (rand < 0.3) {
         type = 'rapid';
@@ -1743,7 +1771,7 @@ export default function SpaceRunner({ onClose }) {
       }
       powerupsRef.current.push({
         x: width,
-        y: Math.random() * (height - POWERUP_SIZE * 2) + POWERUP_SIZE,
+        y: randomFloat() * (height - POWERUP_SIZE * 2) + POWERUP_SIZE,
         type
       });
     }
@@ -1827,7 +1855,7 @@ export default function SpaceRunner({ onClose }) {
   };
 
   const drawForeground = (ctx, width, height, isDark) => {
-    const textColor = isDark ? '#e5e7eb' : '#0f172a';
+    const textColor = stageRef.current.ink;
     const lineColor = isDark ? '#374151' : '#cbd5e1';
 
     const comboPulse = comboFlashRef.current > 0 ? 1 + Math.sin(Date.now() / 100) * 0.3 : 1;
@@ -2137,7 +2165,7 @@ export default function SpaceRunner({ onClose }) {
       <div className="absolute top-1 right-1 z-[10000] flex flex-col items-end gap-1">
         <button
           onClick={onClose}
-          className="w-6 h-6 flex items-center justify-center rounded-lg bg-gray-800/80 dark:bg-gray-700/80 hover:bg-gray-700 dark:hover:bg-gray-600 text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-gray-200 transition-all hover:scale-110 active:scale-95 shadow-lg backdrop-blur-sm"
+          className="w-6 h-6 flex items-center justify-center rounded-lg runner-chip transition-all hover:scale-110 active:scale-95 shadow-lg backdrop-blur-sm"
           aria-label="Close game"
           title="Close game"
         >
@@ -2147,7 +2175,7 @@ export default function SpaceRunner({ onClose }) {
         </button>
         <button
           onClick={toggleFullscreen}
-          className="w-6 h-6 flex items-center justify-center rounded-lg bg-gray-800/80 dark:bg-gray-700/80 hover:bg-gray-700 dark:hover:bg-gray-600 text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-gray-200 transition-all hover:scale-110 active:scale-95 shadow-lg backdrop-blur-sm"
+          className="w-6 h-6 flex items-center justify-center rounded-lg runner-chip transition-all hover:scale-110 active:scale-95 shadow-lg backdrop-blur-sm"
           aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
           title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
         >
@@ -2197,6 +2225,14 @@ export default function SpaceRunner({ onClose }) {
           }}
         />
       </div>
+      {!isFullscreen && (
+        <p className="runner-credit">
+          The pocket cut of Space Runner.{' '}
+          <a href="https://bavix.github.io/space-runner/" target="_blank" rel="noopener noreferrer">Full game</a>
+          {' · '}
+          <a href="https://github.com/bavix/space-runner" target="_blank" rel="noopener noreferrer">Source</a>
+        </p>
+      )}
     </div>
   );
 }

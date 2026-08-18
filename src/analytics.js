@@ -1,5 +1,7 @@
 'use strict';
 
+import { markFound } from './eggs-found.js';
+
 /**
  * Both counters that this page already loads, behind one call.
  *
@@ -26,6 +28,8 @@ export function trackEgg(egg, how) {
     if (typeof egg !== 'string' || egg === '') {
         return;
     }
+
+    markFound(egg);
 
     const payload = how ? { egg, how } : { egg };
     const { gtag, ym } = counters();

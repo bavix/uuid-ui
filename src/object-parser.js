@@ -3,6 +3,7 @@
 import JSON5 from 'json5';
 
 const integer = /^-?\d+$/;
+const hexBytes = /^[0-9a-f]{2}(?:[\s,]+[0-9a-f]{2}){15}$/i;
 
 export function objectParse(val) {
     if (typeof val !== 'string') {
@@ -10,14 +11,30 @@ export function objectParse(val) {
     }
 
     const hlrg = /^(-?\d+)[;:,](-?\d+)$/
+    const wrg = /^\s*(-?\d+)\s*[;:,]\s*(-?\d+)\s*[;:,]\s*(-?\d+)\s*[;:,]\s*(-?\d+)\s*$/
     // Numbers are quoted before parsing so that an int64 survives JSON5, which
     // would otherwise round it through a double. Only *values* qualify: the
     // old pattern also matched the digits inside a key, so {w1: 1} became
     // {w"1": "1"} and failed to parse at all.
     const trg = /(^|[[{,:]\s*)["']?(-?\d+)["']?(?=\s*([,}\]]|$))/g
 
+    if (hexBytes.test(val.trim())) {
+        return val.trim().split(/[\s,]+/).map(byte => parseInt(byte, 16))
+    }
+
     if (val[0] === '[') {
         return JSON5.parse(val.replace(trg, '$1$2'))
+    }
+
+    const quad = val.match(wrg)
+
+    if (quad) {
+        return {
+            w1: Number(quad[1]),
+            w2: Number(quad[2]),
+            w3: Number(quad[3]),
+            w4: Number(quad[4]),
+        }
     }
 
     if (val.match(hlrg)) {

@@ -14,7 +14,8 @@ import {
 import { timestampFromUlid, timestampFromUuid } from './uuid-timestamp.js';
 import { copyText } from './clipboard.js';
 import { specialValues } from './special-values.js';
-import { detectIntType, toUuid } from './to-uuid.js';
+import { detectIntPair, toUuid } from './to-uuid.js';
+import { readingOf, readingsFor } from './int-convention.js';
 import { SIGNED } from './int-type.js';
 import { INT_TYPE_NAMES } from './int-type.js';
 // The easter egg is ~40% of the source and almost nobody opens it, so it is a
@@ -24,6 +25,8 @@ import { HISTORY_LIMIT, PAGE_SIZE } from './limits.js';
 import { isTypingTarget } from './key-sequence.js';
 import { searchItems } from './search.js';
 import { trackEgg } from './analytics.js';
+import { TAG_NAME_LIMIT, cleanTagName, findTag } from './tag-name.js';
+import { tagColors, tagGround } from './tag-color.js';
 
 const TYPE_LABELS = {
   [TYPE_ULID]: 'ULID',
@@ -47,6 +50,7 @@ const TYPE_CLASS_NAMES = {
 
 export default class HistoryComponent extends React.Component {
   tooltipRefs = new Map();
+  facts = new WeakMap();
   
   constructor(props) {
     super(props);
@@ -88,6 +92,47 @@ export default class HistoryComponent extends React.Component {
     }
   };
 
+  // The strip only fades where there is something past the edge. Faded ends on
+  // a strip that fits made a single tag look half hidden.
+  markStripEnds = () => {
+    const strip = this.strip;
+
+    if (!strip) {
+      return;
+    }
+
+    const start = strip.scrollLeft <= 1;
+    const end = strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 1;
+
+    strip.dataset.fade = start && end ? 'none' : start ? 'end' : end ? 'start' : 'both';
+  };
+
+  holdStrip = (node) => {
+    if (this.stripWatch) {
+      this.stripWatch.disconnect();
+      this.stripWatch = null;
+    }
+
+    if (this.strip) {
+      this.strip.removeEventListener('scroll', this.markStripEnds);
+    }
+
+    this.strip = node;
+
+    if (!node) {
+      return;
+    }
+
+    node.addEventListener('scroll', this.markStripEnds, { passive: true });
+
+    if (typeof ResizeObserver === 'function') {
+      this.stripWatch = new ResizeObserver(this.markStripEnds);
+      this.stripWatch.observe(node);
+    }
+
+    this.markStripEnds();
+  };
+
   showMore = () => {
     this.setState(({ visibleCount }) => ({ visibleCount: visibleCount + PAGE_SIZE }));
   }
@@ -101,6 +146,16 @@ export default class HistoryComponent extends React.Component {
       
       if (activeFilter !== 'all' && !favoriteListNames.includes(activeFilter)) {
         this.setState({ activeFilter: 'all' });
+      }
+    }
+
+    // The chosen tag may be off the right end of the strip; bring it back into
+    // sight rather than leaving the row looking unchanged.
+    if (prevState.activeFilter !== activeFilter && this.strip) {
+      const chosen = this.strip.querySelector('.tag-chip.is-on:not(.tag-chip-all)');
+
+      if (chosen && chosen.scrollIntoView) {
+        chosen.scrollIntoView({ inline: 'center', block: 'nearest' });
       }
     }
   }
@@ -122,22 +177,20 @@ export default class HistoryComponent extends React.Component {
   }
 
   // One hue per tag, expressed three ways: a solid pill (white text), a tint,
-  // and a readable label colour that flips with the theme.
-  tagHue = (text) => {
-    let hash = 0;
-    for (let i = 0; i < text.length; i++) {
-      hash = text.charCodeAt(i) + ((hash << 5) - hash);
+  // and a readable label colour that flips with the theme. The card the chip
+  // lands on is read from the theme, not assumed to be white.
+  tagGroundNow = () => {
+    const mark = `${document.documentElement.getAttribute('data-theme') ?? ''}:${this.props.isToggled ? 'd' : 'l'}`;
+
+    if (this.groundMark !== mark) {
+      this.groundMark = mark;
+      this.ground = tagGround();
     }
 
-    const hues = [210, 280, 340, 20, 160, 220, 300, 45, 140, 0, 260, 180, 30, 270, 190];
-    return hues[Math.abs(hash) % hues.length];
+    return this.ground;
   };
 
-  getTagColor = (text) => `hsl(${this.tagHue(text)}, 65%, 38%)`;
-
-  getTagTextColor = (text) => this.props.isToggled
-    ? `hsl(${this.tagHue(text)}, 70%, 76%)`
-    : `hsl(${this.tagHue(text)}, 68%, 30%)`;
+  tagPaint = (text) => tagColors(text, Boolean(this.props.isToggled), this.tagGroundNow());
 
   componentDidMount() {
     this.handleKeyDown = (e) => {
@@ -396,6 +449,8 @@ export default class HistoryComponent extends React.Component {
   handleFavoriteToggle = (e, item) => {
     e.stopPropagation();
 
+    this.tagOpener = e.currentTarget;
+
     this.setState({
       showTagPopup: true,
       tagPopupItem: item,
@@ -431,7 +486,9 @@ export default class HistoryComponent extends React.Component {
     this.props.deleteFavoriteList(listName);
 
     toast.success(`Tag "${listName}" deleted`, {
-      description: items.length > 0 ? `${items.length} item${items.length === 1 ? '' : 's'} were in it` : undefined,
+      description: items.length > 0
+        ? `${items.length} ${items.length === 1 ? 'row was' : 'rows were'} in it`
+        : undefined,
       action: {
         label: 'Undo',
         onClick: () => this.props.restoreFavoriteList(listName, items),
@@ -447,15 +504,24 @@ export default class HistoryComponent extends React.Component {
     this.toggleTagMembership(listName);
   };
 
+  // A name typed here is cleaned before it becomes a tag, and a name that only
+  // differs by case or spacing joins the tag already there rather than making a
+  // near-twin of it.
   handleCreateNewTag = () => {
     const { tagPopupItem, tagSearchQuery } = this.state;
-    const { createFavoriteList, addToFavorites } = this.props;
-    
-    if (tagPopupItem && tagSearchQuery.trim()) {
-      const newTagName = tagSearchQuery.trim();
-      createFavoriteList(newTagName);
-      addToFavorites(tagPopupItem, newTagName);
-      toast.success(`Added to "${newTagName}"`);
+    const { createFavoriteList, addToFavorites, favorites } = this.props;
+    const wanted = cleanTagName(tagSearchQuery);
+
+    if (tagPopupItem && wanted !== '') {
+      const held = findTag(Object.keys(favorites || {}), wanted);
+      const name = held ?? wanted;
+
+      if (!held) {
+        createFavoriteList(name);
+      }
+
+      addToFavorites(tagPopupItem, name);
+      toast.success(`Added to "${name}"`);
     }
 
     this.setState({ tagSearchQuery: '' });
@@ -467,6 +533,25 @@ export default class HistoryComponent extends React.Component {
       tagPopupItem: null,
       tagSearchQuery: '',
     });
+
+    this.tagOpener?.focus();
+    this.tagOpener = null;
+  };
+
+  holdTagDialog = (node) => {
+    this.tagDialog = node;
+
+    if (!node || node.open) {
+      return;
+    }
+
+    node.showModal();
+    node.addEventListener('click', (e) => {
+      if (e.target === node) {
+        this.closeTagPopup();
+      }
+    });
+    node.querySelector('.tag-field')?.focus();
   };
 
   getTypeLabel(kind) {
@@ -505,6 +590,37 @@ export default class HistoryComponent extends React.Component {
     } catch {
       return isoString;
     }
+  }
+
+  factsOf(item) {
+    const held = this.facts.get(item);
+
+    if (held !== undefined) {
+      return held;
+    }
+
+    const outputType = this.getTypeKind(item.output);
+    const inputType = this.getTypeKind(item.input);
+    const stored = { read: readingOf(item.readAs), write: readingOf(item.writeAs) };
+    const rowInts = detectIntPair(item.input, item.output);
+    const { read, write } = readingsFor(stored, rowInts);
+
+    const facts = {
+      itemId: item.toString(),
+      inputResult: this.processItem(item.input),
+      outputResult: this.processItem(item.output),
+      outputType,
+      inputType,
+      outputTypeClass: this.getTypeClassName(outputType),
+      inputTypeClass: this.getTypeClassName(inputType),
+      outputIntName: INT_TYPE_NAMES[write],
+      inputIntName: INT_TYPE_NAMES[read],
+      inspectable: toUuid(item.input, read ?? SIGNED) ?? toUuid(item.output, write ?? SIGNED),
+    };
+
+    this.facts.set(item, facts);
+
+    return facts;
   }
 
   processItem(value) {
@@ -604,16 +720,16 @@ export default class HistoryComponent extends React.Component {
     const filteredItems = this.getFilteredItems();
 
     return (
-      <section aria-label="Conversion results" className={`history-container ${expanded ? 'game-expanded' : ''}`}>
+      <section aria-label="Conversion results" className={`history-container ${expanded ? 'game-expanded' : ''} ${this.showGame ? 'runner-expanded' : ''}`}>
         {!expanded && (
           <>
           <div className="history-header">
-          <div className="flex items-center gap-3">
-            <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex items-center gap-3 min-w-0">
+            <svg className="w-5 h-5 shrink-0 ink-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-              <h2 className="text-base font-bold history-header-title">History</h2>
+            <div className="flex items-baseline gap-x-2 min-w-0">
+              <h2 className="font-bold history-header-title">History</h2>
               {filteredItems.length > 0 && (
                 <span
                   className="text-xs font-semibold px-2 py-1 rounded-full history-count-badge"
@@ -624,16 +740,26 @@ export default class HistoryComponent extends React.Component {
                   {filteredItems.length}
                 </span>
               )}
-              <span className={`history-target ${this.getTypeClassName(this.props.resultType)}`} title="New conversions use this format">
+              <span
+                className={`history-target ${this.getTypeClassName(this.props.resultType)}`}
+                title="How the next conversion is read and written"
+                aria-label={[
+                  this.props.readIntName ? `read ${this.props.readIntName}` : null,
+                  `write ${this.getTypeLabel(this.props.resultType)}${this.props.writeIntName ? ` ${this.props.writeIntName}` : ''}`,
+                  this.props.spellingName ? `spelled ${this.props.spellingName}` : null,
+                ].filter(Boolean).join(', ').replace(/^/, 'New conversions ')}
+              >
                 → {this.getTypeLabel(this.props.resultType)}
-                {this.props.resultType === TYPE_HIGH_LOW && this.props.intTypeName ? ` · ${this.props.intTypeName}` : ''}
+                {this.props.writeIntName
+                  ? ` · ${this.props.writeIntName}`
+                  : (this.props.spellingName ? ` · ${this.props.spellingName}` : '')}
               </span>
             </div>
           </div>
           {items.length > 0 && (
             <button
               onClick={this.clearHistory}
-              className="px-3 py-2 rounded-lg transition-all hover:scale-105 active:scale-95 flex items-center gap-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+              className="px-3 py-2 rounded-lg transition-all hover:scale-105 active:scale-95 flex items-center gap-2 ink-danger hover-danger-soft"
               aria-label="Clear history"
               title="Clear history (favorites are kept)"
             >
@@ -681,67 +807,34 @@ export default class HistoryComponent extends React.Component {
           </div>
         )}
         {favoriteListNames.length > 0 && (
-          <div className="px-5 pb-3">
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => this.handleFilterChange('all')}
-                className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
-                  activeFilter === 'all'
-                    ? 'bg-blue-700 text-white dark:bg-blue-600 shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-                }`}
-              >
-                All
-              </button>
+          <div className="tag-strip-wrap px-5 pb-3" role="group" aria-label="Filter by tag">
+            <button
+              type="button"
+              onClick={() => this.handleFilterChange('all')}
+              className={`tag-chip tag-chip-all ${activeFilter === 'all' ? 'is-on' : ''}`}
+              aria-pressed={activeFilter === 'all'}
+            >
+              All
+            </button>
+            <div className="tag-strip" data-fade="none" ref={this.holdStrip}>
               {favoriteListNames.map((listName) => {
                 const listItems = favorites[listName] || [];
-                const tagColor = this.getTagColor(listName);
-                const tagTextColor = this.getTagTextColor(listName);
-                const currentActiveFilter = this.state.activeFilter;
-                const isActive = currentActiveFilter === listName;
+                const paint = this.tagPaint(listName);
+                const isActive = this.state.activeFilter === listName;
 
                 return (
                   <button
-                    key={`filter-${listName}-${currentActiveFilter}`}
-                    onClick={() => {
-                      const newFilter = isActive ? 'all' : listName;
-                      this.handleFilterChange(newFilter);
-                    }}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all flex items-center gap-1.5 favorite-filter-tag ${
-                      isActive ? 'favorite-filter-tag-active shadow-md' : 'hover:shadow-sm hover:opacity-90'
-                    }`}
-                    style={{
-                      backgroundColor: isActive ? tagColor : 'transparent',
-                      color: isActive ? '#ffffff' : tagTextColor,
-                      ...(isActive ? {
-                        border: `1.5px solid ${tagColor}`,
-                      } : {
-                        '--tag-border-color': tagTextColor,
-                      }),
-                    }}
+                    key={`filter-${listName}`}
+                    type="button"
+                    onClick={() => this.handleFilterChange(isActive ? 'all' : listName)}
+                    className={`tag-chip ${isActive ? 'is-on' : ''}`}
+                    style={{ '--tag': paint.fill, '--tag-ink': paint.ink, '--tag-on': paint.onFill, '--tag-dot': paint.dot }}
+                    aria-pressed={isActive}
+                    title={`${listName} — ${listItems.length} row${listItems.length === 1 ? '' : 's'}`}
                   >
-                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                    </svg>
-                    <span>{listName}</span>
-                    <span 
-                      className={`inline-flex items-center justify-center text-[10px] font-bold rounded-full ${
-                        isActive ? 'min-w-[20px] h-5 px-1.5' : 'w-5 h-5'
-                      }`}
-                      style={isActive ? {
-                        backgroundColor: 'rgba(255, 255, 255, 0.25)',
-                        color: '#ffffff',
-                        border: 'none',
-                        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
-                      } : {
-                        backgroundColor: 'transparent',
-                        color: tagTextColor,
-                        border: `1px solid ${tagTextColor}`,
-                        boxShadow: `0 1px 3px ${tagColor}40`,
-                      }}
-                    >
-                      {listItems.length}
-                    </span>
+                    <span className="tag-chip-dot" aria-hidden="true"></span>
+                    <span className="tag-chip-name">{listName}</span>
+                    <span className="tag-chip-count">{listItems.length}</span>
                   </button>
                 );
               })}
@@ -763,11 +856,11 @@ export default class HistoryComponent extends React.Component {
               {panelGame ? (
                    <div className="panel-game" key={panelGame} ref={this.mountPanelGame} />
                  ) : this.showGame ? (
-                   <Suspense fallback={<div className="px-4 py-12 text-center text-sm text-gray-500 dark:text-gray-400">Loading…</div>}>
+                   <Suspense fallback={<div className="px-4 py-12 text-center text-sm ink-muted">Loading…</div>}>
                      <SpaceRunner onClose={() => { this.showGame = false; this.forceUpdate(); }} />
                    </Suspense>
                  ) : filteredItems.length === 0 ? (
-            <div className="px-4 py-12 text-center">
+            <div className="history-empty px-4 py-12 text-center">
               <button
                 type="button"
                 aria-label="Empty history"
@@ -775,7 +868,7 @@ export default class HistoryComponent extends React.Component {
                 onClick={this.handleEmptyIconClick}
               >
                 <svg
-                  className="w-10 h-10 text-gray-400 dark:text-gray-600"
+                  className="w-10 h-10 ink-muted"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -784,14 +877,14 @@ export default class HistoryComponent extends React.Component {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                 </svg>
               </button>
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
+              <p className="text-sm font-medium ink">
                 {this.state.query.trim() !== ''
                   ? `Nothing matches "${this.state.query.trim()}"`
                   : activeFilter === 'all'
                     ? 'Nothing converted yet'
                     : `Nothing tagged "${activeFilter}"`}
               </p>
-              <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+              <p className="mt-1 text-xs ink-muted">
                 {this.state.query.trim() !== ''
                   ? 'The search covers both sides of a row and its comment.'
                   : activeFilter === 'all'
@@ -802,26 +895,11 @@ export default class HistoryComponent extends React.Component {
           ) : (
             <div>
               {filteredItems.slice(0, this.state.visibleCount).map((item, idx) => {
-                const inputResult = this.processItem(item.input);
-                const outputResult = this.processItem(item.output);
-                const itemId = item.toString();
+                const facts = this.factsOf(item);
+                const { inputResult, outputResult, outputType, inputType, outputTypeClass, inputTypeClass,
+                    outputIntName, inputIntName, inspectable, itemId } = facts;
                 const outputTooltipId = `tooltip-${itemId}-output`;
                 const inputTooltipId = `tooltip-${itemId}-input`;
-
-                            const outputType = this.getTypeKind(item.output);
-                const inputType = this.getTypeKind(item.input);
-                const outputTypeClass = this.getTypeClassName(outputType);
-                const inputTypeClass = this.getTypeClassName(inputType);
-                
-                // Derived, not stored: run both sides through both readings and
-                // keep the one where they agree. Works for rows saved long before
-                // this existed, and cannot fall out of sync with the converter.
-                const rowIntType = detectIntType(item.input, item.output);
-                const intTypeName = INT_TYPE_NAMES[rowIntType];
-                // Either side may be the readable identifier; whichever parses
-                // is the one whose bits are worth showing.
-                const inspectable = toUuid(item.input, rowIntType ?? SIGNED)
-                    ?? toUuid(item.output, rowIntType ?? SIGNED);
 
                 const favoriteInfo = this.getItemFavoriteInfo(item);
                 const isInFavorites = favoriteInfo.isInFavorites;
@@ -840,11 +918,17 @@ export default class HistoryComponent extends React.Component {
                         <span className={`history-type-badge ${outputTypeClass}`}>
                           {outputResult.type}
                         </span>
-                        {intTypeName && (outputType === TYPE_HIGH_LOW || outputType === TYPE_WORDS) && (
-                          <span className="history-marker-badge marker-int" title="Integer type this pair was written with">
-                            {intTypeName}
-                          </span>
-                        )}
+                        {(outputType === TYPE_HIGH_LOW || outputType === TYPE_WORDS) && (outputIntName
+                          ? (
+                            <span className="history-marker-badge marker-int" title="Integer type this value is written in">
+                              {outputIntName}
+                            </span>
+                          )
+                          : (
+                            <span className="history-marker-badge marker-int is-unknown" title="Two readings fit this row, so it cannot say which one it was written in">
+                              ?
+                            </span>
+                          ))}
                         {(outputResult.markers || []).map(marker => (
                           <span key={marker.label} className={`history-marker-badge marker-${marker.kind}`}>
                             {marker.label}
@@ -857,7 +941,7 @@ export default class HistoryComponent extends React.Component {
                       {inspectable && (
                         <button
                           onClick={(e) => this.showBits(e, inspectable)}
-                          className="p-2 rounded-lg active:scale-95 transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 hover:text-blue-700 dark:text-gray-400 dark:hover:text-blue-300"
+                          className="p-2 rounded-lg active:scale-95 transition-colors hover-surface ink-muted accent-hover"
                           aria-label="Show the bits of this identifier"
                           title="Show the bits of this identifier"
                         >
@@ -866,12 +950,27 @@ export default class HistoryComponent extends React.Component {
                           </svg>
                         </button>
                       )}
+                      {favoriteLists && favoriteLists.length > 0 && (
+                        <span className="row-tags" title={`Tagged ${favoriteLists.join(', ')}`}>
+                          {favoriteLists.slice(0, 3).map(listName => (
+                            <span
+                              key={listName}
+                              className="row-tag-dot"
+                              style={{ backgroundColor: this.tagPaint(listName).dot }}
+                            ></span>
+                          ))}
+                          {favoriteLists.length > 3 && (
+                            <span className="row-tag-more">+{favoriteLists.length - 3}</span>
+                          )}
+                          <span className="sr-only">{`Tagged ${favoriteLists.join(', ')}`}</span>
+                        </span>
+                      )}
                       <button
                         onClick={(e) => this.handleFavoriteToggle(e, item)}
-                        className={`p-2 rounded-lg active:scale-95 transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 ${
+                        className={`p-2 rounded-lg active:scale-95 transition-colors hover-surface ${
                           isInFavorites 
-                            ? 'text-yellow-500 hover:text-yellow-600 dark:hover:text-yellow-400' 
-                            : 'text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400'
+                            ? 'ink-star star-hover' 
+                            : 'ink-muted star-hover'
                         }`}
                         aria-label={isInFavorites ? "Remove from favorites" : "Add to favorites"}
                         title={isInFavorites ? "Remove from favorites" : "Add to favorites"}
@@ -883,7 +982,7 @@ export default class HistoryComponent extends React.Component {
                       {outputResult.timestamp && (
                       <button
                         onClick={(e) => this.copyTimestamp(e, outputResult.timestamp, 'Output')}
-                        className="p-2 rounded-lg active:scale-95 transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 hover:text-blue-700 dark:text-gray-400 dark:hover:text-blue-300"
+                        className="p-2 rounded-lg active:scale-95 transition-colors hover-surface ink-muted accent-hover"
                         aria-label="Copy output timestamp"
                         title={`Copy output timestamp: ${outputResult.timestamp}`}
                       >
@@ -895,7 +994,7 @@ export default class HistoryComponent extends React.Component {
                       {inputResult.timestamp && (
                         <button
                           onClick={(e) => this.copyTimestamp(e, inputResult.timestamp, 'Input')}
-                          className="p-2 rounded-lg active:scale-95 transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 hover:text-blue-700 dark:text-gray-400 dark:hover:text-blue-300"
+                          className="p-2 rounded-lg active:scale-95 transition-colors hover-surface ink-muted accent-hover"
                           aria-label="Copy input timestamp"
                           title={`Copy input timestamp: ${inputResult.timestamp}`}
                         >
@@ -906,7 +1005,7 @@ export default class HistoryComponent extends React.Component {
                       )}
                       <button
                         onClick={(e) => this.removeItem(e, item)}
-                        className="ml-1 p-2 rounded-lg active:scale-95 transition-colors text-gray-500 hover:text-red-700 dark:text-gray-400 dark:hover:text-red-300"
+                        className="ml-1 p-2 rounded-lg active:scale-95 transition-colors ink-muted danger-hover"
                         aria-label={activeFilter === 'all' ? 'Remove from history' : `Remove from "${activeFilter}"`}
                         title={activeFilter === 'all' ? 'Remove from history' : `Remove from "${activeFilter}"`}
                       >
@@ -942,24 +1041,20 @@ export default class HistoryComponent extends React.Component {
                           className="tooltip tooltip-top"
                         >
                           <div className="min-w-[180px] max-w-[260px] text-left">
-                            <div className={`${(outputResult.timestamp || item.info || (favoriteLists && favoriteLists.length > 0)) ? 'pb-1.5 mb-1.5 border-b border-gray-300 dark:border-gray-600' : ''}`}>
+                            <div className={`${(outputResult.timestamp || item.info || (favoriteLists && favoriteLists.length > 0)) ? 'pb-1.5 mb-1.5 border-b line-strong-border' : ''}`}>
                               <div className="text-[10px] font-semibold text-left flex items-center gap-1.5">
-                                <span className="text-gray-800 dark:text-gray-400">Output:</span>
+                                <span className="ink-muted">Output:</span>
                                 {outputResult.type.startsWith('UUID v') ? (
                                   <>
-                                    <span className="text-gray-900 dark:text-gray-100 font-bold">UUID</span>
+                                    <span className="ink font-bold">UUID</span>
                                     <span 
-                                      className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold"
-                                      style={{
-                                        backgroundColor: 'rgb(21, 128, 61)',
-                                        color: '#ffffff'
-                                      }}
+                                      className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold version-badge"
                                     >
                                       {outputResult.type.replace('UUID ', '')}
                                     </span>
                                   </>
                                 ) : (
-                                  <span className="text-gray-900 dark:text-gray-100 font-bold">{outputResult.type}</span>
+                                  <span className="ink font-bold">{outputResult.type}</span>
                                 )}
                               </div>
                             </div>
@@ -968,36 +1063,36 @@ export default class HistoryComponent extends React.Component {
                               {outputResult.timestamp && (
                                 <div>
                                   <div className="text-[10px] font-medium mb-0.5">
-                                    <span className="text-gray-800 dark:text-gray-400 font-semibold">Timestamp:</span> <span className="font-bold">{this.formatTimestamp(outputResult.timestamp)}</span>
+                                    <span className="ink-muted font-semibold">Timestamp:</span> <span className="font-bold">{this.formatTimestamp(outputResult.timestamp)}</span>
                                   </div>
-                                  <div className="text-[9px] font-mono text-gray-500 dark:text-gray-400 break-all pl-1">{outputResult.timestamp}</div>
+                                  <div className="text-[9px] font-mono ink-muted break-all pl-1">{outputResult.timestamp}</div>
                                 </div>
                               )}
                               {item.info && (
                                 <div>
                                   <div className="text-[10px] break-words font-medium leading-snug">
-                                    <span className="text-gray-800 dark:text-gray-400 font-semibold">Comment:</span> <span className="font-bold">{item.info}</span>
+                                    <span className="ink-muted font-semibold">Comment:</span> <span className="font-bold">{item.info}</span>
                                   </div>
                                 </div>
                               )}
                               {favoriteLists && favoriteLists.length > 0 && (
                                 <div>
                                   <div className="text-[10px] font-medium">
-                                    <span className="text-gray-800 dark:text-gray-400 font-semibold">Tag:</span>{' '}
+                                    <span className="ink-muted font-semibold">Tag:</span>{' '}
                                     {favoriteLists.map((listName, idx) => {
-                                      const tagColor = this.getTagColor(listName);
+                                      const paint = this.tagPaint(listName);
                                       return (
                                         <span 
                                           key={idx} 
                                           className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold ml-1"
                                           style={{ 
-                                            backgroundColor: tagColor,
-                                            color: '#ffffff'
+                                            backgroundColor: paint.fill,
+                                            color: paint.onFill
                                           }}
                                         >
                                           <div 
                                             className="w-1.5 h-1.5 rounded-full shrink-0"
-                                            style={{ backgroundColor: '#ffffff', opacity: 0.9 }}
+                                            style={{ backgroundColor: paint.onFill, opacity: 0.9 }}
                                           />
                                           <span>{listName}</span>
                                         </span>
@@ -1019,11 +1114,17 @@ export default class HistoryComponent extends React.Component {
                         <span className={`history-type-badge ${inputTypeClass}`}>
                           {inputResult.type}
                         </span>
-                        {intTypeName && (inputType === TYPE_HIGH_LOW || inputType === TYPE_WORDS) && (
-                          <span className="history-marker-badge marker-int" title="Integer type this pair was read with">
-                            {intTypeName}
-                          </span>
-                        )}
+                        {(inputType === TYPE_HIGH_LOW || inputType === TYPE_WORDS) && (inputIntName
+                          ? (
+                            <span className="history-marker-badge marker-int" title="Integer type this value is written in">
+                              {inputIntName}
+                            </span>
+                          )
+                          : (
+                            <span className="history-marker-badge marker-int is-unknown" title="Two readings fit this row, so it cannot say which one it was read in">
+                              ?
+                            </span>
+                          ))}
                         {(inputResult.markers || []).map(marker => (
                           <span key={marker.label} className={`history-marker-badge marker-${marker.kind}`}>
                             {marker.label}
@@ -1056,24 +1157,20 @@ export default class HistoryComponent extends React.Component {
                           className="tooltip tooltip-bottom"
                         >
                           <div className="min-w-[180px] max-w-[260px] text-left">
-                            <div className={`${(inputResult.timestamp || item.info || (favoriteLists && favoriteLists.length > 0)) ? 'pb-1.5 mb-1.5 border-b border-gray-300 dark:border-gray-600' : ''}`}>
+                            <div className={`${(inputResult.timestamp || item.info || (favoriteLists && favoriteLists.length > 0)) ? 'pb-1.5 mb-1.5 border-b line-strong-border' : ''}`}>
                               <div className="text-[10px] font-semibold text-left flex items-center gap-1.5">
-                                <span className="text-gray-800 dark:text-gray-400">Input:</span>
+                                <span className="ink-muted">Input:</span>
                                 {inputResult.type.startsWith('UUID v') ? (
                                   <>
-                                    <span className="text-gray-900 dark:text-gray-100 font-bold">UUID</span>
+                                    <span className="ink font-bold">UUID</span>
                                     <span 
-                                      className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold"
-                                      style={{
-                                        backgroundColor: 'rgb(21, 128, 61)',
-                                        color: '#ffffff'
-                                      }}
+                                      className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold version-badge"
                                     >
                                       {inputResult.type.replace('UUID ', '')}
                                     </span>
                                   </>
                                 ) : (
-                                  <span className="text-gray-900 dark:text-gray-100 font-bold">{inputResult.type}</span>
+                                  <span className="ink font-bold">{inputResult.type}</span>
                                 )}
                               </div>
                             </div>
@@ -1082,36 +1179,36 @@ export default class HistoryComponent extends React.Component {
                               {inputResult.timestamp && (
                                 <div>
                                   <div className="text-[10px] font-medium mb-0.5">
-                                    <span className="text-gray-800 dark:text-gray-400 font-semibold">Timestamp:</span> <span className="font-bold">{this.formatTimestamp(inputResult.timestamp)}</span>
+                                    <span className="ink-muted font-semibold">Timestamp:</span> <span className="font-bold">{this.formatTimestamp(inputResult.timestamp)}</span>
                                   </div>
-                                  <div className="text-[9px] font-mono text-gray-500 dark:text-gray-400 break-all pl-1">{inputResult.timestamp}</div>
+                                  <div className="text-[9px] font-mono ink-muted break-all pl-1">{inputResult.timestamp}</div>
                                 </div>
                               )}
                               {item.info && (
                                 <div>
                                   <div className="text-[10px] break-words font-medium leading-snug">
-                                    <span className="text-gray-800 dark:text-gray-400 font-semibold">Comment:</span> <span className="font-bold">{item.info}</span>
+                                    <span className="ink-muted font-semibold">Comment:</span> <span className="font-bold">{item.info}</span>
                                   </div>
                                 </div>
                               )}
                               {favoriteLists && favoriteLists.length > 0 && (
                                 <div>
                                   <div className="text-[10px] font-medium">
-                                    <span className="text-gray-800 dark:text-gray-400 font-semibold">Tag:</span>{' '}
+                                    <span className="ink-muted font-semibold">Tag:</span>{' '}
                                     {favoriteLists.map((listName, idx) => {
-                                      const tagColor = this.getTagColor(listName);
+                                      const paint = this.tagPaint(listName);
                                       return (
                                         <span 
                                           key={idx} 
                                           className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold ml-1"
                                           style={{ 
-                                            backgroundColor: tagColor,
-                                            color: '#ffffff'
+                                            backgroundColor: paint.fill,
+                                            color: paint.onFill
                                           }}
                                         >
                                           <div 
                                             className="w-1.5 h-1.5 rounded-full shrink-0"
-                                            style={{ backgroundColor: '#ffffff', opacity: 0.9 }}
+                                            style={{ backgroundColor: paint.onFill, opacity: 0.9 }}
                                           />
                                           <span>{listName}</span>
                                         </span>
@@ -1133,7 +1230,7 @@ export default class HistoryComponent extends React.Component {
                 <div className="px-4 py-3 text-center">
                   <button
                     onClick={this.showMore}
-                    className="px-4 py-2 text-sm font-medium rounded-lg transition-all hover:scale-105 active:scale-95 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                    className="px-4 py-2 text-sm font-medium rounded-lg transition-all hover:scale-105 active:scale-95 ink-accent hover-accent-soft"
                   >
                     Show more ({filteredItems.length - this.state.visibleCount} left)
                   </button>
@@ -1143,127 +1240,112 @@ export default class HistoryComponent extends React.Component {
           )}
         </div>
         {this.state.showTagPopup && (
-            // A native dialog: the focus trap, the inert page behind it and
-            // Escape come from the browser rather than from three handlers.
-            <dialog
-              ref={this.openTagDialog}
-              aria-labelledby="tag-dialog-title"
-              className="modal-panel"
-              onClose={this.closeTagPopup}
-            >
-              <div className="modal-head">
-                <div>
-                  <p id="tag-dialog-title" className="modal-title">Add to favorites</p>
-                  <p className="modal-subtitle">Pick a tag, or type a name to make one.</p>
-                </div>
-                <button
-                  onClick={this.closeTagPopup}
-                  className="modal-close"
-                  aria-label="Close"
-                >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
-                  </svg>
-                </button>
+          <dialog
+            className="modal-panel tag-pop"
+            aria-label="Tags for this result"
+            ref={this.holdTagDialog}
+            onClose={this.closeTagPopup}
+          >
+            <div className="modal-head tag-pop-head">
+              <div className="tag-pop-heading">
+                <p className="modal-title">Tags</p>
+                <p className="tag-pop-value" title={this.state.tagPopupItem?.output}>
+                  {this.state.tagPopupItem?.output}
+                </p>
               </div>
-              <div className="modal-body">
-                <input
-                  type="text"
-                  value={this.state.tagSearchQuery}
-                  onChange={(e) => this.setState({ tagSearchQuery: e.target.value })}
-                  placeholder="Search or name a new tag"
-                  className="modal-input"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && this.state.tagSearchQuery.trim()) {
-                      const { favorites } = this.props;
-                      const query = this.state.tagSearchQuery.trim();
-                      if (favorites[query]) {
-                        this.handleTagSelect(query);
-                      } else {
-                        this.handleCreateNewTag();
-                      }
-                    }
-                  }}
-                />
-                <div className="tag-list custom-scrollbar">
-                  {(() => {
-                    const { favorites } = this.props;
-                    const { tagSearchQuery, tagPopupItem } = this.state;
-                    const query = tagSearchQuery.trim();
-                    const listNames = Object.keys(favorites || {});
-                    const filtered = listNames.filter(name =>
-                      name.toLowerCase().includes(tagSearchQuery.toLowerCase())
-                    );
-                    const showCreate = query && !favorites[query];
+              <button type="button" className="modal-close" onClick={this.closeTagPopup} aria-label="Close">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+            {(() => {
+              const { favorites } = this.props;
+              const { tagSearchQuery, tagPopupItem } = this.state;
+              const query = cleanTagName(tagSearchQuery);
+              const holds = name => (favorites[name] || []).some(item =>
+                `${item.input}:${item.output}` === `${tagPopupItem?.input}:${tagPopupItem?.output}`
+              );
+              const names = Object.keys(favorites || {}).sort((a, b) => {
+                const mine = Number(holds(b)) - Number(holds(a));
 
-                    if (listNames.length === 0 && !query) {
-                      return (
-                        <p className="modal-empty">
-                          No tags yet
-                          <span>Type a name above to make the first one.</span>
-                        </p>
-                      );
-                    }
+                return mine === 0 ? a.localeCompare(b) : mine;
+              });
+              const shown = query === '' ? names : names.filter(name => name.toLowerCase().includes(query.toLowerCase()));
+              const exact = findTag(names, query);
 
-                    return (
-                      <>
-                        {showCreate && (
-                          <button
-                            onClick={this.handleCreateNewTag}
-                            className="tag-option is-create"
+              return (
+                <>
+                  {names.length > 0 && (
+                    <div className="tag-pop-chips">
+                      {shown.map(name => (
+                        <button
+                          key={name}
+                          type="button"
+                          className={`tag-pop-chip ${holds(name) ? 'is-on' : ''}`}
+                          style={{ '--tag': this.tagPaint(name).dot }}
+                          aria-pressed={holds(name)}
+                          onClick={() => this.handleTagSelect(name)}
+                        >
+                          <span className="tag-pop-dot" aria-hidden="true"></span>
+                          <span className="tag-pop-name">{name}</span>
+                          <span
+                            className="tag-pop-drop"
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`Delete the tag ${name}`}
+                            title={`Delete the tag "${name}"`}
+                            onClick={(e) => this.deleteTag(e, name)}
+                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { this.deleteTag(e, name); } }}
                           >
-                            <svg className="tag-option-mark" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                              <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+                            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                              <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                             </svg>
-                            <span className="tag-option-body">
-                              <span className="tag-option-name">Create "{query}"</span>
-                              <span className="tag-option-meta">A new tag with this item in it</span>
-                            </span>
-                          </button>
-                        )}
-                        {filtered.length === 0 && !showCreate && query && (
-                          <p className="modal-empty">
-                            Nothing matches "{query}"
-                          </p>
-                        )}
-                        {filtered.map((listName) => {
-                          const listItems = favorites[listName] || [];
-                          const isItemInThisList = tagPopupItem && listItems.some(item =>
-                            `${item.input}:${item.output}` === `${tagPopupItem.input}:${tagPopupItem.output}`
-                          );
+                          </span>
+                        </button>
+                      ))}
+                      {shown.length === 0 && <p className="tag-pop-none">No tag matches that.</p>}
+                    </div>
+                  )}
+                  <div className="tag-pop-make">
+                    {names.length > 8 && (
+                      <span className="tag-pop-count">{shown.length} of {names.length}</span>
+                    )}
+                    <input
+                      type="text"
+                      className="tag-field"
+                      value={tagSearchQuery}
+                      placeholder={names.length === 0 ? 'Name the first tag' : 'Filter, or name a new tag'}
+                      maxLength={TAG_NAME_LIMIT}
+                      onChange={(e) => this.setState({ tagSearchQuery: e.target.value })}
+                      onKeyDown={(e) => {
+                        if (e.key !== 'Enter' || query === '') {
+                          return;
+                        }
 
-                          return (
-                            <button
-                              key={listName}
-                              onClick={() => this.handleTagSelect(listName)}
-                              className={`tag-option ${isItemInThisList ? 'is-active' : ''}`}
-                            >
-                              <span
-                                className="tag-option-dot"
-                                style={{ backgroundColor: this.getTagColor(listName) }}
-                              />
-                              <span className="tag-option-body">
-                                <span className="tag-option-name">{listName}</span>
-                                <span className="tag-option-meta">
-                                  {listItems.length} {listItems.length === 1 ? 'item' : 'items'}
-                                  {isItemInThisList ? ' · this one included' : ''}
-                                </span>
-                              </span>
-                              {isItemInThisList && (
-                                <svg className="tag-option-mark" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                                  <path d="M3 8.5l3.5 3.5L13 5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                              )}
-                            </button>
-                          );
-                        })}
-                      </>
-                    );
-                  })()}
-                </div>
-              </div>
-            </dialog>
+                        if (exact) {
+                          this.handleTagSelect(exact);
+                          this.setState({ tagSearchQuery: '' });
+
+                          return;
+                        }
+
+                        this.handleCreateNewTag();
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="tag-add"
+                      disabled={query === '' || Boolean(exact)}
+                      onClick={this.handleCreateNewTag}
+                    >
+                      Add
+                    </button>
+                  </div>
+                </>
+              );
+            })()}
+          </dialog>
         )}
       </section>
     );
