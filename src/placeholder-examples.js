@@ -5,6 +5,7 @@ import { TYPE_BASE64, TYPE_BYTES, TYPE_HIGH_LOW, TYPE_ULID, TYPE_UUID, TYPE_WORD
 import { spell, spellingsOf } from './spellings.js';
 import { uuidToBytesString } from './uuid-bytes.js';
 import { uuidToBase64Std } from './base64.js';
+import { randomFloat } from './random.js';
 import { uuidToUlid } from './uuid-ulid.js';
 import { uuidToInts, uuidToUints } from './uuid-high-low.js';
 import { uuidToWords } from './uuid-words.js';
@@ -101,7 +102,7 @@ function paste(random) {
     return Array.from({ length: lines }, () => writeOne(identifier(random), random)).join('\n');
 }
 
-export function makeExample(random = Math.random) {
+export function makeExample(random = randomFloat) {
     const roll = random();
     const uuid = identifier(random);
 

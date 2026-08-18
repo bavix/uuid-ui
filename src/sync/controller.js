@@ -8,7 +8,7 @@ import { SYNC_CODES, SyncError, openSession } from './provider.js';
 import { browserVault } from './vault.js';
 import { SYNC_KEY } from './state.js';
 
-const TAB = `tab-${Math.random().toString(36).slice(2)}`;
+const TAB = `tab-${crypto.getRandomValues(new Uint32Array(2)).reduce((held, part) => held + part.toString(36), '')}`;
 
 let shared = null;
 
