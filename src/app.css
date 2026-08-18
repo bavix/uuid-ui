@@ -5,6 +5,7 @@
 @import "./themes/solarized.css";
 @import "./themes/gruvbox.css";
 @import "./themes/catppuccin.css";
+@import "./themes/cyberpunk.css";
 
 /*
  * The app toggles a .dark class on <html>, but Tailwind v4 does not read

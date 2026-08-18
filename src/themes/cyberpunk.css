@@ -1,0 +1,197 @@
+/* Cyberpunk Terminal: the owner's own theme, promoted from a pasted concept
+   to a shipped one. Amber on near-black at night, the same amber burnt down to
+   bronze on warm grey paper by day; everything monospaced, titles in caps. */
+
+:root[data-theme="cyberpunk"] {
+  color-scheme: light;
+
+  --surface: rgb(236, 238, 237);
+  --surface-sunken: rgb(225, 228, 227);
+  --surface-raised: rgb(250, 251, 250);
+  --surface-hover: rgb(229, 232, 231);
+  --row-alt: rgb(242, 244, 243);
+
+  --line: rgb(206, 211, 209);
+  --line-strong: rgb(172, 179, 176);
+
+  --ink: rgb(24, 28, 27);
+  --ink-muted: rgb(88, 98, 94);
+  --ink-muted-chip: rgb(78, 88, 84);
+
+  --accent: rgb(158, 96, 6);
+  --accent-soft: rgba(158, 96, 6, 0.14);
+  --accent-fill: rgb(158, 96, 6);
+  --accent-ink: rgb(250, 251, 250);
+
+  --brand-1: rgb(158, 96, 6);
+  --brand-2: rgb(190, 55, 55);
+  --brand-3: rgb(9, 118, 80);
+
+  --fmt-uuid: rgb(9, 118, 80);
+  --fmt-base64: rgb(158, 96, 6);
+  --fmt-ulid: rgb(112, 70, 190);
+  --fmt-highlow: rgb(20, 98, 178);
+  --fmt-bytes: rgb(186, 42, 52);
+  --fmt-words: rgb(74, 110, 10);
+  --fmt: var(--fmt-highlow);
+
+  --warn: rgb(146, 94, 10);
+  --warn-strong: rgb(178, 78, 8);
+  --alarm: rgb(186, 42, 52);
+  --void: rgb(3, 5, 6);
+
+  --bit-off: rgb(214, 219, 217);
+  --bit-random: rgb(9, 118, 80);
+  --bit-fixed: rgb(158, 96, 6);
+  --bit-time: rgb(20, 98, 178);
+  --bit-clock: rgb(186, 42, 52);
+  --bit-node: rgb(112, 70, 190);
+  --bit-mix: 26%;
+  --map-mix: 58%;
+
+  --tint-badge: 14%;
+  --tint-output: 10%;
+  --tint-nil: 10%;
+  --tint-nil-glow: 16%;
+
+  --sync-danger: rgb(186, 42, 52);
+  --sync-good: rgb(9, 118, 80);
+
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 7px;
+  --radius-lg: 9px;
+  --radius-pill: 999px;
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
+  --radius-3xl: 14px;
+  --output-edge: 1px;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 8px -2px rgb(0 0 0 / 0.12);
+  --shadow-lg: 0 12px 24px -6px rgb(0 0 0 / 0.16);
+  --glow-accent: none;
+
+  --font-ui: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --ui-2xs: 0.625rem;
+  --ui-xs: 0.6875rem;
+  --ui-sm: 0.75rem;
+  --ui-base: 0.8125rem;
+  --ui-lg: 0.875rem;
+  --ui-title: 0.9375rem;
+  --title-tracking: 0.04em;
+  --title-transform: uppercase;
+  --label-fill: transparent;
+  --label-ink: rgb(158, 96, 6);
+  --label-pad: 0.3125rem;
+
+  --motion-fast: 90ms;
+  --motion-base: 180ms;
+  --motion-slow: 320ms;
+  --motion-scale: 0.9;
+  --signature-time: 180ms;
+  --signature-ink: rgb(158, 96, 6);
+
+  --seg-on-bg: rgb(250, 251, 250);
+  --seg-on-ink: rgb(158, 96, 6);
+  --mark-note: color-mix(in oklab, rgb(88, 98, 94) 95%, rgb(250, 251, 250));
+  --mark-bad: color-mix(in oklab, rgb(186, 42, 52) 80%, rgb(250, 251, 250));
+  --logo-filter: grayscale(1) sepia(0.9) saturate(2.4) hue-rotate(-12deg) brightness(0.9);
+}
+
+:root[data-theme="cyberpunk"].dark {
+  color-scheme: dark;
+
+  --surface: rgb(14, 16, 18);
+  --surface-sunken: rgb(8, 10, 11);
+  --surface-raised: rgb(22, 25, 27);
+  --surface-hover: rgb(30, 34, 36);
+  --row-alt: rgb(17, 20, 21);
+
+  --line: rgb(39, 44, 46);
+  --line-strong: rgb(62, 69, 71);
+
+  --ink: rgb(226, 232, 228);
+  --ink-muted: rgb(139, 151, 145);
+  --ink-muted-chip: rgb(169, 180, 174);
+
+  --accent: rgb(255, 183, 77);
+  --accent-soft: rgba(255, 183, 77, 0.16);
+  --accent-fill: rgb(255, 183, 77);
+  --accent-ink: rgb(14, 16, 18);
+
+  --brand-1: rgb(255, 183, 77);
+  --brand-2: rgb(255, 107, 107);
+  --brand-3: rgb(93, 255, 174);
+
+  --fmt-uuid: rgb(93, 255, 174);
+  --fmt-base64: rgb(255, 183, 77);
+  --fmt-ulid: rgb(194, 145, 255);
+  --fmt-highlow: rgb(88, 183, 255);
+  --fmt-bytes: rgb(255, 107, 107);
+  --fmt-words: rgb(214, 234, 100);
+  --fmt: var(--fmt-highlow);
+
+  --warn: rgb(255, 210, 92);
+  --warn-strong: rgb(255, 153, 70);
+  --alarm: rgb(255, 82, 82);
+  --void: rgb(3, 5, 6);
+
+  --bit-off: rgb(46, 52, 54);
+  --bit-random: rgb(93, 255, 174);
+  --bit-fixed: rgb(255, 183, 77);
+  --bit-time: rgb(88, 183, 255);
+  --bit-clock: rgb(255, 82, 82);
+  --bit-node: rgb(194, 145, 255);
+  --bit-mix: 34%;
+  --map-mix: 46%;
+
+  --tint-badge: 12%;
+  --tint-output: 12%;
+  --tint-nil: 55%;
+  --tint-nil-glow: 60%;
+
+  --sync-danger: rgb(255, 82, 82);
+  --sync-good: rgb(93, 255, 174);
+
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 7px;
+  --radius-lg: 9px;
+  --radius-pill: 999px;
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
+  --radius-3xl: 14px;
+  --output-edge: 1px;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.35);
+  --shadow-md: 0 4px 8px -2px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 12px 24px -6px rgb(0 0 0 / 0.5);
+  --glow-accent: 0 0 12px rgb(255 183 77 / 0.22);
+
+  --font-ui: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --ui-2xs: 0.625rem;
+  --ui-xs: 0.6875rem;
+  --ui-sm: 0.75rem;
+  --ui-base: 0.8125rem;
+  --ui-lg: 0.875rem;
+  --ui-title: 0.9375rem;
+  --title-tracking: 0.04em;
+  --title-transform: uppercase;
+  --label-fill: transparent;
+  --label-ink: rgb(255, 183, 77);
+  --label-pad: 0.3125rem;
+
+  --motion-fast: 90ms;
+  --motion-base: 180ms;
+  --motion-slow: 320ms;
+  --motion-scale: 0.9;
+  --signature-time: 180ms;
+  --signature-ink: rgb(255, 183, 77);
+
+  --seg-on-bg: rgb(22, 25, 27);
+  --seg-on-ink: rgb(255, 183, 77);
+  --mark-note: color-mix(in oklab, rgb(139, 151, 145) 90%, rgb(22, 25, 27));
+  --mark-bad: color-mix(in oklab, rgb(255, 82, 82) 86%, rgb(22, 25, 27));
+  --logo-filter: saturate(1.25) contrast(1.05);
+}

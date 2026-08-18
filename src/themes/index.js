@@ -55,6 +55,17 @@ export const THEMES = [
             dark: ['#282828', '#fabd2f', '#8ec07c'],
         },
     },
+    {
+        id: 'cyberpunk',
+        name: 'Cyberpunk Terminal',
+        blurb: 'Amber mono, caps and glow.',
+        modes: ['light', 'dark'],
+        egg: null,
+        swatch: {
+            light: ['#eceeed', '#9e6006', '#097650'],
+            dark: ['#0e1012', '#ffb74d', '#5dffae'],
+        },
+    },
 ];
 
 export const DEFAULT_PALETTE = 'default';
