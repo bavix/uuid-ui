@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
 import { isTypingTarget } from './key-sequence.js';
 import { readBestScores, writeBestScore } from './records.js';
 import { RUNNER, startingHighScore } from './runner-score.js';
+import { randomFloat } from './random.js';
 
 /**
  * The ship and its enemies keep the arcade's own colours; the stage they play
@@ -568,7 +569,7 @@ export default function SpaceRunner({ onClose }) {
   const createParticles = (x, y, count, color, isDark, type = 'normal') => {
     for (let i = 0; i < count; i++) {
       const angle = (Math.PI * 2 * i) / count;
-      const speed = type === 'explosion' ? Math.random() * 6 + 3 : Math.random() * 5 + 2;
+      const speed = type === 'explosion' ? randomFloat() * 6 + 3 : randomFloat() * 5 + 2;
       particlesRef.current.push({
         x,
         y,
@@ -576,7 +577,7 @@ export default function SpaceRunner({ onClose }) {
         vy: Math.sin(angle) * speed,
         life: type === 'explosion' ? 50 : 40,
         maxLife: type === 'explosion' ? 50 : 40,
-        size: Math.random() * 3 + 1,
+        size: randomFloat() * 3 + 1,
         color: color || (isDark ? '#60a5fa' : '#1e3a8a')
       });
     }
@@ -1302,10 +1303,10 @@ export default function SpaceRunner({ onClose }) {
       const starCount = isDark ? 80 : 120;
       for (let i = 0; i < starCount; i++) {
         starsRef.current.push({
-          x: Math.random() * width,
-          y: Math.random() * height,
-          brightness: isDark ? (Math.random() * 0.8 + 0.2) : (Math.random() * 0.5 + 0.5),
-          speed: Math.random() * 1.2 + 0.2
+          x: randomFloat() * width,
+          y: randomFloat() * height,
+          brightness: isDark ? (randomFloat() * 0.8 + 0.2) : (randomFloat() * 0.5 + 0.5),
+          speed: randomFloat() * 1.2 + 0.2
         });
       }
     }
@@ -1314,7 +1315,7 @@ export default function SpaceRunner({ onClose }) {
       star.x -= star.speed * (isHyperspeed ? HYPERSPEED_MULTIPLIER : 1);
       if (star.x < 0) {
         star.x = width;
-        star.y = Math.random() * height;
+        star.y = randomFloat() * height;
       }
       drawStar(ctx, star.x, star.y, star.brightness, isDark);
     });
@@ -1550,7 +1551,7 @@ export default function SpaceRunner({ onClose }) {
       }
     } else if (score >= BOSS_SPAWN_SCORE && Math.floor(score / BOSS_SPAWN_SCORE) > Math.floor(lastBossScoreRef.current / BOSS_SPAWN_SCORE) && obstaclesRef.current.length === 0 && !bossRef.current) {
       const bossTypes = Object.values(BOSS_TYPES);
-      const randomType = bossTypes[Math.floor(Math.random() * bossTypes.length)];
+      const randomType = bossTypes[Math.floor(randomFloat() * bossTypes.length)];
       const config = BOSS_CONFIG[randomType];
       const bossHealth = config.health(level);
       const colors = isDark ? config.color.dark : config.color.light;
@@ -1718,8 +1719,8 @@ export default function SpaceRunner({ onClose }) {
     }
 
     const spawnRate = SPAWN_RATE * (1 + level * 0.1);
-    if (!bossRef.current && obstaclesRef.current.length < 15 && Math.random() < spawnRate * (isHyperspeed ? HYPERSPEED_MULTIPLIER : 1)) {
-      const rand = Math.random();
+    if (!bossRef.current && obstaclesRef.current.length < 15 && randomFloat() < spawnRate * (isHyperspeed ? HYPERSPEED_MULTIPLIER : 1)) {
+      const rand = randomFloat();
       let type, size;
       if (rand < 0.45) {
         type = 'asteroid';
@@ -1738,26 +1739,26 @@ export default function SpaceRunner({ onClose }) {
         size = ASTEROID_SIZE;
       }
       
-      const baseSpeed = type === 'fast' ? 5 : type === 'big' ? 1.5 : (Math.random() * 2 + 2);
+      const baseSpeed = type === 'fast' ? 5 : type === 'big' ? 1.5 : (randomFloat() * 2 + 2);
       obstaclesRef.current.push({
         x: width,
-        y: Math.random() * (height - size * 2) + size,
+        y: randomFloat() * (height - size * 2) + size,
         size,
         type,
         speed: baseSpeed * (1 + level * 0.2) * (isHyperspeed ? HYPERSPEED_MULTIPLIER : 1)
       });
     }
 
-    if (energiesRef.current.length < 5 && Math.random() < ENERGY_SPAWN_RATE) {
+    if (energiesRef.current.length < 5 && randomFloat() < ENERGY_SPAWN_RATE) {
       energiesRef.current.push({
         x: width,
-        y: Math.random() * (height - ENERGY_SIZE * 2) + ENERGY_SIZE,
+        y: randomFloat() * (height - ENERGY_SIZE * 2) + ENERGY_SIZE,
         size: ENERGY_SIZE
       });
     }
 
-    if (powerupsRef.current.length < 3 && Math.random() < POWERUP_SPAWN_RATE) {
-      const rand = Math.random();
+    if (powerupsRef.current.length < 3 && randomFloat() < POWERUP_SPAWN_RATE) {
+      const rand = randomFloat();
       let type;
       if (rand < 0.3) {
         type = 'rapid';
@@ -1770,7 +1771,7 @@ export default function SpaceRunner({ onClose }) {
       }
       powerupsRef.current.push({
         x: width,
-        y: Math.random() * (height - POWERUP_SIZE * 2) + POWERUP_SIZE,
+        y: randomFloat() * (height - POWERUP_SIZE * 2) + POWERUP_SIZE,
         type
       });
     }
