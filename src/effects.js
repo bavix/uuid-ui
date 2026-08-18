@@ -1,63 +1,123 @@
 import { randomFloat, randomInt, randomPick, randomRange } from './random.js';
 
-export function createConfetti(x, y, colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F']) {
-    const confettiCount = 30;
+export const FORMAT_KEYS = ['uuid', 'highlow', 'base64', 'ulid', 'bytes', 'words', 'hex'];
+
+export function stillPreferred() {
+    return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+export function formatHues() {
+    const root = getComputedStyle(document.documentElement);
+
+    return FORMAT_KEYS
+        .map(key => root.getPropertyValue(`--fmt-${key}`).trim())
+        .filter(hue => hue !== '');
+}
+
+/** A theme's colour with an alpha on it, for canvas work that cannot use var(). */
+function toneOf(name, alpha, fallback) {
+    const held = getComputedStyle(document.documentElement).getPropertyValue(name).trim().match(/[\d.]+/g);
+
+    return held && held.length >= 3 ? `rgba(${held.slice(0, 3).join(',')},${alpha})` : fallback;
+}
+
+/** What to paint with when a theme has said nothing: the theme's own accent. */
+function accentHue() {
+    const held = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+
+    return held === '' ? '#4ECDC4' : held;
+}
+
+export function hueOf(element) {
+    if (!element) {
+        return null;
+    }
+
+    const own = getComputedStyle(element).getPropertyValue('--fmt').trim();
+
+    return own === '' ? null : own;
+}
+
+export function createConfetti(x, y, colors = null, count = 26) {
+    if (stillPreferred()) {
+        return [];
+    }
+
+    const palette = Array.isArray(colors) && colors.length > 0 ? colors : formatHues();
     const confetti = [];
-    
-    for (let i = 0; i < confettiCount; i++) {
+
+    for (let i = 0; i < count; i++) {
         const element = document.createElement('div');
-        const color = randomPick(colors);
-        const size = randomRange(4, 12);
+        const depth = randomFloat();
+        const near = 0.55 + depth * 0.65;
+        const size = randomRange(5, 11) * near;
         const angle = randomFloat() * Math.PI * 2;
-        const velocity = randomRange(4, 12);
-        
+        const velocity = randomRange(5, 13) * near;
+        const shape = randomFloat();
+        const ribbon = shape > 0.72;
+        const round = !ribbon && shape < 0.4;
+
         element.style.position = 'fixed';
         element.style.left = `${x}px`;
         element.style.top = `${y}px`;
-        element.style.width = `${size}px`;
-        element.style.height = `${size}px`;
-        element.style.backgroundColor = color;
-        element.style.borderRadius = '50%';
+        element.style.width = `${ribbon ? size * 0.42 : size}px`;
+        element.style.height = `${ribbon ? size * 1.5 : (round ? size : size * 0.62)}px`;
+        element.style.backgroundColor = palette.length > 0 ? randomPick(palette) : accentHue();
+        element.style.borderRadius = round ? '50%' : `${ribbon ? 1 : 2}px`;
         element.style.pointerEvents = 'none';
-        element.style.zIndex = '99999';
-        element.style.opacity = '1';
+        element.style.zIndex = `${99990 + Math.round(depth * 9)}`;
+        element.style.opacity = `${0.55 + depth * 0.45}`;
         element.style.willChange = 'transform, opacity';
-        element.style.transform = 'translateZ(0)';
-        
+
+        if (depth < 0.28) {
+            element.style.filter = 'blur(0.6px)';
+        }
+
         document.body.appendChild(element);
-        
+
         const vx = Math.cos(angle) * velocity;
-        const vy = Math.sin(angle) * velocity - 5;
-        const rotation = randomFloat() * 360;
-        const rotationSpeed = (randomFloat() - 0.5) * 8;
-        
-        let posX = x;
-        let posY = y;
-        let currentRotation = rotation;
+        const vy = Math.sin(angle) * velocity - 6 * near;
+        const drag = 0.982 - depth * 0.012;
+        const gravity = 0.16 + depth * 0.12;
+        const sway = randomRange(6, 18) * (0.4 + depth);
+        const swayRate = randomRange(4, 9) / 100;
+        const spin = (randomFloat() - 0.5) * 9 * near;
+        const flutter = randomRange(3, 8) / 100;
+        const life = Math.round(70 + depth * 40);
+
+        let offsetX = 0;
+        let offsetY = 0;
+        let speedX = vx;
+        let speedY = vy;
+        let turn = randomFloat() * 360;
         let frame = 0;
         let animationId = null;
-        
+
         const animate = () => {
             frame++;
-            posX += vx;
-            posY += vy + frame * 0.08;
-            currentRotation += rotationSpeed;
-            
-            element.style.transform = `translate3d(${posX}px, ${posY}px, 0) rotate(${currentRotation}deg)`;
-            element.style.opacity = `${Math.max(0, 1 - frame / 80)}`;
-            
-            if (frame < 80 && posY < window.innerHeight + 100) {
+            speedX *= drag;
+            speedY = speedY * drag + gravity;
+            offsetX += speedX + Math.sin(frame * swayRate) * sway * 0.06;
+            offsetY += speedY;
+            turn += spin;
+
+            const tilt = ribbon ? Math.sin(frame * flutter) * 70 : Math.sin(frame * flutter) * 40;
+
+            element.style.transform = `translate3d(${offsetX}px, ${offsetY}px, 0) rotate(${turn}deg) rotate3d(1, 0.4, 0, ${tilt}deg)`;
+            element.style.opacity = `${Math.max(0, (0.55 + depth * 0.45) * (1 - frame / life))}`;
+
+            if (frame < life && y + offsetY < window.innerHeight + 120) {
                 animationId = requestAnimationFrame(animate);
             } else {
                 element.style.willChange = 'auto';
                 element.remove();
             }
         };
-        
+
         animationId = requestAnimationFrame(animate);
         confetti.push({ element, animationId });
     }
-    
+
     return confetti;
 }
 
@@ -180,7 +240,22 @@ export function startNumberGuessingGame(onComplete) {
 
     panel.addEventListener('keydown', onKeyDown);
     closeButton.addEventListener('click', () => close(false));
-    panel.addEventListener('click', e => { if (e.target === panel) close(false); });
+
+    const openedAt = Date.now();
+    let startedOnBackdrop = false;
+
+    panel.addEventListener('pointerdown', (e) => { startedOnBackdrop = e.target === panel; });
+    panel.addEventListener('click', (e) => {
+        if (e.target !== panel || !startedOnBackdrop) {
+            return;
+        }
+
+        if (Date.now() - openedAt < 500) {
+            return;
+        }
+
+        close(false);
+    });
 }
 
 export function shakeElement(selector, intensity = 10, duration = 500) {
@@ -208,7 +283,7 @@ export function shakeElement(selector, intensity = 10, duration = 500) {
 export function createMagneticFieldEffect(targetElement, duration = 3000) {
     if (!targetElement) return;
 
-    const radioButtons = document.querySelectorAll('.custom-radio');
+    const radioButtons = document.querySelectorAll('.choice-cell, .custom-radio');
     if (radioButtons.length === 0) return;
 
     const targetRect = targetElement.getBoundingClientRect();
@@ -221,11 +296,18 @@ export function createMagneticFieldEffect(targetElement, duration = 3000) {
     radioButtons.forEach(radio => {
         originalTransforms.set(radio, {
             transform: radio.style.transform || '',
-            zIndex: radio.style.zIndex || ''
+            zIndex: radio.style.zIndex || '',
+            boxShadow: radio.style.boxShadow || ''
         });
 
-        radio.style.transition = 'transform 0.1s ease-out';
+        radio.style.transition = 'transform 0.1s ease-out, box-shadow 0.3s ease-out';
         radio.style.zIndex = '10';
+
+        const hue = hueOf(radio);
+
+        if (hue) {
+            radio.style.boxShadow = `0 0 0 1px ${hue}, 0 0 14px ${hue}`;
+        }
     });
 
     const animate = () => {
@@ -264,10 +346,11 @@ export function createMagneticFieldEffect(targetElement, duration = 3000) {
             radioButtons.forEach(radio => {
                 // A re-render between the two passes swaps the elements out,
                 // and the lookup then yields undefined.
-                const original = originalTransforms.get(radio) || { transform: '', zIndex: '' };
-                radio.style.transition = 'transform 0.5s ease-out';
+                const original = originalTransforms.get(radio) || { transform: '', zIndex: '', boxShadow: '' };
+                radio.style.transition = 'transform 0.5s ease-out, box-shadow 0.5s ease-out';
                 radio.style.transform = original.transform;
                 radio.style.zIndex = original.zIndex;
+                radio.style.boxShadow = original.boxShadow;
 
                 setTimeout(() => {
                     radio.style.transition = '';
@@ -279,7 +362,7 @@ export function createMagneticFieldEffect(targetElement, duration = 3000) {
     requestAnimationFrame(animate);
 }
 
-export function createPulseWaveEffect(targetElement, duration = 2000) {
+export function createPulseWaveEffect(targetElement, duration = 2000, hue = null) {
     if (!targetElement) return;
 
     const wave = document.createElement('div');
@@ -297,9 +380,10 @@ export function createPulseWaveEffect(targetElement, duration = 2000) {
     wave.style.transform = 'translate(-50%, -50%)';
     wave.style.transition = 'all 0.6s ease-out';
     
-    const isDark = document.documentElement.classList.contains('dark');
-    wave.style.borderColor = isDark ? '#60a5fa' : '#2563eb';
-    wave.style.backgroundColor = isDark ? 'rgba(96, 165, 250, 0.3)' : 'rgba(37, 99, 235, 0.3)';
+    const colour = hue || hueOf(targetElement) || accentHue();
+
+    wave.style.borderColor = colour;
+    wave.style.backgroundColor = `color-mix(in oklab, ${colour} 30%, transparent)`;
     
     document.body.appendChild(wave);
 
@@ -369,6 +453,12 @@ export function uuidRain(duration = 6000) {
         return;
     }
 
+    const isDark = document.documentElement.classList.contains('dark');
+    // The trail is drawn by veiling the frame before, which fills the canvas
+    // edge to edge. Held below one so the page keeps showing through it —
+    // over white, a full-strength veil looks like the app has gone away.
+    const veil = isDark ? '0.8' : '0.55';
+
     const canvas = document.createElement('canvas');
     canvas.setAttribute('data-uuid-rain', '');
     canvas.setAttribute('aria-hidden', 'true');
@@ -376,7 +466,7 @@ export function uuidRain(duration = 6000) {
     document.body.appendChild(canvas);
     // Not requestAnimationFrame: a hidden tab never fires one, and the layer
     // would stay invisible even after the user came back to it.
-    setTimeout(() => { canvas.style.opacity = '1'; }, 0);
+    setTimeout(() => { canvas.style.opacity = veil; }, 0);
 
     const ctx = canvas.getContext('2d');
     const scale = Math.min(window.devicePixelRatio || 1, 2);
@@ -388,7 +478,6 @@ export function uuidRain(duration = 6000) {
     resize();
     window.addEventListener('resize', resize);
 
-    const isDark = document.documentElement.classList.contains('dark');
     const glyphs = '0123456789abcdef-';
     const step = 14;
     const columns = Math.ceil(window.innerWidth / step);
@@ -401,13 +490,14 @@ export function uuidRain(duration = 6000) {
         const elapsed = Date.now() - startedAt;
         const fading = Math.max(0, 1 - Math.max(0, elapsed - (duration - 800)) / 800);
 
-        ctx.fillStyle = isDark ? 'rgba(17,24,39,0.18)' : 'rgba(255,255,255,0.22)';
+        // The trail is wiped with the page's own colour and the glyphs fall in
+        // the theme's uuid hue: a fixed teal on cream read as somebody else's
+        // easter egg.
+        ctx.fillStyle = toneOf('--surface', isDark ? 0.18 : 0.22, isDark ? 'rgba(17,24,39,0.18)' : 'rgba(255,255,255,0.22)');
         ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
         ctx.font = '12px ui-monospace, SFMono-Regular, Menlo, monospace';
-        ctx.fillStyle = isDark
-            ? `rgba(94,234,212,${0.85 * fading})`
-            : `rgba(15,118,110,${0.75 * fading})`;
+        ctx.fillStyle = toneOf('--fmt-uuid', (isDark ? 0.85 : 0.95) * fading, `rgba(94,234,212,${0.85 * fading})`);
 
         for (let i = 0; i < columns; i++) {
             ctx.fillText(randomPick(glyphs), i * step, drops[i] * step);

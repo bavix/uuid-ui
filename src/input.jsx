@@ -1,28 +1,71 @@
 import React from 'preact/compat';
 import { SIGNED, intTypeList } from './int-type.js';
+
+const SPLIT_ICON = (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M4 7h5l6 10h5M4 17h5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M17 4l3 3-3 3M17 14l3 3-3 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+
+const JOIN_ICON = (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M4 7h5l6 10h5M4 17h5l2-3.3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M17 14l3 3-3 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+
 import { toast } from 'sonner';
-import { createConfetti, createMagneticFieldEffect, createPulseWaveEffect, startNumberGuessingGame, shakeElement } from './effects.js';
+import { createConfetti, createMagneticFieldEffect, createPulseWaveEffect, formatHues, hueOf, startNumberGuessingGame, shakeElement, stillPreferred } from './effects.js';
 import { trackEgg } from './analytics.js';
 import { specialValues } from './special-values.js';
-import { extractComment, stripComment } from './comment.js';
+import { commentIndex, extractComment, stripComment } from './comment.js';
+import { READ_CEILING, markText, readable } from './input-marks.js';
+import { unquote } from './quotes.js';
+import { HISTORY_LIMIT } from './limits.js';
+import { normalizeInput } from './normalize-input.js';
+import { takeGroups } from './fresh-lines.js';
+import { MAX_BYTES, MAX_LINES, fileIsText, sizeIsFine, textOf } from './dropped-file.js';
+
+const HEIGHT_KEY = 'uuid.inputHeight';
 import { mergeItems } from './merge-items.js';
 import { toUuid } from './to-uuid.js';
-import { TYPE_BASE64, TYPE_BYTES, TYPE_HEX, TYPE_HIGH_LOW, TYPE_ULID, TYPE_WORDS, typeDetector, uuidTypeList } from "./type-detector.js";
-import { bytesToUuid, uuidToBytes, uuidToBytesString, uuidToHex } from "./uuid-bytes.js";
-import { objectParse } from "./object-parser.js";
+import { TYPE_BASE64, TYPE_UUID, TYPE_BYTES, TYPE_HIGH_LOW, TYPE_ULID, TYPE_WORDS, typeDetector, uuidTypeList } from "./type-detector.js";
+import { uuidToBytesString } from "./uuid-bytes.js";
 import { uuidToWords } from "./uuid-words.js";
 import { uuidToInts, uuidToUints } from "./uuid-high-low.js";
-import { normalizeBase64, uuidToBase64Std } from "./base64.js";
-import { uuidFormatter } from "./uuid-formatter.js";
+import { uuidToBase64Std } from "./base64.js";
+import { STYLE_PLAIN, styleUuid } from './uuid-style.js';
+import { hasCase, spell, spellingsOf, usesInts } from './spellings.js';
+import { readingName } from './int-convention.js';
+import { createCycle } from './placeholder-cycle.js';
+import { makeExample } from './placeholder-examples.js';
 import { uuidToUlid } from './uuid-ulid.js';
 
-const nrg = /"(-?\d+)"/g;
+const FORMAT_CLASS = {
+    [TYPE_UUID]: 'type-uuid',
+    [TYPE_BASE64]: 'type-base64',
+    [TYPE_HIGH_LOW]: 'type-highlow',
+    [TYPE_BYTES]: 'type-bytes',
+    [TYPE_ULID]: 'type-ulid',
+    [TYPE_WORDS]: 'type-words',
+};
+
+
 
 export class Item {
-    constructor(input, output, info) {
+    constructor(input, output, info, convention = null) {
         this.input = input;
         this.output = output;
         this.info = info;
+
+        if (convention?.readAs) {
+            this.readAs = convention.readAs;
+        }
+
+        if (convention?.writeAs) {
+            this.writeAs = convention.writeAs;
+        }
     }
 
     toString() {
@@ -42,6 +85,207 @@ export default class InputComponent extends React.Component {
     state = {
         text: '',
         isClosedInformer: readInformerClosed(),
+        ghost: '',
+        typing: false,
+    }
+
+    componentDidMount() {
+        this.startGhost();
+        document.addEventListener('visibilitychange', this.onVisibility);
+        this.watchHeight();
+    }
+
+    componentWillUnmount() {
+        this.stopGhost();
+        document.removeEventListener('visibilitychange', this.onVisibility);
+        this.heights?.disconnect();
+        clearTimeout(this.heightTimer);
+    }
+
+    watchHeight = () => {
+        const box = document.getElementById('input-area');
+
+        if (!box || typeof ResizeObserver === 'undefined') {
+            return;
+        }
+
+        try {
+            const held = Number(localStorage.getItem(HEIGHT_KEY));
+
+            if (Number.isFinite(held) && held >= 120 && held <= 1600) {
+                box.style.height = `${held}px`;
+            }
+        } catch (e) {
+        }
+
+        this.heights = new ResizeObserver(([entry]) => {
+            const held = entry.borderBoxSize?.[0]?.blockSize ?? entry.target.getBoundingClientRect().height;
+
+            clearTimeout(this.heightTimer);
+
+            this.heightTimer = setTimeout(() => {
+                try {
+                    localStorage.setItem(HEIGHT_KEY, String(Math.round(held)));
+                } catch (e) {
+                }
+            }, 400);
+        });
+
+        this.heights.observe(box);
+    }
+
+    onVisibility = () => {
+        if (document.visibilityState === 'visible') {
+            this.startGhost();
+        } else {
+            this.stopGhost();
+        }
+    }
+
+    startGhost = () => {
+        this.setState({ typing: false });
+
+        if (this.ghostTimer !== undefined || stillPreferred()) {
+            return;
+        }
+
+        this.cycle = this.cycle ?? createCycle({ source: () => makeExample() });
+
+        const tick = () => {
+            const wait = this.cycle.step();
+
+            this.setState({ ghost: this.cycle.text() });
+            this.ghostTimer = setTimeout(tick, wait);
+        };
+
+        this.ghostTimer = setTimeout(tick, 400);
+    }
+
+    stopGhost = () => {
+        this.setState({ typing: true });
+
+        if (this.ghostTimer !== undefined) {
+            clearTimeout(this.ghostTimer);
+            this.ghostTimer = undefined;
+        }
+    }
+
+    clearInput = () => {
+        const box = document.getElementById('input-area');
+
+        if (!box) {
+            return;
+        }
+
+        box.focus();
+        box.setSelectionRange(0, box.value.length);
+
+        try {
+            if (document.execCommand('delete') && box.value === '') {
+                return;
+            }
+        } catch (e) {
+        }
+
+        this.setState({ text: '' });
+    }
+
+    onDragOver = (e) => {
+        if (![...(e.dataTransfer?.types ?? [])].includes('Files')) {
+            return;
+        }
+
+        e.preventDefault();
+
+        if (!this.state.dropping) {
+            this.setState({ dropping: true });
+        }
+    }
+
+    onDragLeave = (e) => {
+        if (e.currentTarget.contains(e.relatedTarget)) {
+            return;
+        }
+
+        this.setState({ dropping: false });
+    }
+
+    onDrop = (e) => {
+        const file = e.dataTransfer?.files?.[0];
+
+        if (!file) {
+            return;
+        }
+
+        e.preventDefault();
+        this.setState({ dropping: false });
+
+        if (!fileIsText(file)) {
+            toast.error('Only a text file', { description: `${file.name} is not a list of identifiers.` });
+
+            return;
+        }
+
+        if (!sizeIsFine(file)) {
+            toast.error('That file is too big', {
+                description: `${Math.round(file.size / 1024)} KB — ${Math.round(MAX_BYTES / 1024)} KB is the most.`,
+            });
+
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onerror = () => toast.error('That file could not be read');
+        reader.onload = () => this.takeDropped(String(reader.result), file.name);
+        reader.readAsText(file);
+    }
+
+    takeDropped = (raw, name) => {
+        const { text, problem, dropped } = textOf(raw);
+
+        if (problem) {
+            toast.error(problem, { description: name });
+
+            return;
+        }
+
+        if (dropped > 0) {
+            toast.info(`Took the first ${MAX_LINES}`, {
+                description: `${name} has ${dropped} more line${dropped === 1 ? '' : 's'}.`,
+            });
+        }
+
+        const held = this.state.text;
+        const joined = held.trim() === '' ? text : `${held.replace(/\n?$/, '\n')}${text}`;
+
+        this.setState({ text: joined }, () => this.handle(joined, true));
+    }
+
+    marks(text) {
+        if (this.marked?.text === text) {
+            return this.marked.nodes;
+        }
+
+        const rows = markText(text);
+        const nodes = rows === null ? null : rows.map((row, at) => (
+            <span key={at}>
+                {row.bad ? <mark className="input-bad">{row.code}</mark> : row.code}
+                {row.note !== '' && <mark className="input-note">{row.note}</mark>}
+                {at === rows.length - 1 ? '' : '\n'}
+            </span>
+        ));
+
+        this.marked = { text, nodes };
+
+        return nodes;
+    }
+
+    onTextareaScroll = (e) => {
+        if (this.mirror) {
+            this.mirror.scrollTop = e.target.scrollTop;
+            this.mirror.scrollLeft = e.target.scrollLeft;
+        }
     }
 
     onTextareaKeyDown = (e) => {
@@ -56,7 +300,9 @@ export default class InputComponent extends React.Component {
         if (!text.trim()) {
             return;
         }
-        this.handle(text);
+
+        this.consumed = '';
+        this.handle(text, true);
     }
 
     closeInformer = () => {
@@ -77,6 +323,7 @@ export default class InputComponent extends React.Component {
         this.lastConfettiTime = 0;
         this.confettiThrottle = 500;
         this.isPasting = false;
+        this.consumed = '';
     }
 
     onKeyboardInput = (e) => {
@@ -89,7 +336,7 @@ export default class InputComponent extends React.Component {
         // Typing converts on the closing newline; a paste converts as soon as
         // it contains one, even without a trailing newline.
         if (pasted ? text.includes('\n') : text.endsWith('\n')) {
-            this.handle(text)
+            this.handle(text, pasted)
         }
     }
 
@@ -99,42 +346,19 @@ export default class InputComponent extends React.Component {
         this.isPasting = true
     }
 
-    handle = (text) => {
-        const lines = text.split('\n');
-        const result = [];
-        let i = 0;
+    handle = (text, whole = false) => {
+        const { groups, consumed } = takeGroups(this.consumed, text, whole);
 
-        while (i < lines.length) {
-            const line = lines[i];
+        this.consumed = consumed;
 
-            if (line.trimStart().startsWith('{')) {
-                let block = '';
-                let openBraces = 0;
-                let j = i;
-
-                do {
-                    const currentLine = lines[j];
-                    block += currentLine;
-                    const lineWithoutComment = stripComment(currentLine);
-
-                    openBraces += (lineWithoutComment.match(/{/g) || []).length;
-                    openBraces -= (lineWithoutComment.match(/}/g) || []).length;
-
-                    j++;
-                    if (j < lines.length) block += '\n';
-
-                } while (j < lines.length && openBraces > 0);
-
-                result.push(this.moveCommentsToEnd(block));
-                i = j;
-            } else {
-                const trimmed = line.trim();
-                if (trimmed) result.push(trimmed);
-                i++;
-            }
+        if (groups.length === 0) {
+            return;
         }
 
-        this.addItems(result);
+        this.addItems(groups.map(group => ({
+            text: group.block ? this.moveCommentsToEnd(group.text) : group.text,
+            line: group.line,
+        })));
     }
 
     moveCommentsToEnd(block) {
@@ -170,19 +394,56 @@ export default class InputComponent extends React.Component {
         }
     }
 
-    addItems = (items) => {
+    addGenerated = (values) => {
         const converted = []
 
-        for (const line of items) {
-            const obj = this.newItem(line)
+        for (const value of values) {
+            const obj = this.newItem(value, true)
             if (obj !== null) {
                 converted.push(obj)
             }
         }
 
-        // Newest on top, the same rule the rest of the list follows: the last
-        // line of a paste is the most recent thing that happened.
-        this.props.setItems(mergeItems(converted.reverse(), this.props.items))
+        if (converted.length === 0) {
+            return
+        }
+
+        this.props.setItems(mergeItems(converted, this.props.items))
+        this.reportMarkers(converted)
+    }
+
+    addItems = (items) => {
+        const converted = []
+
+        for (const item of items) {
+            if (stripComment(item.text).trim() === '') {
+                continue
+            }
+
+            const obj = this.newItem(item.text, false, item.line)
+            if (obj !== null) {
+                converted.push(obj)
+            }
+        }
+
+        // The block goes on top of the list, and inside the block the lines keep
+        // the order they were written in: reversing them put the first line of a
+        // paste at the bottom, which is not where anybody looks for it.
+        const merged = mergeItems(converted, this.props.items)
+
+        this.props.setItems(merged)
+
+        // A paste larger than the history can hold used to lose the oldest rows
+        // without a word. They are dropped from this browser only — nothing is
+        // deleted anywhere else.
+        const dropped = merged.length - HISTORY_LIMIT
+
+        if (dropped > 0) {
+            toast.info(`History keeps the newest ${HISTORY_LIMIT}`, {
+                description: `${dropped} older row${dropped === 1 ? '' : 's'} dropped from this browser.`,
+                duration: 5000,
+            });
+        }
 
         this.reportMarkers(converted)
 
@@ -196,19 +457,22 @@ export default class InputComponent extends React.Component {
         }
     }
 
-    newItem = (line) => {
+    newItem = (line, quiet = false, at = null) => {
         try {
             const { input, comment } = this.parse(line)
 
             const target = uuidTypeList()[this.props.resultType] || 'the selected format'
+            const where = typeof at === 'number' ? `Line ${at}: ` : '';
 
-            const nInput = this.normalize(input)
+            const nInput = normalizeInput(input)
             if (nInput === null) {
                 // Naming the accepted shapes is the only documentation a failed
                 // line ever gets; "Failed to process string" named none of them.
-                toast.error('Not a recognized identifier', {
-                    description: `${line} — expected a UUID, base64, ULID, high/low pair or byte array`
-                });
+                if (!quiet) {
+                    toast.error('Not a recognized identifier', {
+                        description: `${where}${line} — expected a UUID, base64, ULID, high/low pair or byte array`
+                    });
+                }
                 return null
             }
 
@@ -219,20 +483,24 @@ export default class InputComponent extends React.Component {
             // Conversion helpers return null on malformed input; without this
             // the line used to disappear with no feedback at all.
             if (nOutput === null) {
-                toast.error(`Cannot convert to ${target}`, {
-                    description: line
-                });
+                if (!quiet) {
+                    toast.error(`Cannot convert to ${target}`, {
+                        description: `${where}${line}`
+                    });
+                }
                 return null
             }
 
             if (nInput === nOutput) {
-                toast.warning(`Already ${target}`, {
-                    description: line
-                });
+                if (!quiet) {
+                    toast.warning(`Already ${target}`, {
+                        description: `${where}${line}`
+                    });
+                }
                 return null
             }
 
-            return new Item(nInput, nOutput, comment)
+            return new Item(nInput, nOutput, comment, this.conventionOf(input, nOutput))
         } catch (e) {
             return null
         }
@@ -240,7 +508,7 @@ export default class InputComponent extends React.Component {
 
     parse = (line) => {
         const comment = extractComment(line);
-        const input = stripComment(line).trim().replace(/,$/g, '').trimEnd();
+        const input = unquote(stripComment(line));
 
         if (comment !== null) {
             return { input: input.toString(), comment: comment.toString() }
@@ -254,46 +522,11 @@ export default class InputComponent extends React.Component {
     normalizeOutput = (output) => {
         const { resultType } = this.props
 
-        if (resultType === TYPE_HEX) {
+        if (resultType === TYPE_UUID) {
             return output
         }
 
-        return this.normalize(output)
-    }
-
-    normalize = (input) => {
-        if (typeof input !== 'string') {
-            return null;
-        }
-
-        switch (typeDetector(input)) {
-            case TYPE_BYTES:
-                return JSON.stringify(objectParse(input)).replace(/,$/g, '');
-            case TYPE_HIGH_LOW:
-            case TYPE_WORDS: {
-                const result = JSON.stringify(objectParse(input)).replace(/,$/g, '');
-                return result.replace(nrg, "$1");
-            }
-            case TYPE_BASE64:
-                return normalizeBase64(input);
-            case TYPE_ULID:
-                return input;
-        }
-
-        if (input[0] === '{' && input[input.length - 1] === '}') {
-            input = input.substring(1, input.length - 1);
-        }
-
-        const uuid = uuidFormatter(input);
-        if (uuid.length === 36) {
-            return uuid;
-        }
-
-        // Spellings the formatter cannot handle on its own — `urn:uuid:` above
-        // all — still round-trip through the byte parser.
-        const bytes = uuidToBytes(input);
-
-        return bytes === null ? null : bytesToUuid(bytes);
+        return this.spellOutput(normalizeInput(output))
     }
 
     castToUuid = (input) => {
@@ -301,28 +534,46 @@ export default class InputComponent extends React.Component {
     }
 
     castFromUuid = (uuid) => {
-        const { resultType, intType } = this.props
+        const { resultType, writeIntType, intType } = this.props
+        const outInt = writeIntType ?? intType
 
         switch (resultType) {
             case TYPE_BYTES:
                 return uuidToBytesString(uuid);
             case TYPE_HIGH_LOW: {
-                const u = intType === SIGNED ? uuidToInts(uuid) : uuidToUints(uuid)
+                const u = outInt === SIGNED ? uuidToInts(uuid) : uuidToUints(uuid)
                 return u === null ? null : JSON.stringify(u)
             }
             case TYPE_WORDS: {
-                const words = uuidToWords(uuid, intType === SIGNED)
+                const words = uuidToWords(uuid, outInt === SIGNED)
                 return words === null ? null : JSON.stringify(words)
             }
             case TYPE_BASE64:
                 return uuidToBase64Std(uuid)
             case TYPE_ULID:
                 return uuidToUlid(uuid)
-            case TYPE_HEX:
-                return uuidToHex(uuid)
         }
 
-        return uuid
+        return styleUuid(uuid, this.props.uuidStyle, this.props.uuidUpper)
+    }
+
+    conventionOf(input, output) {
+        const { resultType, intType, writeIntType } = this.props;
+        const held = {};
+
+        if (usesInts(typeDetector(input))) {
+            held.readAs = readingName(intType);
+        }
+
+        if (usesInts(resultType)) {
+            held.writeAs = readingName(writeIntType ?? intType);
+        }
+
+        return held;
+    }
+
+    spellOutput = (output) => {
+        return spell(this.props.resultType, output, this.props.uuidStyle, this.props.uuidUpper)
     }
 
     setResultType = (type, event) => {
@@ -348,11 +599,11 @@ export default class InputComponent extends React.Component {
                     
                     let targetElement = null;
                     if (event && event.target) {
-                        targetElement = event.target.closest('.custom-radio');
+                        targetElement = event.target.closest('.choice-cell, .custom-radio');
                     }
                     
                     if (!targetElement) {
-                        const radioButtons = document.querySelectorAll('.custom-radio');
+                        const radioButtons = document.querySelectorAll('.fmt-chips .choice-cell, .custom-radio');
                         // uuidTypeList() is indexed by bitmask (1/2/4/8/16) while the
                         // rendered radios are a dense list, so count the entries before it.
                         const typeIndex = uuidTypeList().filter((_, idx) => idx < resultType).length;
@@ -362,10 +613,22 @@ export default class InputComponent extends React.Component {
                     }
                     
                     if (targetElement) {
-                        createPulseWaveEffect(targetElement, 2000);
+                        const hue = hueOf(targetElement);
+
+                        createPulseWaveEffect(targetElement, 2000, hue);
                         setTimeout(() => {
                             createMagneticFieldEffect(targetElement, 3000);
                         }, 200);
+
+                        const rect = targetElement.getBoundingClientRect();
+                        const hues = formatHues();
+
+                        createConfetti(
+                            rect.left + rect.width / 2,
+                            rect.top + rect.height / 2,
+                            hue ? [hue, hue, ...hues] : hues,
+                            24,
+                        );
                     }
                     
                     toast.success('🧲 Secret unlocked!', {
@@ -381,6 +644,105 @@ export default class InputComponent extends React.Component {
         
         this.props.setResultType(type, () => {
             if (text.trim()) {
+                this.consumed = ''
+                this.handle(text, true)
+            }
+        })
+    }
+
+    renderIntSegments(name, value, onPick, labelledBy = null) {
+        const options = intTypeList().reduce((list, label, type) => [...list, { label, type }], []);
+        const at = options.findIndex(option => option.type === value);
+
+        return (
+            <span
+                className="int-seg"
+                role="radiogroup"
+                aria-labelledby={labelledBy || undefined}
+                aria-label={labelledBy ? undefined : 'Integer type'}
+                style={{ '--int-seg-count': options.length }}
+            >
+                <span
+                    className="int-seg-thumb"
+                    aria-hidden="true"
+                    style={{ transform: `translateX(${Math.max(0, at) * 100}%)` }}
+                ></span>
+                {options.map(({ label, type }) => (
+                    <label key={type} className={`int-seg-item choice-cell ${value === type ? 'is-on' : ''}`}>
+                        <input
+                            type="radio"
+                            name={name}
+                            checked={value === type}
+                            onChange={(e) => onPick(type, e)}
+                            onClick={(e) => { if (value === type) { onPick(type, e); } }}
+                        />
+                        <span>{label}</span>
+                    </label>
+                ))}
+            </span>
+        );
+    }
+
+    spelling() {
+        const held = this.props.uuidStyle;
+        const options = spellingsOf(this.props.resultType);
+
+        return options.some(option => option.id === held) ? held : (options[0]?.id ?? STYLE_PLAIN);
+    }
+
+    setUuidStyle = (style) => {
+        const { text } = this.state;
+
+        this.props.setUuidStyle(style, () => {
+            if (text.trim()) {
+                this.consumed = '';
+                this.handle(text, true);
+            }
+        });
+    }
+
+    setUuidCase = (upper) => {
+        const { text } = this.state;
+
+        this.props.setUuidUpper(upper, () => {
+            if (text.trim()) {
+                this.consumed = '';
+                this.handle(text, true);
+            }
+        });
+    }
+
+    setWriteIntType = (type) => {
+        const { text } = this.state
+
+        this.props.setWriteIntType(type, () => {
+            if (text.trim()) {
+                this.consumed = ''
+                this.handle(text, true)
+            }
+        })
+    }
+
+    swapIntTypes = () => {
+        const { intType, writeIntType } = this.props;
+        const { text } = this.state;
+        const read = writeIntType ?? intType;
+
+        this.props.setWriteIntType(intType, () => {
+            this.props.setIntType(read, () => {
+                if (text.trim()) {
+                    this.consumed = '';
+                    this.handle(text, true);
+                }
+            });
+        });
+    }
+
+    toggleIntLink = () => {
+        const { text } = this.state
+
+        this.props.toggleIntLink(() => {
+            if (text.trim()) {
                 this.handle(text)
             }
         })
@@ -392,10 +754,14 @@ export default class InputComponent extends React.Component {
         const now = Date.now();
         
         if (type === intType) {
-            if (this.lastIntTypeClick && now - this.lastIntTypeClick > 2000) {
+            if (this.lastIntTypeClick && now - this.lastIntTypeClick > 700) {
                 this.intTypeClickCount = 0;
             }
-            
+
+            if (document.querySelector('dialog[data-modal="guess"]')) {
+                this.intTypeClickCount = 0;
+            }
+
             this.intTypeClickCount++;
             this.lastIntTypeClick = now;
             
@@ -437,18 +803,41 @@ export default class InputComponent extends React.Component {
         
         this.props.setIntType(type, () => {
             if (text.trim()) {
-                this.handle(text)
+                this.consumed = ''
+                this.handle(text, true)
             }
         })
     }
 
-    render({ resultType, intType }, { isClosedInformer, text }) {
+    intHint(linked, readInt, writeInt, writes) {
+        if (!writes) {
+            return 'Reading applies to pairs and words in the input. This format writes no integers.';
+        }
+
+        if (linked) {
+            return 'Pairs and words are read and written the same way.';
+        }
+
+        if (readInt === writeInt) {
+            return 'Both ends agree — set them apart to convert between the two conventions.';
+        }
+
+        return 'The identifier stays the same; only the way it is written changes.';
+    }
+
+    render({ resultType, intType, writeIntType, intLinked }, { isClosedInformer, text }) {
+        const writes = resultType === TYPE_HIGH_LOW || resultType === TYPE_WORDS;
+        const rows = text.split('\n').filter(line => line.trim() !== '');
+        const lines = rows.length;
+        const ghostCut = commentIndex(this.state.ghost);
+        const known = lines > 0 && lines <= READ_CEILING ? readable(rows) : lines;
+
         return (
             <div className="space-y-5">
                 {!isClosedInformer && (
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 dark:from-blue-900/30 dark:to-indigo-900/30 dark:border-blue-800 border rounded-xl p-4 relative shadow-sm">
+                    <div className="informer border rounded-xl p-4 relative shadow-sm">
                         <button 
-                            className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/50 rounded-full transition-all hover:scale-110"
+                            className="informer-close absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full transition-all hover:scale-110"
                             onClick={this.closeInformer}
                             aria-label="Close"
                         >
@@ -457,10 +846,10 @@ export default class InputComponent extends React.Component {
                             </svg>
                         </button>
                         <div className="flex items-start space-x-2 pr-8">
-                            <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="informer-icon w-5 h-5 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <p className="text-blue-800 dark:text-blue-200 text-sm leading-relaxed">
+                            <p className="informer-text text-sm leading-relaxed">
                                 This project is provided "as is". Updates will only be made when absolutely necessary.
                             </p>
                         </div>
@@ -468,16 +857,42 @@ export default class InputComponent extends React.Component {
                 )}
 
                 <div className="relative">
-                    <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                        <span className="flex items-center space-x-2">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                            <span>Input</span>
-                        </span>
-                    </label>
+                    <fieldset
+                        className={`input-frame ${this.state.dropping ? 'is-dropping' : ''}`}
+                        onDragOver={this.onDragOver}
+                        onDragLeave={this.onDragLeave}
+                        onDrop={this.onDrop}
+                    >
+                    <legend className="input-legend text-sm font-semibold flex items-center space-x-2">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span>Input</span>
+                    </legend>
+                    {text !== '' && (
+                        <div
+                            className={`input-mirror ${this.state.composing ? 'is-hidden' : ''}`}
+                            aria-hidden="true"
+                            ref={(node) => { this.mirror = node; }}
+                        >
+                            {this.marks(text)}
+                        </div>
+                    )}
+                    {text === '' && !this.state.typing && (
+                        <div className="input-ghost" aria-hidden="true">
+                            <span className="input-ghost-lead">One identifier per line, in any of these:</span>
+                            <span className="input-ghost-line">
+                                {ghostCut === -1 ? this.state.ghost : this.state.ghost.slice(0, ghostCut)}
+                                {ghostCut !== -1 && (
+                                    <span className="input-ghost-note">{this.state.ghost.slice(ghostCut)}</span>
+                                )}
+                                <i className="input-caret"></i>
+                            </span>
+                        </div>
+                    )}
                     <textarea
-                        className="w-full px-4 py-3 border-2 border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500 dark:focus:border-blue-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y font-mono text-sm transition-colors transition-shadow shadow-sm hover:shadow-md min-h-[200px]"
+                        id="input-area"
+                        className={`input-area ${this.state.composing ? 'is-composing' : ''}`}
                         value={this.state.text}
                         onChange={this.onKeyboardInput}
                         onPaste={this.onPaste}
@@ -486,39 +901,54 @@ export default class InputComponent extends React.Component {
                         autoComplete="off"
                         aria-label="Identifiers to convert"
                         aria-describedby="input-hint"
-                        placeholder={`Enter UUID. Input examples:
-0;1 // comment
-0;1 # comment
-{low: 0, high: 1}
-71a46cec-4809-4cc5-9689-5b0441b46186
-huW65O9YQDGzT16f+RTNVQ==
-huW65O9YQDGzT16f+RTNVQ== //comment new
-huW65O9YQDGzT16f+RTNVQ== # comment new
-{ // Begin comment
-    low: 0, // Lo UUID
-    high: 1, # Hi UUID
-} // End
-`}
+                        placeholder=""
                         rows="15"
+                        onFocus={this.stopGhost}
+                        onBlur={this.startGhost}
+                        onScroll={this.onTextareaScroll}
+                        onCompositionStart={() => this.setState({ composing: true })}
+                        onCompositionEnd={() => this.setState({ composing: false })}
                     ></textarea>
+                    {text !== '' && (
+                        <button
+                            type="button"
+                            className="input-clear"
+                            onClick={this.clearInput}
+                            aria-label="Empty the box"
+                            title="Empty the box"
+                        >
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                            </svg>
+                        </button>
+                    )}
+                    </fieldset>
 
-                    <p id="input-hint" className="mt-2 text-xs text-gray-600 dark:text-gray-400">
-                        One identifier per line. Press <kbd className="px-1.5 py-0.5 rounded border font-mono text-[11px] border-gray-300 bg-gray-100 text-gray-800 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200">Enter</kbd> or paste to convert; <kbd className="px-1.5 py-0.5 rounded border font-mono text-[11px] border-gray-300 bg-gray-100 text-gray-800 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200">⌘↵</kbd> converts without a trailing newline.
+                    <p id="input-hint" className="int-hint px-1">
+                        <span>
+                            One identifier per line. Press <kbd className="px-1.5 py-0.5 rounded border font-mono text-[11px] line-strong-border surface-sunken-bg ink">Enter</kbd> or paste to convert; <kbd className="px-1.5 py-0.5 rounded border font-mono text-[11px] line-strong-border surface-sunken-bg ink">⌘ ↵</kbd> converts without a trailing newline.
+                        </span>
+                        {lines > 0 && (
+                            <span className="int-hint-count">
+                                {lines} {lines === 1 ? 'line' : 'lines'}
+                                {known < lines && ` · ${lines - known} unread`}
+                            </span>
+                        )}
                     </p>
                 </div>
 
-                <fieldset className="bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700 rounded-xl shadow-md border px-5 pb-5 pt-3 hover:shadow-lg transition-shadow">
-                    <legend className="px-1 text-sm font-semibold flex items-center space-x-2 text-gray-700 dark:text-gray-300">
+                <fieldset className="control-card rounded-xl shadow-md border px-5 pb-5 pt-3 hover:shadow-lg transition-shadow">
+                    <legend className="px-1 text-sm font-semibold flex items-center space-x-2">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <span>Select result type</span>
                     </legend>
-                    <div className="flex flex-wrap gap-3">
+                    <div className="fmt-chips">
                         {uuidTypeList().map((v, k) => (
-                            <label 
-                                key={k} 
-                                className="custom-radio group"
+                            <label
+                                key={k}
+                                className={`fmt-chip choice-cell ${FORMAT_CLASS[k] || ''} ${resultType === k ? 'is-on' : ''}`}
                                 onClick={(e) => {
                                     if (resultType === k) {
                                         this.setResultType(k, e);
@@ -531,42 +961,111 @@ huW65O9YQDGzT16f+RTNVQ== # comment new
                                     checked={resultType === k}
                                     onChange={(e) => this.setResultType(k, e)}
                                 />
-                                <span className="radio-check radio-link group-hover:scale-110 transition-transform"></span>
-                                <span className="radio-label text-sm font-medium text-gray-700 group-hover:text-blue-600 dark:text-gray-300 dark:group-hover:text-blue-400 transition-colors">{v}</span>
+                                <span>{v}</span>
                             </label>
                         ))}
                     </div>
+                    {spellingsOf(resultType).length > 1 && (
+                        <div className="fmt-style">
+                            <span className="int-lane-label">spelling</span>
+                            <span className="int-seg" role="radiogroup" aria-label="Spelling of the result" style={{ '--int-seg-count': spellingsOf(resultType).length }}>
+                                <span
+                                    className="int-seg-thumb"
+                                    aria-hidden="true"
+                                    style={{ transform: `translateX(${Math.max(0, spellingsOf(resultType).findIndex(option => option.id === this.spelling())) * 100}%)` }}
+                                ></span>
+                                {spellingsOf(resultType).map(option => (
+                                    <label key={option.id} className={`int-seg-item ${this.spelling() === option.id ? 'is-on' : ''}`}>
+                                        <input
+                                            type="radio"
+                                            name="ustyle"
+                                            checked={this.spelling() === option.id}
+                                            onChange={() => this.setUuidStyle(option.id)}
+                                        />
+                                        <span>{option.label}</span>
+                                    </label>
+                                ))}
+                            </span>
+                            {hasCase(resultType) && (
+                            <span className="int-seg" role="radiogroup" aria-label="Letter case of the result" style={{ '--int-seg-count': 2 }}>
+                                <span
+                                    className="int-seg-thumb"
+                                    aria-hidden="true"
+                                    style={{ transform: `translateX(${this.props.uuidUpper ? 100 : 0}%)` }}
+                                ></span>
+                                {[false, true].map(upper => (
+                                    <label
+                                        key={upper ? 'upper' : 'lower'}
+                                        className={`int-seg-item ${Boolean(this.props.uuidUpper) === upper ? 'is-on' : ''}`}
+                                        title={upper ? 'Capitals, as the Windows registry writes them' : 'Lower case, as RFC 9562 writes it'}
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="ucase"
+                                            checked={Boolean(this.props.uuidUpper) === upper}
+                                            onChange={() => this.setUuidCase(upper)}
+                                        />
+                                        <span className="fmt-case-label">{upper ? 'ABCDEF' : 'abcdef'}</span>
+                                    </label>
+                                ))}
+                            </span>
+                            )}
+                        </div>
+                    )}
                 </fieldset>
 
-                <fieldset className="bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700 rounded-xl shadow-md border px-5 pb-5 pt-3 hover:shadow-lg transition-shadow">
-                    <legend className="px-1 text-sm font-semibold flex items-center space-x-2 text-gray-700 dark:text-gray-300">
+                <fieldset className="control-card rounded-xl shadow-md border px-5 pb-5 pt-3 hover:shadow-lg transition-shadow">
+                    <legend className="px-1 text-sm font-semibold flex items-center space-x-2">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
                         </svg>
                         <span>Integer type</span>
                     </legend>
-                    <div className="flex flex-wrap gap-3">
-                        {intTypeList().map((v, k) => (
-                            <label 
-                                key={k} 
-                                className="custom-radio group"
-                                onClick={(e) => {
-                                    if (intType === k) {
-                                        this.setIntType(k, e);
-                                    }
-                                }}
-                            >
-                                <input
-                                    type="radio"
-                                    name="itype"
-                                    checked={intType === k}
-                                    onChange={(e) => this.setIntType(k, e)}
-                                />
-                                <span className="radio-check radio-info group-hover:scale-110 transition-transform"></span>
-                                <span className="radio-label text-sm font-medium text-gray-700 group-hover:text-blue-600 dark:text-gray-300 dark:group-hover:text-blue-400 transition-colors">{v}</span>
-                            </label>
-                        ))}
+                    <div className={`int-choice ${intLinked ? 'is-linked' : 'is-split'} ${!intLinked && (writeIntType ?? intType) !== intType ? 'is-crossed' : ''}`}>
+                        {intLinked
+                            ? this.renderIntSegments('itype', intType, this.setIntType)
+                            : (
+                                <>
+                                    <span className="int-lane">
+                                        <span className="int-lane-label" id="int-read-label">read</span>
+                                        {this.renderIntSegments('itype', intType, this.setIntType, 'int-read-label')}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        className="int-flow"
+                                        onClick={this.swapIntTypes}
+                                        title="Swap the two ends"
+                                        aria-label="Swap the two ends"
+                                    >
+                                        <svg width="22" height="12" viewBox="0 0 22 12" fill="none">
+                                            <path d="M1 6h18M15.5 1.5L20 6l-4.5 4.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                    </button>
+                                    <span className={`int-lane ${writes ? '' : 'is-moot'}`}>
+                                        <span className="int-lane-label" id="int-write-label">
+                                            write
+                                            {!writes && <em>unused here</em>}
+                                        </span>
+                                        {this.renderIntSegments('otype', writeIntType ?? intType, (type) => this.setWriteIntType(type), 'int-write-label')}
+                                    </span>
+                                </>
+                            )}
+
+                        <button
+                            type="button"
+                            className={`int-split ${intLinked ? '' : 'is-on'}`}
+                            onClick={this.toggleIntLink}
+                            aria-pressed={!intLinked}
+                            title={intLinked
+                                ? 'Read one way and write another'
+                                : 'Read and write the same way'}
+                        >
+                            {intLinked ? SPLIT_ICON : JOIN_ICON}
+                            <span>{intLinked ? 'Split' : 'Join'}</span>
+                        </button>
                     </div>
+
+                    <p className="int-hint">{this.intHint(intLinked, intType, writeIntType ?? intType, writes)}</p>
                 </fieldset>
             </div>
         );

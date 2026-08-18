@@ -45,7 +45,12 @@ export function timestampFromUlid(ulid) {
  * Returns null for every other version, and for malformed input.
  */
 export function timestampFromUuid(uuid) {
-    const hex = String(uuid).replace(/-/g, '').toLowerCase();
+    const hex = String(uuid)
+        .trim()
+        .toLowerCase()
+        .replace(/^urn:uuid:/, '')
+        .replace(/^\{|\}$/g, '')
+        .replace(/-/g, '');
     if (!HEX_32.test(hex)) {
         return null;
     }

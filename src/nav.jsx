@@ -3,51 +3,45 @@ import { toast } from 'sonner';
 import "@theme-toggles/react/css/Expand.css"
 import { Expand } from "@theme-toggles/react"
 import { v1, v4, v6, v7, NIL, MAX } from 'uuid';
+import { v8 } from './uuid-v8.js';
+import { DEFAULT_NAME, DEFAULT_NAMESPACE, NAMESPACES, nameBased } from './uuid-names.js';
 import { uuidToUlid } from "./uuid-ulid.js";
 import { hexWordUuid, randomPalindromeUuid } from './special-values.js';
-import { isTimed, momentOptions } from './generate-at.js';
-import { trackEgg } from './analytics.js';
-import { createConfetti, spinElement } from './effects.js';
+import { isNamed, isTimed, momentOptions } from './generate-at.js';
+import { trackEgg } from './analytics.js'
+import { burst } from './click-burst.js';
+import { createConfetti, formatHues, spinElement } from './effects.js';
 import { copyText } from './clipboard.js';
+import { navActions } from './plugins.js';
 
-const uuidTypes = ['v1', 'v4', 'v6', 'v7', 'nil', 'max', 'ulid', 'deadbeef', 'cafebabe', 'palindrome'];
+const uuidTypes = ['v1', 'v3', 'v4', 'v5', 'v6', 'v7', 'v8', 'nil', 'max', 'ulid', 'deadbeef', 'cafebabe', 'palindrome'];
 
-function readStoredUuidType() {
-    try {
-        const stored = localStorage.getItem('uuidType');
-        return uuidTypes.includes(stored) ? stored : 'v4';
-    } catch {
-        return 'v4';
-    }
+function chosenUuidType(data) {
+    const { uuidType } = data.settings;
+
+    return uuidType && uuidTypes.includes(uuidType.value) ? uuidType.value : 'v4';
 }
 
 export default class NavComponent extends React.Component {
-    state = {
-        selectedUuidType: readStoredUuidType(),
-        // Empty means now. Only the versions that carry a clock can use it.
-        moment: '',
-        // The field is opt-in: an empty datetime input renders as
-        // "dd.mm.yyyy, --:--:--,---", which is a lot of noise for a default.
-        momentOpen: false,
-        generatedUuid: '',
-    }
-
     constructor(props) {
         super(props);
         this.isToggling = false;
-        this.generateClickCount = 0;
-        this.lastGenerateClick = null;
         this.lastSpinTime = 0;
         this.spinThrottle = 200;
+        this.state = {
+            // Empty means now. Only the versions that carry a clock can use it.
+            moment: '',
+            // The field is opt-in: an empty datetime input renders as
+            // "dd.mm.yyyy, --:--:--,---", which is a lot of noise for a default.
+            momentOpen: false,
+            generatedUuid: '',
+            namespace: DEFAULT_NAMESPACE,
+            name: DEFAULT_NAME,
+        };
     }
 
     selectUuidType = (selectedUuidType) => {
-        this.setState({ selectedUuidType });
-
-        try {
-            localStorage.setItem('uuidType', selectedUuidType);
-        } catch (e) {
-        }
+        this.props.store.setSetting('uuidType', selectedUuidType);
     }
 
     setGeneratedUuid = (generatedUuid) => {
@@ -71,9 +65,12 @@ export default class NavComponent extends React.Component {
 
         switch (type) {
             case 'v1': return v1(at);
+            case 'v3': return nameBased(3, this.state.namespace, this.state.name);
             case 'v4': return v4();
+            case 'v5': return nameBased(5, this.state.namespace, this.state.name);
             case 'v6': return v6(at);
             case 'v7': return v7(at);
+            case 'v8': return v8();
             case 'nil': return NIL;
             case 'max': return MAX;
             case 'ulid': return uuidToUlid(v7(at));
@@ -81,6 +78,12 @@ export default class NavComponent extends React.Component {
             case 'cafebabe': return hexWordUuid('cafebabe');
             case 'palindrome': return randomPalindromeUuid();
             default: return null;
+        }
+    }
+
+    keep = (uuids) => {
+        if (this.props.onGenerated) {
+            this.props.onGenerated(uuids.filter(Boolean));
         }
     }
 
@@ -92,19 +95,8 @@ export default class NavComponent extends React.Component {
             return;
         }
 
-        const now = Date.now();
-        
-        if (this.lastGenerateClick && now - this.lastGenerateClick < 500) {
-            this.generateClickCount++;
-        } else {
-            this.generateClickCount = 1;
-        }
-        
-        this.lastGenerateClick = now;
-        
-        if (this.generateClickCount === 5) {
+        if (burst('generate')) {
             trackEgg('rapid-generator', 'clicked');
-            this.generateClickCount = 0;
             
             const now = Date.now();
             if (now - this.lastSpinTime >= this.spinThrottle) {
@@ -115,15 +107,25 @@ export default class NavComponent extends React.Component {
                 }
             }
             
-            setTimeout(() => createConfetti(window.innerWidth * 0.2, 100), 0);
-            setTimeout(() => createConfetti(window.innerWidth * 0.4, 100), 100);
-            setTimeout(() => createConfetti(window.innerWidth * 0.6, 100), 200);
-            setTimeout(() => createConfetti(window.innerWidth * 0.8, 100), 300);
-            setTimeout(() => createConfetti(window.innerWidth * 0.5, 100), 400);
+            const source = document.querySelector('button[aria-label*="Generate"]');
+            const rect = source ? source.getBoundingClientRect() : null;
+            const originX = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+            const originY = rect ? rect.top + rect.height / 2 : 100;
+            const hues = formatHues();
+
+            [0, 90, 180, 270, 360].forEach((delay, step) => {
+                const spread = (step - 2) * 26;
+
+                setTimeout(() => createConfetti(originX + spread, originY, hues, step === 0 ? 30 : 18), delay);
+            });
             
             const uuids = [];
             for (let i = 0; i < 5; i++) {
                 uuids.push(this.makeUuid(type));
+            }
+
+            if (uuids.some(uuid => uuid === null)) {
+                return;
             }
 
             copyText(uuids.join('\n'))
@@ -140,11 +142,28 @@ export default class NavComponent extends React.Component {
                 });
             
             setUuid(uuids[0]);
+            this.keep(uuids);
             return;
         }
 
         const uuid = this.makeUuid(type);
+
+        if (uuid === null) {
+            if (!copyToClipboard) {
+                return;
+            }
+
+            toast.error(isNamed(type) ? 'A name is needed' : 'Nothing to generate', {
+                description: isNamed(type)
+                    ? 'Versions 3 and 5 build the identifier from a namespace and a name.'
+                    : type,
+            });
+
+            return;
+        }
+
         setUuid(uuid);
+        this.keep([uuid]);
 
         // Picking a version in the dropdown must not overwrite whatever the
         // user is holding in their clipboard; only an explicit action copies.
@@ -166,12 +185,13 @@ export default class NavComponent extends React.Component {
     }
 
     render() {
-        const { selectedUuidType, generatedUuid } = this.state;
+        const { generatedUuid } = this.state;
+        const selectedUuidType = chosenUuidType(this.props.data);
         const { isToggled } = this.props;
 
         return (
             <nav
-                className="bg-white/95 backdrop-blur-sm text-gray-900 dark:bg-gray-900/95 dark:backdrop-blur-sm dark:text-gray-100 shadow-md border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50"
+                className="app-header backdrop-blur-sm shadow-md border-b sticky top-0 z-50"
                 role="navigation" 
                 aria-label="main navigation" 
             >
@@ -179,19 +199,24 @@ export default class NavComponent extends React.Component {
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2 min-h-16">
                             <div className="flex items-center space-x-3">
                                 <a className="flex items-center group" href="./">
-                                    <img src="./android-chrome-192x192.png" className="h-9 w-9 rounded-lg transition-transform group-hover:scale-110" alt="UUIDConv UI" /> 
+                                    <img src="./android-chrome-192x192.png" className="h-9 w-9 rounded-lg transition-transform group-hover:scale-110 brand-mark" alt="UUIDConv UI" /> 
                                 </a>
-                                <a className="font-bold text-lg bg-gradient-to-r from-blue-700 via-purple-700 to-pink-700 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent hover:opacity-80 transition-opacity gradient-animate" href="./">
+                                <a className="brand-text font-bold text-lg hover:opacity-80 transition-opacity gradient-animate" href="./">
                                     UUIDConv UI
                                 </a>
                             </div>
                             
                                 <div className="ml-auto flex items-center order-2 lg:order-3">
+                                    {navActions().map(action => (
+                                        <span key={action.id} className="mr-2 flex items-center">
+                                            {action.render({ store: this.props.store, bus: this.props.bus, data: this.props.data })}
+                                        </span>
+                                    ))}
                                     <a
                                         href="https://github.com/bavix/uuid-ui"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="p-2 mr-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center bg-white hover:bg-gray-50 text-gray-700 dark:bg-gray-800/50 dark:hover:bg-gray-700/50 dark:text-gray-200"
+                                        className="p-2 mr-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center surface-raised-bg hover-surface ink"
                                         aria-label="Open project on GitHub"
                                         title="Open project on GitHub"
                                     >
@@ -203,13 +228,13 @@ export default class NavComponent extends React.Component {
                                         duration={750} 
                                         toggled={isToggled} 
                                         toggle={this.handleToggle}
-                                        className="p-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center bg-white hover:bg-gray-50 dark:bg-gray-800/50 dark:hover:bg-gray-700/50"
+                                        className="p-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center surface-raised-bg hover-surface"
                                         aria-label="Toggle theme"
                                         title={isToggled ? "Switch to light theme" : "Switch to dark theme"}
                                     />
                                 </div>
                             <div className="flex items-center gap-3 flex-1 min-w-0 order-3 basis-full lg:order-none lg:basis-auto">
-                                <div className="flex flex-wrap items-center rounded-xl shadow-sm border flex-1 min-w-0 max-w-3xl bg-white border-gray-200 dark:bg-gray-800/50 dark:border-gray-700">
+                                <div className={`gen-bar flex flex-nowrap items-center rounded-xl shadow-sm border flex-1 min-w-0 max-w-xl xl:max-w-3xl lg:flex-none lg:w-auto surface-raised-bg line-border ${this.state.momentOpen ? 'is-moment' : ''}`}>
                                     <div className="relative flex items-center">
                                         <select
                                             aria-label="UUID version to generate"
@@ -218,7 +243,7 @@ export default class NavComponent extends React.Component {
                                                 this.generateUuid(e.target.value, this.setGeneratedUuid, false)
                                             }}
                                             value={selectedUuidType}
-                                            className="pl-2.5 pr-6 py-2 text-[13px] font-medium cursor-pointer transition-colors focus:outline-none border-0 bg-transparent appearance-none text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
+                                            className="pl-2.5 pr-6 py-2 text-[13px] font-medium cursor-pointer transition-colors focus:outline-none border-0 bg-transparent appearance-none ink hover-surface"
                                         >
                                             {uuidTypes.map(type => (
                                                 <option key={type} value={type}>
@@ -226,21 +251,51 @@ export default class NavComponent extends React.Component {
                                                 </option>
                                             ))}
                                         </select>
-                                        <div className="absolute right-2 pointer-events-none flex items-center text-gray-500 dark:text-gray-400">
+                                        <div className="absolute right-2 pointer-events-none flex items-center ink-muted">
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                             </svg>
                                         </div>
                                     </div>
+                                    {isNamed(selectedUuidType) && (
+                                      <>
+                                        <div className="hidden lg:block w-px h-6 surface-sunken-bg"></div>
+                                        <div className="generator-name">
+                                          <select
+                                            className="generator-namespace"
+                                            value={this.state.namespace}
+                                            onChange={(e) => this.setState({ namespace: e.target.value })}
+                                            aria-label="Namespace the name is hashed under"
+                                            title="Namespace the name is hashed under"
+                                          >
+                                            {Object.keys(NAMESPACES).map(id => (
+                                              <option key={id} value={id}>{id}</option>
+                                            ))}
+                                          </select>
+                                          <input
+                                            type="text"
+                                            className="generator-moment"
+                                            value={this.state.name}
+                                            onInput={(e) => this.setState({ name: e.target.value })}
+                                            placeholder="name"
+                                            aria-label="Name to hash; the same name always gives the same identifier"
+                                            title="The same namespace and name always give the same identifier"
+                                          />
+                                        </div>
+                                      </>
+                                    )}
+                                    {!isTimed(selectedUuidType) && (
+                                      <div className="moment-slot" aria-hidden="true"></div>
+                                    )}
                                     {isTimed(selectedUuidType) && (
                                       <>
-                                        <div className="hidden lg:block w-px h-6 bg-gray-200 dark:bg-gray-700"></div>
+                                        <div className="hidden lg:block w-px h-6 surface-sunken-bg"></div>
                                         <div className="flex items-center gap-1 pl-1">
                                           {!this.state.momentOpen && (
                                             <button
                                               type="button"
                                               onClick={() => this.setState({ momentOpen: true })}
-                                              className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-700/50"
+                                              className="p-1.5 rounded-lg ink-muted ink-hover hover-surface"
                                               aria-label="Generate at a chosen moment"
                                               title="Generate at a chosen moment"
                                             >
@@ -266,7 +321,7 @@ export default class NavComponent extends React.Component {
                                             <button
                                               type="button"
                                               onClick={() => { this.momentFocused = false; this.setState({ moment: '', momentOpen: false }); }}
-                                              className="p-1 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-700/50"
+                                              className="p-1 rounded-lg ink-muted ink-hover hover-surface"
                                               aria-label="Back to now"
                                               title="Back to now"
                                             >
@@ -278,11 +333,15 @@ export default class NavComponent extends React.Component {
                                         </div>
                                       </>
                                     )}
-                                    <div className="hidden lg:block w-px h-6 bg-gray-200 dark:bg-gray-700"></div>
-                                    <div className="relative group order-last basis-full min-w-0 lg:order-none lg:basis-auto lg:flex-1">
+                                    <div className="hidden lg:block w-px h-6 surface-sunken-bg"></div>
+                                    {/* Sized to what it holds: stretched to the bar's full width, the
+                                        field was mostly blank and the generate button sat far from it. */}
+                                    <div
+                                        className="gen-field relative group min-w-0 flex-1 lg:flex-none lg:shrink"
+                                    >
                                         <input
                                             readOnly={true}
-                                            className="w-full px-2 py-2 text-[12px] lg:px-3 lg:text-[13px] font-mono transition-colors cursor-pointer focus:outline-none border-0 bg-transparent text-gray-900 placeholder-gray-400 dark:text-gray-100 dark:placeholder-gray-500"
+                                            className="w-full px-2 py-2 text-[12px] lg:px-3 lg:text-[13px] font-mono transition-colors cursor-pointer focus:outline-none border-0 bg-transparent ink gen-field-input"
                                             type="text"
                                             value={generatedUuid}
                                             placeholder="UUID will appear here"
@@ -301,23 +360,23 @@ export default class NavComponent extends React.Component {
                                             title={generatedUuid ? `${generatedUuid}\nClick to copy` : 'Click to copy'}
                                         />
                                         {generatedUuid && (
-                                            <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none text-gray-500 dark:text-gray-400">
+                                            <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none ink-muted">
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                                 </svg>
                                             </div>
                                         )}
                                     </div>
-                                    <div className="hidden lg:block w-px h-6 bg-gray-200 dark:bg-gray-700"></div>
-                                    <button 
-                                        className="px-4 py-2 text-sm font-medium transition-all duration-200 active:scale-95 whitespace-nowrap flex items-center gap-2 border-0 bg-transparent text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700/50"
+                                    <div className="hidden lg:block w-px h-6 surface-sunken-bg"></div>
+                                    <button
+                                        className="p-2 rounded-lg transition-all duration-200 active:scale-95 flex items-center justify-center border-0 bg-transparent ink hover-surface"
                                         onClick={() => this.generateUuid(selectedUuidType, this.setGeneratedUuid)}
                                         aria-label={`Generate ${selectedUuidType.toUpperCase()} UUID`}
+                                        title={`Generate ${selectedUuidType.toUpperCase()} and copy it`}
                                     >
                                         <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                         </svg>
-                                        
                                     </button>
                                 </div>
                                 

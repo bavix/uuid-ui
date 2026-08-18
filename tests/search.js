@@ -33,3 +33,25 @@ test('no match returns nothing, and nonsense input does not throw', (t) => {
     assert.deepStrictEqual(searchItems(null, 'x'), []);
     assert.deepStrictEqual(searchItems([null, undefined, {}], 'x'), []);
 });
+
+test('an identifier finds its own rows however they are spelled', async (t) => {
+    const rows = [
+        { input: '{"high":1,"low":1}', output: '71a46cec48094cc596895b0441b46186', info: '' },
+        { input: 'something else', output: '{71A46CEC-4809-4CC5-9689-5B0441B46186}', info: '' },
+        { input: 'unrelated', output: '00000000-0000-0000-0000-000000000000', info: '' },
+    ];
+
+    assert.strictEqual(searchItems(rows, '71a46cec-4809-4cc5-9689-5b0441b46186').length, 2);
+    assert.strictEqual(searchItems(rows, 'caRs7EgJTMWWiVsEQbRhhg==').length, 2, 'base64 finds the same rows');
+    assert.strictEqual(searchItems(rows, '00000000-0000-0000-0000-000000000000').length, 1);
+});
+
+test('a query that is not an identifier is still a plain substring', async (t) => {
+    const rows = [
+        { input: 'a', output: 'b', info: 'from the invoice service' },
+        { input: 'c', output: 'd', info: '' },
+    ];
+
+    assert.strictEqual(searchItems(rows, 'invoice').length, 1);
+    assert.strictEqual(searchItems(rows, 'nothing here').length, 0);
+});

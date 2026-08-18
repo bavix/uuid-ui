@@ -52,3 +52,27 @@ test('timestampFromUlid returns null for invalid input', (t) => {
     assert.strictEqual(timestampFromUlid('short'), null);
     assert.strictEqual(timestampFromUlid(null), null);
 });
+
+test('the clock is read whichever way the identifier is spelled', async (t) => {
+    const uuid = '018f3c00-1122-7000-8000-0000deadbeef';
+    const expected = timestampFromUuid(uuid);
+
+    assert.ok(expected);
+
+    for (const written of [
+        uuid.toUpperCase(),
+        uuid.replace(/-/g, ''),
+        `{${uuid}}`,
+        `{${uuid.toUpperCase()}}`,
+        `urn:uuid:${uuid}`,
+        `  urn:uuid:${uuid.toUpperCase()}  `,
+    ]) {
+        assert.strictEqual(timestampFromUuid(written), expected, written);
+    }
+});
+
+test('a spelling that is not an identifier still reads as no clock', async (t) => {
+    assert.strictEqual(timestampFromUuid('{not a uuid}'), null);
+    assert.strictEqual(timestampFromUuid('urn:uuid:'), null);
+    assert.strictEqual(timestampFromUuid(''), null);
+});

@@ -1,0 +1,176 @@
+/* Gruvbox: Pavel Pertsev's retro groove, both variants as published — warm
+   brown and hard yellow at night, cream and burnt orange by day. Boxy corners,
+   no glow, no shadow worth the name: this palette never floated. */
+
+:root[data-theme="gruvbox"] {
+  color-scheme: light;
+
+  /* One step down the published scale: bg1 for the page, bg0 for the cards.
+     On bg0 the whole thing sat within a few points of Solarized's cream. */
+  --surface: rgb(243, 236, 214);
+  --surface-sunken: rgb(232, 223, 196);
+  --surface-raised: rgb(252, 247, 232);
+  --surface-hover: rgb(237, 229, 205);
+  --row-alt: rgb(247, 241, 221);
+
+  --line: rgb(216, 205, 178);
+  --line-strong: rgb(190, 178, 152);
+
+  --ink: rgb(60, 56, 54);
+  --ink-muted: rgb(102, 92, 84);
+  --ink-muted-chip: rgb(95, 87, 79);
+
+  --accent: rgb(175, 58, 3);
+  --accent-soft: rgb(246, 226, 193);
+  --accent-fill: rgb(175, 58, 3);
+  --accent-ink: rgb(252, 247, 232);
+
+  --brand-1: rgb(175, 58, 3);
+  --brand-2: rgb(181, 118, 20);
+  --brand-3: rgb(56, 106, 76);
+
+  --fmt-uuid: rgb(56, 106, 76);
+  --fmt-base64: rgb(175, 58, 3);
+  --fmt-ulid: rgb(143, 63, 113);
+  --fmt-highlow: rgb(7, 102, 120);
+  --fmt-bytes: rgb(157, 0, 6);
+  --fmt-words: rgb(121, 116, 14);
+  --fmt: var(--fmt-highlow);
+
+  --warn: rgb(181, 118, 20);
+  --warn-strong: rgb(175, 58, 3);
+  --alarm: rgb(157, 0, 6);
+  --void: rgb(40, 40, 40);
+
+  --bit-off: rgb(226, 216, 190);
+  --bit-random: rgb(56, 106, 76);
+  --bit-fixed: rgb(175, 58, 3);
+  --bit-time: rgb(7, 102, 120);
+  --bit-clock: rgb(157, 0, 6);
+  --bit-node: rgb(143, 63, 113);
+  --bit-mix: 26%;
+  --map-mix: 58%;
+
+  --tint-badge: 14%;
+  --tint-output: 10%;
+  --tint-nil: 10%;
+  --tint-nil-glow: 16%;
+
+  --sync-danger: rgb(157, 0, 6);
+  --sync-good: rgb(121, 116, 14);
+
+  /* Groove, not gloss: small corners, one hairline, no drop shadow. */
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-pill: 6px;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  /* Retro tooling snaps; nothing eases in a terminal of 1990. */
+  --motion-scale: 0.85;
+  --title-tracking: 0.02em;
+  /* The rule inside a card, drawn in long strokes like a printed listing. */
+  --divider-image: repeating-linear-gradient(
+    to right,
+    var(--line-strong) 0 8px,
+    transparent 8px 16px
+  );
+  --chip-on-bg: var(--accent-fill);
+  --chip-on-ink: var(--accent-ink);
+  --chip-on-dot: var(--accent-ink);
+  --seg-on-bg: var(--accent-fill);
+  --seg-on-ink: var(--accent-ink);
+  --mark-note: color-mix(in oklab, var(--ink-muted) 96%, var(--surface-raised));
+  --mark-bad: color-mix(in oklab, var(--alarm) 70%, var(--surface-raised));
+  --signature-time: 200ms;
+  --signature-ink: rgb(175, 58, 3);
+  --logo-filter: grayscale(1) sepia(0.95) saturate(2.2) hue-rotate(-8deg) brightness(0.95);
+}
+
+:root[data-theme="gruvbox"].dark {
+  color-scheme: dark;
+
+  --surface: rgb(40, 40, 40);
+  --surface-sunken: rgb(29, 32, 33);
+  --surface-raised: rgb(50, 48, 47);
+  --surface-hover: rgb(60, 56, 54);
+  --row-alt: rgb(45, 43, 42);
+
+  --line: rgb(80, 73, 69);
+  --line-strong: rgb(102, 92, 84);
+
+  --ink: rgb(235, 219, 178);
+  --ink-muted: rgb(189, 174, 147);
+  --ink-muted-chip: rgb(213, 196, 161);
+
+  --accent: rgb(254, 128, 25);
+  --accent-soft: rgba(254, 128, 25, 0.16);
+  --accent-fill: rgb(254, 128, 25);
+  --accent-ink: rgb(29, 32, 33);
+
+  --brand-1: rgb(254, 128, 25);
+  --brand-2: rgb(254, 128, 25);
+  --brand-3: rgb(142, 192, 124);
+
+  --fmt-uuid: rgb(142, 192, 124);
+  --fmt-base64: rgb(254, 128, 25);
+  --fmt-ulid: rgb(211, 134, 155);
+  --fmt-highlow: rgb(131, 165, 152);
+  --fmt-bytes: rgb(251, 73, 52);
+  --fmt-words: rgb(184, 187, 38);
+  --fmt: var(--fmt-highlow);
+
+  --warn: rgb(250, 189, 47);
+  --warn-strong: rgb(215, 153, 33);
+  /* Published bright red is 3.8:1 on this card, and Clear is a word people
+     have to read before they press it. Same red, lifted. */
+  --alarm: rgb(255, 138, 116);
+  --void: rgb(20, 20, 20);
+
+  --bit-off: rgb(60, 56, 54);
+  --bit-random: rgb(142, 192, 124);
+  --bit-fixed: rgb(254, 128, 25);
+  --bit-time: rgb(131, 165, 152);
+  --bit-clock: rgb(251, 73, 52);
+  --bit-node: rgb(211, 134, 155);
+  --bit-mix: 34%;
+  --map-mix: 46%;
+
+  --tint-badge: 12%;
+  --tint-output: 12%;
+  --tint-nil: 55%;
+  --tint-nil-glow: 60%;
+
+  --sync-danger: rgb(255, 138, 116);
+  --sync-good: rgb(184, 187, 38);
+
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-pill: 6px;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  /* Retro tooling snaps; nothing eases in a terminal of 1990. */
+  --motion-scale: 0.85;
+  --title-tracking: 0.02em;
+  /* The rule inside a card, drawn in long strokes like a printed listing. */
+  --divider-image: repeating-linear-gradient(
+    to right,
+    var(--line-strong) 0 8px,
+    transparent 8px 16px
+  );
+  --chip-on-bg: var(--accent-fill);
+  --chip-on-ink: var(--accent-ink);
+  --chip-on-dot: var(--accent-ink);
+  --seg-on-bg: var(--accent-fill);
+  --seg-on-ink: var(--accent-ink);
+  --mark-note: color-mix(in oklab, var(--ink-muted) 96%, var(--surface-raised));
+  --mark-bad: color-mix(in oklab, var(--alarm) 70%, var(--surface-raised));
+  --signature-time: 200ms;
+  --signature-ink: rgb(254, 128, 25);
+  --logo-filter: grayscale(1) sepia(0.95) saturate(2.6) hue-rotate(-6deg) brightness(0.98);
+}

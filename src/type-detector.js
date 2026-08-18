@@ -4,6 +4,7 @@ import {base64ToUuid} from "./base64.js";
 import {objectParse} from "./object-parser.js";
 import {isWords} from "./uuid-words.js";
 import {isValid as isValidUlid} from './uuid-ulid.js';
+import {unquote} from './quotes.js';
 
 export const TYPE_UUID = 2 ** 0;
 export const TYPE_HIGH_LOW = 2 ** 1;
@@ -11,13 +12,15 @@ export const TYPE_BASE64 = 2 ** 2;
 export const TYPE_BYTES = 2 ** 3;
 export const TYPE_ULID = 2 ** 4;
 
-// An output-only view: as *input* a bare hex string is already a UUID.
+// Kept for links written before hex became a spelling of uuid.
 export const TYPE_HEX = 2 ** 5;
 
 // Four 32-bit words, the shape protobuf schemas carry a UUID in.
 export const TYPE_WORDS = 2 ** 6;
 
 const UUID_LENGTH = 36;
+
+const SPACED_BYTES = /^[0-9a-f]{2}(?:[\s,]+[0-9a-f]{2}){15}$/i;
 
 export function uuidTypeList() {
     const list = []
@@ -26,18 +29,23 @@ export function uuidTypeList() {
     list[TYPE_HIGH_LOW] = 'high-low'
     list[TYPE_BYTES] = 'bytes'
     list[TYPE_ULID] = 'ulid'
-    list[TYPE_HEX] = 'hex'
     list[TYPE_WORDS] = 'words'
     return list
 }
 
-export function typeDetector(input) {
-    if (typeof input !== 'string') {
+export function typeDetector(raw) {
+    if (typeof raw !== 'string') {
         return TYPE_UUID;
     }
 
+    const input = unquote(raw);
+
     if (isValidUlid(input.trim())) {
         return TYPE_ULID;
+    }
+
+    if (SPACED_BYTES.test(input.trim())) {
+        return TYPE_BYTES;
     }
 
     try {

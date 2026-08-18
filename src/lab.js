@@ -1,12 +1,14 @@
 'use strict';
 
 import { uuidToBytes, uuidToBytesString, uuidToHex } from './uuid-bytes.js';
+import { foundEggs } from './eggs-found.js';
 import { timestampFromUuid } from './uuid-timestamp.js';
 import { uuidToBase64Std } from './base64.js';
 import { uuidToUlid } from './uuid-ulid.js';
 import { uuidToInts, uuidToUints } from './uuid-high-low.js';
 import { uuidToWords } from './uuid-words.js';
 import { specialValues } from './special-values.js';
+import { DEFAULT_NAME, DEFAULT_NAMESPACE, nameBased } from './uuid-names.js';
 import { copyText } from './clipboard.js';
 import { toast } from 'sonner';
 import { readBestScores, readBestTimes, writeBestScore, writeBestTime } from './records.js';
@@ -431,12 +433,18 @@ const FACT_IDENTITY = 'What it is';
 const FACT_CLOCK = 'Its clock';
 const FACT_SPELLINGS = 'The same value, other spellings';
 
+// int64 travels as a string so it survives JSON; the app writes those numbers
+// bare, and the report has to read the same way.
+function plainNumbers(value) {
+    return value ? JSON.stringify(value).replace(/"(-?\d+)"/g, '$1') : null;
+}
+
 /**
  * Everything this app can say about one identifier, in three groups: what it
  * is, what its clock reads, and every other way to write the same 128 bits. A
  * group with nothing in it is dropped, so read the result by name.
  */
-function factsAbout(uuid, hex, version) {
+export function factsAbout(uuid, hex, version) {
     const identity = [];
     const clock = [];
     const spellings = [];
@@ -499,6 +507,7 @@ function factsAbout(uuid, hex, version) {
     facts = spellings;
     add('UUID', uuid, true);
     add('Hex', uuidToHex(uuid), true);
+    add('Braces', `{${uuid.toUpperCase()}}`, true);
     add('URN', `urn:uuid:${uuid}`, true);
     add('Base64', uuidToBase64Std(uuid), true);
     add('Base64url', uuidToBase64Std(uuid).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), true);
@@ -508,15 +517,16 @@ function factsAbout(uuid, hex, version) {
     // The order .NET, COM and SQL Server put the first three groups in. Reading
     // a GUID written by one of them as RFC bytes is the classic mix-up.
     add('Bytes, .NET order', msGuidBytes(hex), true);
-    add('High/low, signed', ints ? JSON.stringify(ints) : null, true);
-    add('High/low, unsigned', uints ? JSON.stringify(uints) : null, true);
+    add('C struct', cStruct(hex), true);
+    add('High/low, signed', plainNumbers(ints), true);
+    add('High/low, unsigned', plainNumbers(uints), true);
     // Both readings, the way high/low gets both: protobuf schemas carry these
     // as uint32 or int32 depending on who wrote them, and the same bytes read
     // as either. (Unlike high/low, only the sign differs — not the byte order.)
     const uwords = uuidToWords(uuid);
     const iwords = uuidToWords(uuid, true);
-    add('Words, uint32', uwords ? JSON.stringify(uwords) : null, true);
-    add('Words, int32', iwords ? JSON.stringify(iwords) : null, true);
+    add('Words, uint32', plainNumbers(uwords), true);
+    add('Words, int32', plainNumbers(iwords), true);
 
     return [
         [FACT_IDENTITY, identity],
@@ -554,6 +564,12 @@ const SORTABLE = {
     6: 'yes — this is what it was reordered for',
     7: 'yes — 48 bits of Unix milliseconds lead',
 };
+
+function cStruct(hex) {
+    const tail = hex.slice(16).match(/../g).map(byte => `0x${byte}`).join(', ');
+
+    return `{ 0x${hex.slice(0, 8)}, 0x${hex.slice(8, 12)}, 0x${hex.slice(12, 16)}, { ${tail} } }`;
+}
 
 /** The first three groups little-endian, the way .NET writes a Guid. */
 function msGuidBytes(hex) {
@@ -904,6 +920,95 @@ export function inspectBits(uuid) {
  * the standard fixes in both, and in a v7 the 48 leading bits of a clock that
  * only ever counts up. Click a cell to be told what it is.
  */
+export const ENTROPY_KINDS = [
+    { id: '1', label: 'v1', note: 'A clock and a node. The node never moves, the low bits of the clock never stop.' },
+    { id: '4', label: 'v4', note: '122 bits of chance. Only the version and the variant are spoken for.' },
+    { id: '5', label: 'v5', note: 'Nothing here is chance: the same namespace and name always give these same bits.' },
+    { id: '6', label: 'v6', note: 'The v1 clock, reordered so that sorting the bytes sorts by time.' },
+    { id: '7', label: 'v7', note: '48 bits of Unix milliseconds, then chance.' },
+    { id: '8', label: 'v8', note: 'Whatever the implementation decided; here it is chance.' },
+    { id: 'ulid', label: 'ULID', note: '48 bits of Unix milliseconds and 80 of chance. No version, no variant.' },
+];
+
+const ULID_FIELDS = [[0, 47, 'time', 'unix_ts_ms'], [48, 127, 'random', 'randomness']];
+
+/** What holds a bit still, for the bits that chance does not decide. */
+const BIT_HELD = {
+    version: 'fixed by the format',
+    variant: 'fixed by the format',
+    time: 'moves with the clock',
+    clock: 'steady while the machine runs',
+    node: 'steady while the machine runs',
+    hash: 'decided by the namespace and the name',
+};
+
+export function fieldsOfKind(id) {
+    return id === 'ulid' ? ULID_FIELDS : fieldsFor(Number(id));
+}
+
+function writeBits(bytes, from, to, value) {
+    let held = BigInt(value);
+
+    for (let i = to; i >= from; i--) {
+        const bit = Number(held & 1n);
+        const mask = 1 << (7 - (i % 8));
+
+        bytes[i >> 3] = bit ? (bytes[i >> 3] | mask) : (bytes[i >> 3] & ~mask);
+        held >>= 1n;
+    }
+}
+
+/**
+ * A fresh identifier of the chosen kind, written into `bytes`. The parts that
+ * a real generator holds still — a node, a clock sequence, the hash of a name —
+ * are held still here too: the whole demonstration is which cells stop moving.
+ */
+export function fillEntropyBytes(bytes, id, steady) {
+    crypto.getRandomValues(bytes);
+
+    if (id === '5' || id === '3') {
+        const held = uuidToBytes(nameBased(Number(id), DEFAULT_NAMESPACE, DEFAULT_NAME));
+
+        bytes.set(held);
+
+        return;
+    }
+
+    const now = Date.now();
+
+    if (id === 'ulid') {
+        writeBits(bytes, 0, 47, BigInt(now));
+
+        return;
+    }
+
+    if (id === '1' || id === '6') {
+        // 100-nanosecond ticks since 1582-10-15, the epoch RFC 9562 gives these
+        // two. The sub-millisecond digits are what keeps the low bits moving.
+        const ticks = (BigInt(now) + 12219292800000n) * 10000n + BigInt(steady.spin % 10000);
+
+        if (id === '1') {
+            writeBits(bytes, 0, 31, ticks & 0xffffffffn);
+            writeBits(bytes, 32, 47, (ticks >> 32n) & 0xffffn);
+            writeBits(bytes, 52, 63, (ticks >> 48n) & 0xfffn);
+        } else {
+            writeBits(bytes, 0, 31, (ticks >> 28n) & 0xffffffffn);
+            writeBits(bytes, 32, 47, (ticks >> 12n) & 0xffffn);
+            writeBits(bytes, 52, 63, ticks & 0xfffn);
+        }
+
+        writeBits(bytes, 66, 79, steady.clock);
+        writeBits(bytes, 80, 127, steady.node);
+    }
+
+    if (id === '7') {
+        writeBits(bytes, 0, 47, BigInt(now));
+    }
+
+    bytes[6] = (bytes[6] & 0x0f) | (Number(id) << 4);
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+}
+
 export function entropyView() {
     if (alreadyOpen()) {
         return;
@@ -918,7 +1023,7 @@ export function entropyView() {
     const toolbar = element('div', 'lab-toolbar');
     const segmented = element('div', 'lab-seg');
     segmented.setAttribute('role', 'group');
-    segmented.setAttribute('aria-label', 'Version');
+    segmented.setAttribute('aria-label', 'Kind of identifier');
     const shuffle = button('New one');
     const pause = button('Pause');
     toolbar.append(segmented, shuffle, pause);
@@ -926,31 +1031,34 @@ export function entropyView() {
     const grid = element('div', 'lab-grid');
     const readout = element('p', 'lab-readout', 'Click a cell to see what that bit is.');
     const value = element('p', 'lab-uuid', '');
+    const note = element('p', 'lab-note', '');
     const legend = element('div', 'lab-legend');
-    ui.body.append(toolbar, grid, readout, value, legend);
+    ui.body.append(toolbar, grid, readout, value, note, legend);
 
-    let version = 4;
+    let kind = '4';
+    let fields = fieldsOfKind(kind);
 
-    const kindOf = (index) => {
-        if (index >= 48 && index <= 51) {
-            return 'version';
-        }
-
-        if (index === 64 || index === 65) {
-            return 'variant';
-        }
-
-        return version === 7 && index < 48 ? 'time' : 'random';
+    // A machine keeps the same node and clock sequence for as long as it runs;
+    // so does this panel, or the point of the two would be lost.
+    const seed = new Uint32Array(4);
+    crypto.getRandomValues(seed);
+    const steady = {
+        node: (BigInt(seed[0]) << 16n | BigInt(seed[1] & 0xffff)) | (1n << 40n),
+        clock: BigInt(seed[2] & 0x3fff),
+        spin: 0,
     };
+
+    const at = (index) => fieldAt(fields, index);
 
     const cells = Array.from({ length: 128 }, (_, i) => {
         const cell = element('button', 'lab-bit');
         cell.type = 'button';
         const describe = () => {
-            const kind = kindOf(i);
+            const [, , what, name] = at(i);
             const bit = cell.classList.contains('is-on') ? 1 : 0;
-            readout.textContent = `bit ${i} · ${BIT_KINDS[kind]} · currently ${bit}` +
-                (kind === 'random' ? '' : ' · fixed by the format');
+            const said = name === BIT_KINDS[what] ? name : `${name} · ${BIT_KINDS[what]}`;
+            readout.textContent = `bit ${i} · ${said} · currently ${bit}` +
+                (BIT_HELD[what] ? ` · ${BIT_HELD[what]}` : '');
         };
         cell.addEventListener('click', describe);
         cell.addEventListener('mouseenter', describe);
@@ -958,53 +1066,43 @@ export function entropyView() {
         return cell;
     });
 
-    for (const [kind, label] of Object.entries(BIT_KINDS)) {
-        if (!['random', 'version', 'variant', 'time'].includes(kind)) {
-            continue;
-        }
-
+    for (const [what, label] of Object.entries(BIT_KINDS)) {
         const item = element('span', 'lab-legend-item');
-        item.append(element('span', `lab-legend-key k-${kind} is-on`), element('span', null, label));
-        item.dataset.kind = kind;
+        item.append(element('span', `lab-legend-key k-${what} is-on`), element('span', null, label));
+        item.dataset.kind = what;
         legend.appendChild(item);
     }
 
     const bytes = new Uint8Array(16);
     const paint = () => {
-        crypto.getRandomValues(bytes);
-
-        if (version === 7) {
-            // 48 bits of Unix milliseconds, most significant first
-            let ms = Date.now();
-            for (let i = 5; i >= 0; i--) {
-                bytes[i] = ms % 256;
-                ms = Math.floor(ms / 256);
-            }
-        }
-
-        bytes[6] = (bytes[6] & 0x0f) | (version << 4);
-        bytes[8] = (bytes[8] & 0x3f) | 0x80;
+        steady.spin += 1;
+        fillEntropyBytes(bytes, kind, steady);
 
         cells.forEach((cell, i) => {
+            const what = at(i)[2];
             const bit = (bytes[i >> 3] >> (7 - (i % 8))) & 1;
-            cell.className = `lab-bit k-${kindOf(i)}${bit ? ' is-on' : ''}`;
-            cell.setAttribute('aria-label', `bit ${i}, ${BIT_KINDS[kindOf(i)]}, ${bit}`);
+            cell.className = `lab-bit k-${what}${bit ? ' is-on' : ''}`;
+            cell.setAttribute('aria-label', `bit ${i}, ${BIT_KINDS[what]}, ${bit}`);
         });
 
         const hex = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
-        value.textContent = `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+        const uuid = `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+        value.textContent = kind === 'ulid' ? uuidToUlid(uuid) : uuid;
 
+        const present = new Set(fields.map(([, , what]) => what));
         legend.querySelectorAll('.lab-legend-item').forEach(item => {
-            item.hidden = item.dataset.kind === 'time' && version !== 7;
+            item.hidden = !present.has(item.dataset.kind);
         });
     };
 
-    [4, 7].forEach(candidate => {
-        const option = button(`v${candidate}`, '');
-        option.setAttribute('aria-pressed', String(candidate === version));
-        option.classList.toggle('is-on', candidate === version);
+    ENTROPY_KINDS.forEach(candidate => {
+        const option = button(candidate.label, '');
+        option.setAttribute('aria-pressed', String(candidate.id === kind));
+        option.classList.toggle('is-on', candidate.id === kind);
         option.addEventListener('click', () => {
-            version = candidate;
+            kind = candidate.id;
+            fields = fieldsOfKind(kind);
+            note.textContent = candidate.note;
             segmented.querySelectorAll('button').forEach(other => {
                 const on = other === option;
                 other.classList.toggle('is-on', on);
@@ -1014,6 +1112,8 @@ export function entropyView() {
         });
         segmented.appendChild(option);
     });
+
+    note.textContent = ENTROPY_KINDS.find(candidate => candidate.id === kind).note;
 
     let timer = setInterval(paint, 900);
     pause.addEventListener('click', () => {
@@ -1839,38 +1939,39 @@ export function lightsOut(options = {}) {
 }
 
 const TYPED = [
-    ['collide', 'The birthday paradox, run for real.'],
-    ['mines', 'Minesweeper, dealt by crypto.getRandomValues.'],
-    ['2048', 'Powers of two, slid around a 4x4 board.'],
-    ['lights', 'Lights Out: press a cell, flip its neighbours.'],
-    ['bits', 'Which bits of a v4 are actually random.'],
-    ['rain', 'Hex falls over the page.'],
-    ['game', 'Space Runner.'],
-    ['sudo', 'Try it.'],
+    ['collide', 'The birthday paradox, run for real.', 'collide'],
+    ['mines', 'Minesweeper, dealt by crypto.getRandomValues.', 'mines'],
+    ['2048', 'Powers of two, slid around a 4x4 board.', '2048'],
+    ['lights', 'Lights Out: press a cell, flip its neighbours.', 'lights'],
+    ['bits', 'Which bits of a v4 are actually random.', 'bits'],
+    ['rain', 'Hex falls over the page.', 'rain'],
+    ['game', 'Space Runner.', 'space-runner'],
+    ['sudo', 'Try it.', 'sudo'],
+    ['palette', 'A drawer of palettes, at the right edge.', 'themes'],
 ];
 
 // The badge each one earns, drawn exactly as the history panel draws it.
 const BADGES = [
-    ['NIL', 'marker-nil', 'The all-zero identifier.'],
-    ['MAX', 'marker-max', 'The all-one identifier.'],
-    ['PALINDROME', 'marker-palindrome', 'Reads the same backwards. Both of the above qualify.'],
-    ['DEADBEEF', 'marker-word', 'Any hex word: <code>deadbeef</code>, <code>cafebabe</code>, <code>feedface</code>. The generator makes them.'],
-    ['NON-RFC', 'marker-non-rfc', 'UUID-shaped, with a version outside 1-8.'],
-    ['TIME TRAVELER', 'marker-time-traveler', 'A v1/v6/v7/ULID whose clock is far from now.'],
+    ['NIL', 'marker-nil', 'The all-zero identifier.', ['nil']],
+    ['MAX', 'marker-max', 'The all-one identifier.', ['max']],
+    ['PALINDROME', 'marker-palindrome', 'Reads the same backwards. Both of the above qualify.', ['palindrome']],
+    ['DEADBEEF', 'marker-word', 'Any hex word: <code>deadbeef</code>, <code>cafebabe</code>, <code>feedface</code>. The generator makes them.', ['deadbeef', 'cafebabe', 'feedface']],
+    ['NON-RFC', 'marker-non-rfc', 'UUID-shaped, with a version outside 1-8.', ['non-rfc']],
+    ['TIME TRAVELER', 'marker-time-traveler', 'A v1/v6/v7/ULID whose clock is far from now.', ['time traveler']],
 ];
 
 const CLICKED = [
-    ['5', 'the selected result type', 'Magnetic field.'],
-    ['5', 'the selected integer type', 'Guess the number.'],
-    ['5', 'Generate, within half a second', 'Five identifiers at once.'],
-    ['10', 'the icon of an empty history', 'Space Runner.'],
+    ['5', 'the format chip already chosen', 'Magnetic field: every chip is pulled towards it, each in its own colour.', 'magnetic-field'],
+    ['5', 'the integer value already chosen', 'Guess the number.', 'guess-the-number'],
+    ['5', 'Generate, within half a second', 'Five identifiers at once.', 'rapid-generator'],
+    ['10', 'the icon of an empty history', 'Space Runner.', 'space-runner'],
 ];
 
-function row(trigger, what) {
-    const left = element('dt', 'lab-trigger');
+function row(trigger, what, found = false) {
+    const left = element('dt', `lab-trigger${found ? ' is-found' : ''}`);
     left.append(trigger);
 
-    const right = element('dd', 'lab-what');
+    const right = element('dd', `lab-what${found ? ' is-found' : ''}`);
     right.innerHTML = what;
 
     return [left, right];
@@ -1894,11 +1995,17 @@ export function eggsHelp() {
         return;
     }
 
+    const found = foundEggs();
+    const total = TYPED.length + CLICKED.length + BADGES.length;
+    const seen = TYPED.filter(([, , id]) => found.has(id)).length
+        + CLICKED.filter(([, , , id]) => found.has(id)).length
+        + BADGES.filter(([, , , ids]) => ids.some(id => found.has(id))).length;
+
     const ui = panel({
         id: 'help',
         width: 'is-wide',
         title: 'Easter eggs',
-        subtitle: 'Eighteen things hidden in a UUID converter. None of them changes a conversion.',
+        subtitle: `${total} things hidden in a UUID converter, ${seen} of them found. None changes a conversion.`,
     });
 
     const columns = element('div', 'lab-columns');
@@ -1908,17 +2015,17 @@ export function eggsHelp() {
     ui.body.appendChild(columns);
 
     group(left, 'Type it, anywhere outside a text field',
-        TYPED.map(([word, what]) => row(key(word), what)));
+        TYPED.map(([word, what, id]) => row(key(word), what, found.has(id))));
 
     group(left, 'Click one thing more often than anyone would',
-        CLICKED.map(([times, target, what]) => row(element('span', 'lab-count', `${times} clicks`), `On ${target}. ${what}`)));
+        CLICKED.map(([times, target, what, id]) => row(element('span', 'lab-count', `${times} clicks`), `On ${target}. ${what}`, found.has(id))));
 
     group(right, 'Convert something the standard finds special',
-        BADGES.map(([name, marker, what]) => row(element('span', `history-marker-badge ${marker}`, name), what)));
+        BADGES.map(([name, marker, what, ids]) => row(element('span', `history-marker-badge ${marker}`, name), what, ids.some(id => found.has(id)))));
 
     // Why this list is on screen at all, and the one promise worth repeating.
     const aside = element('p', 'lab-aside');
     aside.innerHTML = 'This list appeared because the tool has an hour of your work in it. ' +
-        'Everything here runs in the browser — nothing you paste is sent anywhere.';
+        'Everything here runs in the browser — nothing you paste is sent anywhere, and what you have found is remembered only here.';
     right.appendChild(aside);
 }

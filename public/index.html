@@ -16,12 +16,36 @@
         (function () {
             try {
                 // Kept in step with src/theme.js by hand: this runs before any
-                // bundle exists, so it cannot import the module.
-                var stored = localStorage.getItem('theme');
-                var dark = stored === 'dark' || stored === 'true'
-                    || ((stored === null || stored === '') && window.matchMedia('(prefers-color-scheme: dark)').matches);
-                if (dark) {
-                    document.documentElement.classList.add('dark');
+                // bundle exists, so it cannot import the module. The stored
+                // value is "theme:variant"; the words older builds wrote still
+                // mean the shipped theme.
+                var stored = localStorage.getItem('theme') || '';
+                var pair = stored.split(':');
+                var palette = pair.length === 2 ? pair[0] : 'default';
+                var mode = pair.length === 2 ? pair[1] : stored;
+
+                if (mode === 'true' || mode === '"true"') {
+                    mode = 'dark';
+                }
+
+                if (mode === 'false' || mode === '"false"') {
+                    mode = 'light';
+                }
+
+                if (mode !== 'dark' && mode !== 'light') {
+                    mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+
+                var root = document.documentElement;
+
+                if (mode === 'dark') {
+                    root.classList.add('dark');
+                }
+
+                root.style.colorScheme = mode;
+
+                if (/^[a-z0-9][a-z0-9-]{0,31}$/.test(palette) && palette !== 'default') {
+                    root.setAttribute('data-theme', palette);
                 }
             } catch (e) {
             }
@@ -32,8 +56,9 @@
     <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
     <link rel="manifest" href="./site.webmanifest">
-  <script type="module" crossorigin src="./assets/bundle-DFgEJ4Iy.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-DN82EJKz.css">
+  <script type="module" crossorigin src="./assets/bundle-Dbt_O-t7.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/hooks.module-KqFXEyiW.js">
+  <link rel="stylesheet" crossorigin href="./assets/index-COB2KuRr.css">
 </head>
 <body>
     <div id="app"></div>

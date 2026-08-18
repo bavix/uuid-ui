@@ -1,5 +1,26 @@
 import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
 import { isTypingTarget } from './key-sequence.js';
+import { readBestScores, writeBestScore } from './records.js';
+import { RUNNER, startingHighScore } from './runner-score.js';
+
+/**
+ * The ship and its enemies keep the arcade's own colours; the stage they play
+ * on belongs to the app, so the glass, the stars and the lettering are read
+ * off the theme every time it changes.
+ */
+function readStage(root = document.documentElement) {
+    const style = getComputedStyle(root);
+    const held = name => style.getPropertyValue(name).trim();
+    const dark = root.classList.contains('dark');
+
+    return {
+        dark,
+        back: held('--void') || (dark ? '#111827' : '#f8fafc'),
+        ink: held('--ink') || (dark ? '#e5e7eb' : '#0f172a'),
+        muted: held('--ink-muted') || (dark ? '#9ca3af' : '#475569'),
+        accent: held('--accent') || (dark ? '#60a5fa' : '#2563eb'),
+    };
+}
 
 const PLAYER_SIZE = 20;
 const PLAYER_SPEED = 3.5;
@@ -124,14 +145,17 @@ export default function SpaceRunner({ onClose }) {
   // keeps the high score correct within the frame that sets it.
   const highScoreRef = useRef((() => {
     try {
-      const stored = parseInt(localStorage.getItem('spaceRunnerHighScore') || '0', 10);
-      return Number.isFinite(stored) && stored >= 0 ? stored : 0;
+      return startingHighScore(readBestScores(), localStorage.getItem('spaceRunnerHighScore'));
     } catch {
       return 0;
     }
   })());
   const livesRef = useRef(3);
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
+  const [stage, setStage] = useState(() => readStage());
+  const stageRef = useRef(stage);
+
+  stageRef.current = stage;
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const containerRef = useRef(null);
@@ -209,12 +233,15 @@ export default function SpaceRunner({ onClose }) {
   useEffect(() => {
     const checkTheme = () => {
       setIsDark(document.documentElement.classList.contains('dark'));
+      setStage(readStage());
     };
 
     const observer = new MutationObserver(checkTheme);
+    // The palette lives on an attribute of its own, and a written theme lands
+    // as inline values: both change the stage without touching the class.
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['class']
+      attributeFilter: ['class', 'data-theme', 'style']
     });
 
     return () => observer.disconnect();
@@ -472,9 +499,7 @@ export default function SpaceRunner({ onClose }) {
     // frame, and the state value would still be the pre-frame one.
     if (newScore > highScoreRef.current) {
       highScoreRef.current = newScore;
-      try {
-        localStorage.setItem('spaceRunnerHighScore', newScore.toString());
-      } catch {}
+      writeBestScore(RUNNER, newScore);
     }
 
     if (checkHyperspeed && newScore > 0 && newScore % 50 === 0 && prevScore % 50 !== 0) {
@@ -562,8 +587,12 @@ export default function SpaceRunner({ onClose }) {
   };
 
   const drawStar = (ctx, x, y, brightness, isDark) => {
-    ctx.fillStyle = isDark ? `rgba(229, 231, 235, ${brightness})` : `rgba(15, 23, 42, ${Math.max(0.5, brightness * 0.8 + 0.5)})`;
+    const light = isDark ? brightness : Math.max(0.5, brightness * 0.8 + 0.5);
+
+    ctx.globalAlpha = light;
+    ctx.fillStyle = stageRef.current.ink;
     drawPixel(ctx, x, y, 1);
+    ctx.globalAlpha = 1;
   };
 
   const drawBullet = (ctx, x, y, isDark, isBossBullet = false) => {
@@ -1264,9 +1293,7 @@ export default function SpaceRunner({ onClose }) {
   };
 
   const drawBackground = (ctx, width, height, isDark) => {
-    const bgColor = isDark ? '#111827' : '#f8fafc';
-
-    ctx.fillStyle = bgColor;
+    ctx.fillStyle = stageRef.current.back;
     ctx.fillRect(0, 0, width, height);
     
     ctx.save();
@@ -1827,7 +1854,7 @@ export default function SpaceRunner({ onClose }) {
   };
 
   const drawForeground = (ctx, width, height, isDark) => {
-    const textColor = isDark ? '#e5e7eb' : '#0f172a';
+    const textColor = stageRef.current.ink;
     const lineColor = isDark ? '#374151' : '#cbd5e1';
 
     const comboPulse = comboFlashRef.current > 0 ? 1 + Math.sin(Date.now() / 100) * 0.3 : 1;
@@ -2137,7 +2164,7 @@ export default function SpaceRunner({ onClose }) {
       <div className="absolute top-1 right-1 z-[10000] flex flex-col items-end gap-1">
         <button
           onClick={onClose}
-          className="w-6 h-6 flex items-center justify-center rounded-lg bg-gray-800/80 dark:bg-gray-700/80 hover:bg-gray-700 dark:hover:bg-gray-600 text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-gray-200 transition-all hover:scale-110 active:scale-95 shadow-lg backdrop-blur-sm"
+          className="w-6 h-6 flex items-center justify-center rounded-lg runner-chip transition-all hover:scale-110 active:scale-95 shadow-lg backdrop-blur-sm"
           aria-label="Close game"
           title="Close game"
         >
@@ -2147,7 +2174,7 @@ export default function SpaceRunner({ onClose }) {
         </button>
         <button
           onClick={toggleFullscreen}
-          className="w-6 h-6 flex items-center justify-center rounded-lg bg-gray-800/80 dark:bg-gray-700/80 hover:bg-gray-700 dark:hover:bg-gray-600 text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-gray-200 transition-all hover:scale-110 active:scale-95 shadow-lg backdrop-blur-sm"
+          className="w-6 h-6 flex items-center justify-center rounded-lg runner-chip transition-all hover:scale-110 active:scale-95 shadow-lg backdrop-blur-sm"
           aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
           title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
         >
@@ -2197,6 +2224,14 @@ export default function SpaceRunner({ onClose }) {
           }}
         />
       </div>
+      {!isFullscreen && (
+        <p className="runner-credit">
+          The pocket cut of Space Runner.{' '}
+          <a href="https://bavix.github.io/space-runner/" target="_blank" rel="noopener noreferrer">Full game</a>
+          {' · '}
+          <a href="https://github.com/bavix/space-runner" target="_blank" rel="noopener noreferrer">Source</a>
+        </p>
+      )}
     </div>
   );
 }
