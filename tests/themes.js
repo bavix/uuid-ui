@@ -336,3 +336,13 @@ test('what the box marks is readable in every theme', async (t) => {
         }
     }
 });
+
+test('the draw a first visit makes can reach every theme this build ships', async (t) => {
+    const html = readFileSync(new URL('../src/index.html', import.meta.url), 'utf8');
+    const { default: config } = await import('../vite.config.js');
+    const built = config.plugins.find(held => held?.name === 'theme-pool').transformIndexHtml(html);
+    const pool = built.match(/var pool = (\[[^\]]+\]);/);
+
+    assert.ok(pool, 'the pre-paint script no longer draws a theme');
+    assert.deepStrictEqual(JSON.parse(pool[1]), THEMES.map(theme => theme.id));
+});

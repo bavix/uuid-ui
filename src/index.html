@@ -20,6 +20,15 @@
                 // value is "theme:variant"; the words older builds wrote still
                 // mean the shipped theme.
                 var stored = localStorage.getItem('theme') || '';
+
+                // A first visit draws a theme. vite.config.js fills the list in.
+                if (stored === '' && localStorage.getItem('uuid.data') === null) {
+                    var pool = __THEME_POOL__;
+
+                    stored = pool[Math.floor(Math.random() * pool.length)] + ':system';
+                    localStorage.setItem('theme', stored);
+                }
+
                 var pair = stored.split(':');
                 var palette = pair.length === 2 ? pair[0] : 'default';
                 var mode = pair.length === 2 ? pair[1] : stored;
