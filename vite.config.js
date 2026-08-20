@@ -3,6 +3,7 @@ import { dirname, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { rmSync, readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync } from 'fs';
 import preact from '@preact/preset-vite';
+import { THEMES } from './src/themes/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -12,6 +13,12 @@ export default defineConfig({
   publicDir: '../public',
   plugins: [
     preact(),
+    {
+      name: 'theme-pool',
+      transformIndexHtml(html) {
+        return html.replace('__THEME_POOL__', JSON.stringify(THEMES.map(theme => theme.id)));
+      }
+    },
     {
       name: 'clean-assets',
       buildStart() {
