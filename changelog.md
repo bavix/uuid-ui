@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.9.0 - 2026-08-20
+
+### What's Changed
+
+* gist + themes by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/470
+* cyperpunk terminal by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/471
+* ci(deps): bump the actions group with 2 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/469
+* chore(npm-deps): bump baseline-browser-mapping from 2.11.13 to 2.11.14 in the npm group across 1 directory by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/468
+* theme pool by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/472
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.8.1...v1.9.0
+
 ## v1.8.1 - 2026-08-16
 
 ### What's Changed
