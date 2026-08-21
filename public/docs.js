@@ -1,33 +1,33 @@
-var Nt = Object.create, we = Object.defineProperty, Pt = Object.getOwnPropertyDescriptor, $t = Object.getOwnPropertyNames, Ot = Object.getPrototypeOf, Se = Object.prototype.hasOwnProperty, Ut = (u, e) => () => (e || (u((e = { exports: {} }).exports, e), u = null), e.exports), Lt = (u, e, t, n) => {
+var Pt = Object.create, we = Object.defineProperty, $t = Object.getOwnPropertyDescriptor, Ot = Object.getOwnPropertyNames, Ut = Object.getPrototypeOf, Se = Object.prototype.hasOwnProperty, Lt = (u, e) => () => (e || (u((e = { exports: {} }).exports, e), u = null), e.exports), Tt = (u, e, t, n) => {
   if (e && typeof e == "object" || typeof e == "function")
-    for (var r = $t(e), i = 0, o = r.length, a; i < o; i++)
+    for (var r = Ot(e), i = 0, o = r.length, a; i < o; i++)
       a = r[i], !Se.call(u, a) && a !== t && we(u, a, {
         get: ((l) => e[l]).bind(null, a),
-        enumerable: !(n = Pt(e, a)) || n.enumerable
+        enumerable: !(n = $t(e, a)) || n.enumerable
       });
   return u;
-}, Tt = (u, e, t) => (t = u != null ? Nt(Ot(u)) : {}, Lt(e || !u || !u.__esModule || !Se.call(u, "default") ? we(t, "default", {
+}, xt = (u, e, t) => (t = u != null ? Pt(Ut(u)) : {}, Tt(e || !u || !u.__esModule || !Se.call(u, "default") ? we(t, "default", {
   value: u,
   enumerable: !0
 }) : t, u));
 function Iu(u) {
   return u.length === 32 ? u.slice(0, 8) + "-" + u.slice(8, 12) + "-" + u.slice(12, 16) + "-" + u.slice(16, 20) + "-" + u.slice(20, 32) : u;
 }
-var xt = /[^a-z0-9]/g, jt = /^[0-9a-f]{32}$/, Mt = /.{1,2}/g, Rt = /^urn:uuid:/i;
+var jt = /[^a-z0-9]/g, Mt = /^[0-9a-f]{32}$/, Rt = /.{1,2}/g, qt = /^urn:uuid:/i;
 function be(u) {
   if (typeof u != "string") return null;
-  const e = u.replace(Rt, "").toLowerCase().replaceAll(xt, "");
-  return jt.test(e) ? e : null;
+  const e = u.replace(qt, "").toLowerCase().replaceAll(jt, "");
+  return Mt.test(e) ? e : null;
 }
-function qt(u) {
+function Vt(u) {
   return typeof u == "bigint" ? u >= 0n && u <= 255n : Number.isInteger(u) && u >= 0 && u <= 255;
 }
 function tu(u) {
   const e = be(u);
-  return e === null ? null : e.match(Mt).map((t) => parseInt(t, 16));
+  return e === null ? null : e.match(Rt).map((t) => parseInt(t, 16));
 }
 function eu(u) {
-  return !Array.isArray(u) || u.length !== 16 || !u.every(qt) ? null : Iu(u.map((e) => e.toString(16).padStart(2, "0")).join(""));
+  return !Array.isArray(u) || u.length !== 16 || !u.every(Vt) ? null : Iu(u.map((e) => e.toString(16).padStart(2, "0")).join(""));
 }
 function Xu(u) {
   return be(u);
@@ -40,17 +40,17 @@ function _e(u) {
   const e = atob(u).split("").map((t) => t.charCodeAt(0));
   return eu(e);
 }
-var Vt = /^[A-Za-z0-9+/_-]+={0,2}$/;
+var kt = /^[A-Za-z0-9+/_-]+={0,2}$/;
 function Ne(u) {
-  if (typeof u != "string" || !Vt.test(u) || /[+/]/.test(u) && /[-_]/.test(u)) return null;
+  if (typeof u != "string" || !kt.test(u) || /[+/]/.test(u) && /[-_]/.test(u)) return null;
   const e = u.replace(/-/g, "+").replace(/_/g, "/").replace(/=+$/, ""), t = e + "=".repeat((4 - e.length % 4) % 4);
-  return kt(t) !== null ? t : null;
+  return Ht(t) !== null ? t : null;
 }
 function Pe(u) {
   const e = Ne(u);
   return e === null ? null : _e(e);
 }
-function kt(u) {
+function Ht(u) {
   try {
     return _e(u);
   } catch {
@@ -61,7 +61,7 @@ function $e(u) {
   const e = tu(u);
   return e === null ? null : btoa(String.fromCharCode.apply(null, new Uint8Array(e)));
 }
-var Ht = /* @__PURE__ */ Ut(((u, e) => {
+var Jt = /* @__PURE__ */ Lt(((u, e) => {
   (function(t, n) {
     typeof u == "object" && typeof e < "u" ? e.exports = n() : typeof define == "function" && define.amd ? define(n) : t.JSON5 = n();
   })(u, (function() {
@@ -121,21 +121,21 @@ var Ht = /* @__PURE__ */ Ut(((u, e) => {
       return gu.f(D, c, $u(1, F));
     } : function(D, c, F) {
       return D[c] = F, D;
-    }, it = {}.hasOwnProperty, re = function(D, c) {
-      return it.call(D, c);
-    }, Dt = 0, ot = Math.random(), at = function(D) {
-      return "Symbol(".concat(D === void 0 ? "" : D, ")_", (++Dt + ot).toString(36));
-    }, ct = !1, Ou = t(function(D) {
+    }, Dt = {}.hasOwnProperty, re = function(D, c) {
+      return Dt.call(D, c);
+    }, ot = 0, at = Math.random(), ct = function(D) {
+      return "Symbol(".concat(D === void 0 ? "" : D, ")_", (++ot + at).toString(36));
+    }, st = !1, Ou = t(function(D) {
       var c = "__core-js_shared__", F = n[c] || (n[c] = {});
       (D.exports = function(C, E) {
         return F[C] || (F[C] = E !== void 0 ? E : {});
       })("versions", []).push({
         version: r.version,
-        mode: ct ? "pure" : "global",
+        mode: st ? "pure" : "global",
         copyright: "© 2019 Denis Pushkarev (zloirock.ru)"
       });
-    })("native-function-to-string", Function.toString), st = t(function(D) {
-      var c = at("src"), F = "toString", C = ("" + Ou).split(F);
+    })("native-function-to-string", Function.toString), lt = t(function(D) {
+      var c = ct("src"), F = "toString", C = ("" + Ou).split(F);
       r.inspectSource = function(E) {
         return Ou.call(E);
       }, (D.exports = function(E, h, m, k) {
@@ -144,11 +144,11 @@ var Ht = /* @__PURE__ */ Ut(((u, e) => {
       })(Function.prototype, F, function() {
         return typeof this == "function" && this[c] || Ou.call(this);
       });
-    }), lt = function(D) {
+    }), ft = function(D) {
       if (typeof D != "function") throw TypeError(D + " is not a function!");
       return D;
     }, ie = function(D, c, F) {
-      if (lt(D), c === void 0) return D;
+      if (ft(D), c === void 0) return D;
       switch (F) {
         case 1:
           return function(C) {
@@ -170,29 +170,29 @@ var Ht = /* @__PURE__ */ Ut(((u, e) => {
       var C = D & q.F, E = D & q.G, h = D & q.S, m = D & q.P, k = D & q.B, N = E ? n : h ? n[c] || (n[c] = {}) : (n[c] || {})[Uu], iu = E ? r : r[c] || (r[c] = {}), au = iu[Uu] || (iu[Uu] = {}), Y, z, H, cu;
       E && (F = c);
       for (Y in F)
-        z = !C && N && N[Y] !== void 0, H = (z ? N : F)[Y], cu = k && z ? ie(H, n) : m && typeof H == "function" ? ie(Function.call, H) : H, N && st(N, Y, H, D & q.U), iu[Y] != H && Cu(iu, Y, cu), m && au[Y] != H && (au[Y] = H);
+        z = !C && N && N[Y] !== void 0, H = (z ? N : F)[Y], cu = k && z ? ie(H, n) : m && typeof H == "function" ? ie(Function.call, H) : H, N && lt(N, Y, H, D & q.U), iu[Y] != H && Cu(iu, Y, cu), m && au[Y] != H && (au[Y] = H);
     };
     n.core = r, q.F = 1, q.G = 2, q.S = 4, q.P = 8, q.B = 16, q.W = 32, q.U = 64, q.R = 128;
-    var Fu = q, ft = Math.ceil, Ct = Math.floor, De = function(D) {
-      return isNaN(D = +D) ? 0 : (D > 0 ? Ct : ft)(D);
-    }, Ft = function(D) {
+    var Fu = q, Ct = Math.ceil, Ft = Math.floor, De = function(D) {
+      return isNaN(D = +D) ? 0 : (D > 0 ? Ft : Ct)(D);
+    }, At = function(D) {
       if (D == null) throw TypeError("Can't call method on  " + D);
       return D;
-    }, At = function(D) {
+    }, Et = function(D) {
       return function(c, F) {
-        var C = String(Ft(c)), E = De(F), h = C.length, m, k;
+        var C = String(At(c)), E = De(F), h = C.length, m, k;
         return E < 0 || E >= h ? D ? "" : void 0 : (m = C.charCodeAt(E), m < 55296 || m > 56319 || E + 1 === h || (k = C.charCodeAt(E + 1)) < 56320 || k > 57343 ? D ? C.charAt(E) : m : D ? C.slice(E, E + 2) : (m - 55296 << 10) + (k - 56320) + 65536);
       };
-    }, Et = At(!1);
+    }, dt = Et(!1);
     Fu(Fu.P, "String", { codePointAt: function(c) {
-      return Et(this, c);
+      return dt(this, c);
     } }), r.String.codePointAt;
-    var dt = Math.max, Bt = Math.min, gt = function(D, c) {
-      return D = De(D), D < 0 ? dt(D + c, 0) : Bt(D, c);
+    var Bt = Math.max, gt = Math.min, ht = function(D, c) {
+      return D = De(D), D < 0 ? Bt(D + c, 0) : gt(D, c);
     }, oe = String.fromCharCode, ae = String.fromCodePoint;
     Fu(Fu.S + Fu.F * (!!ae && ae.length != 1), "String", { fromCodePoint: function(c) {
       for (var F = arguments, C = [], E = arguments.length, h = 0, m; E > h; ) {
-        if (m = +F[h++], gt(m, 1114111) !== m) throw RangeError(m + " is not a valid code point");
+        if (m = +F[h++], ht(m, 1114111) !== m) throw RangeError(m + " is not a valid code point");
         C.push(m < 65536 ? oe(m) : oe(((m -= 65536) >> 10) + 55296, m % 1024 + 56320));
       }
       return C.join("");
@@ -217,10 +217,10 @@ var Ht = /* @__PURE__ */ Ut(((u, e) => {
       isHexDigit: function(c) {
         return typeof c == "string" && /[0-9A-Fa-f]/.test(c);
       }
-    }, Tu, V, W, hu, Q, J, P, xu, Au, ht = function(c, F) {
+    }, Tu, V, W, hu, Q, J, P, xu, Au, pt = function(c, F) {
       Tu = String(c), V = "start", W = [], hu = 0, Q = 1, J = 0, P = void 0, xu = void 0, Au = void 0;
       do
-        P = pt(), yt[V]();
+        P = mt(), wt[V]();
       while (P.type !== "eof");
       return typeof F == "function" ? ju({ "": Au }, "", F) : Au;
     };
@@ -247,7 +247,7 @@ var Ht = /* @__PURE__ */ Ut(((u, e) => {
       return F.call(D, c, C);
     }
     var g, d, Eu, X, p;
-    function pt() {
+    function mt() {
       for (g = "default", d = "", Eu = !1, X = 1; ; ) {
         p = K();
         var D = ce[g]();
@@ -562,7 +562,7 @@ var Ht = /* @__PURE__ */ Ut(((u, e) => {
       string: function() {
         switch (p) {
           case "\\":
-            s(), d += mt();
+            s(), d += vt();
             return;
           case '"':
             if (Eu)
@@ -580,7 +580,7 @@ var Ht = /* @__PURE__ */ Ut(((u, e) => {
             throw S(s());
           case "\u2028":
           case "\u2029":
-            wt(p);
+            St(p);
             break;
           case void 0:
             throw S(s());
@@ -663,7 +663,7 @@ var Ht = /* @__PURE__ */ Ut(((u, e) => {
         s();
       }
     }
-    function mt() {
+    function vt() {
       switch (K()) {
         case "b":
           return s(), "\b";
@@ -682,7 +682,7 @@ var Ht = /* @__PURE__ */ Ut(((u, e) => {
           if (s(), I.isDigit(K())) throw S(s());
           return "\0";
         case "x":
-          return s(), vt();
+          return s(), yt();
         case "u":
           return s(), Mu();
         case `
@@ -708,7 +708,7 @@ var Ht = /* @__PURE__ */ Ut(((u, e) => {
       }
       return s();
     }
-    function vt() {
+    function yt() {
       var D = "", c = K();
       if (!I.isHexDigit(c) || (D += s(), c = K(), !I.isHexDigit(c))) throw S(s());
       return D += s(), String.fromCodePoint(parseInt(D, 16));
@@ -721,7 +721,7 @@ var Ht = /* @__PURE__ */ Ut(((u, e) => {
       }
       return String.fromCodePoint(parseInt(D, 16));
     }
-    var yt = {
+    var wt = {
       start: function() {
         if (P.type === "eof") throw ru();
         Ru();
@@ -827,7 +827,7 @@ var Ht = /* @__PURE__ */ Ut(((u, e) => {
     function se() {
       return J -= 5, mu("JSON5: invalid identifier character at " + Q + ":" + J);
     }
-    function wt(D) {
+    function St(D) {
       console.warn("JSON5: '" + le(D) + "' in strings is not valid ECMAScript; consider escaping");
     }
     function le(D) {
@@ -857,7 +857,7 @@ var Ht = /* @__PURE__ */ Ut(((u, e) => {
       return c.lineNumber = Q, c.columnNumber = J, c;
     }
     return {
-      parse: ht,
+      parse: pt,
       stringify: function(c, F, C) {
         var E = [], h = "", m, k, N = "", iu;
         if (F != null && typeof F == "object" && !Array.isArray(F) && (C = F.space, iu = F.quote, F = F.replacer), typeof F == "function") k = F;
@@ -881,7 +881,7 @@ var Ht = /* @__PURE__ */ Ut(((u, e) => {
           }
           if (typeof B == "string") return vu(B, !1);
           if (typeof B == "number") return String(B);
-          if (typeof B == "object") return Array.isArray(B) ? It(B) : St(B);
+          if (typeof B == "object") return Array.isArray(B) ? _t(B) : bt(B);
         }
         function vu(y) {
           for (var U = {
@@ -929,7 +929,7 @@ var Ht = /* @__PURE__ */ Ut(((u, e) => {
           });
           return $ = $.replace(new RegExp(Z, "g"), B[Z]), Z + $ + Z;
         }
-        function St(y) {
+        function bt(y) {
           if (E.indexOf(y) >= 0) throw TypeError("Converting circular structure to JSON5");
           E.push(y);
           var U = h;
@@ -937,7 +937,7 @@ var Ht = /* @__PURE__ */ Ut(((u, e) => {
           for (var B = m || Object.keys(y), $ = [], G = 0, L = B; G < L.length; G += 1) {
             var Du = L[G], Z = cu(Du, y);
             if (Z !== void 0) {
-              var su = bt(Du) + ":";
+              var su = It(Du) + ":";
               N !== "" && (su += " "), su += Z, $.push(su);
             }
           }
@@ -948,23 +948,23 @@ var Ht = /* @__PURE__ */ Ut(((u, e) => {
             if (N === "")
               yu = $.join(","), ou = "{" + yu + "}";
             else {
-              var _t = `,
+              var Nt = `,
 ` + h;
-              yu = $.join(_t), ou = `{
+              yu = $.join(Nt), ou = `{
 ` + h + yu + `,
 ` + U + "}";
             }
           }
           return E.pop(), h = U, ou;
         }
-        function bt(y) {
+        function It(y) {
           if (y.length === 0) return vu(y, !0);
           var U = String.fromCodePoint(y.codePointAt(0));
           if (!I.isIdStartChar(U)) return vu(y, !0);
           for (var B = U.length; B < y.length; B++) if (!I.isIdContinueChar(String.fromCodePoint(y.codePointAt(B)))) return vu(y, !0);
           return y;
         }
-        function It(y) {
+        function _t(y) {
           if (E.indexOf(y) >= 0) throw TypeError("Converting circular structure to JSON5");
           E.push(y);
           var U = h;
@@ -988,11 +988,11 @@ var Ht = /* @__PURE__ */ Ut(((u, e) => {
       }
     };
   }));
-})), fe = /* @__PURE__ */ Tt(Ht(), 1), qu = /^-?\d+$/, Jt = /^[0-9a-f]{2}(?:[\s,]+[0-9a-f]{2}){15}$/i;
+})), fe = /* @__PURE__ */ xt(Jt(), 1), qu = /^-?\d+$/, Yt = /^[0-9a-f]{2}(?:[\s,]+[0-9a-f]{2}){15}$/i;
 function lu(u) {
   if (typeof u != "string") throw new TypeError("objectParse expects a string");
   const e = /^(-?\d+)[;:,](-?\d+)$/, t = /^\s*(-?\d+)\s*[;:,]\s*(-?\d+)\s*[;:,]\s*(-?\d+)\s*[;:,]\s*(-?\d+)\s*$/, n = /(^|[[{,:]\s*)["']?(-?\d+)["']?(?=\s*([,}\]]|$))/g;
-  if (Jt.test(u.trim())) return u.trim().split(/[\s,]+/).map((l) => parseInt(l, 16));
+  if (Yt.test(u.trim())) return u.trim().split(/[\s,]+/).map((l) => parseInt(l, 16));
   if (u[0] === "[") return fe.default.parse(u.replace(n, "$1$2"));
   const r = u.match(t);
   if (r) return {
@@ -1042,10 +1042,10 @@ var Su = [
   "w3",
   "w4"
 ], Oe = 4294967296;
-function Yt(u) {
+function Gt(u) {
   return u >= 2147483648 ? u - Oe : u;
 }
-function Gt(u) {
+function zt(u) {
   return u < 0 ? u + Oe : u;
 }
 function Ue(u, e = !1) {
@@ -1054,29 +1054,29 @@ function Ue(u, e = !1) {
   const n = {};
   return Su.forEach((r, i) => {
     const o = i * 4, a = t[o] * 16777216 + (t[o + 1] << 16) + (t[o + 2] << 8) + t[o + 3] >>> 0;
-    n[r] = e ? Yt(a) : a;
+    n[r] = e ? Gt(a) : a;
   }), n;
 }
-function zt(u) {
+function Wt(u) {
   if (u === null || typeof u != "object") return null;
   const e = [];
   for (const t of Su) {
     const n = Number(u[t]);
     if (!Number.isInteger(n) || n < -2147483648 || n > 4294967295) return null;
-    const r = Gt(n);
+    const r = zt(n);
     e.push(Math.floor(r / 16777216) & 255, r >>> 16 & 255, r >>> 8 & 255, r & 255);
   }
   return eu(e);
 }
-function Wt(u) {
+function Xt(u) {
   if (u === null || typeof u != "object" || Array.isArray(u)) return !1;
   const e = Object.keys(u);
   return e.length === Su.length && Su.every((t) => e.includes(t));
 }
-function Xt(u) {
+function Kt(u) {
   if (!_u(u)) return null;
   try {
-    return Qt(Kt(u));
+    return un(Zt(u));
   } catch (e) {
     console.error(e);
   }
@@ -1086,7 +1086,7 @@ function Ku(u) {
   const e = tu(u);
   if (e === null) return null;
   try {
-    return Zt(e);
+    return Qt(e);
   } catch (t) {
     console.error(t);
   }
@@ -1096,7 +1096,7 @@ function _u(u) {
   return typeof u == "string" && /^[0-7][0-9A-HJKMNP-TV-Z]{25}$/i.test(u.toUpperCase());
 }
 var Le = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
-function Kt(u) {
+function Zt(u) {
   let e = 0, t = 0;
   const n = [];
   for (let r = u.length - 1; r >= 0; r--) {
@@ -1107,7 +1107,7 @@ function Kt(u) {
   }
   return (t !== 0 || e >= 5) && n.unshift(t & 255), new Uint8Array(n);
 }
-function Zt(u) {
+function Qt(u) {
   const e = [...u].reverse();
   let t = 0, n = 0;
   const r = [];
@@ -1116,11 +1116,11 @@ function Zt(u) {
       r.unshift(n & 31), n >>>= 5, t -= 5;
   return t > 0 && t < 5 && r.unshift(n & 31), r.map((i) => Le[i]).join("");
 }
-function Qt(u) {
+function un(u) {
   const e = Array.from(u).map((t) => t.toString(16).padStart(2, "0")).join("");
   return `${e.slice(0, 8)}-${e.slice(8, 12)}-${e.slice(12, 16)}-${e.slice(16, 20)}-${e.slice(20)}`;
 }
-var un = [
+var en = [
   '"',
   "'",
   "`"
@@ -1128,10 +1128,10 @@ var un = [
 function Zu(u) {
   if (typeof u != "string") return u;
   let e = u.trim().replace(/,+$/, "").trim();
-  for (; e.length > 1 && un.includes(e[0]) && e[e.length - 1] === e[0]; ) e = e.slice(1, -1).trim();
+  for (; e.length > 1 && en.includes(e[0]) && e[e.length - 1] === e[0]; ) e = e.slice(1, -1).trim();
   return e;
 }
-var pr = 2 ** 1, mr = 2 ** 2, vr = 2 ** 3, yr = 2 ** 4, wr = 2 ** 6, en = 36, tn = /^[0-9a-f]{2}(?:[\s,]+[0-9a-f]{2}){15}$/i;
+var mr = 2 ** 1, vr = 2 ** 2, yr = 2 ** 3, wr = 2 ** 4, Sr = 2 ** 6, tn = 36, nn = /^[0-9a-f]{2}(?:[\s,]+[0-9a-f]{2}){15}$/i;
 function Te() {
   const u = [];
   return u[1] = "uuid", u[4] = "base64", u[2] = "high-low", u[8] = "bytes", u[16] = "ulid", u[64] = "words", u;
@@ -1140,15 +1140,15 @@ function Qu(u) {
   if (typeof u != "string") return 1;
   const e = Zu(u);
   if (_u(e.trim())) return 16;
-  if (tn.test(e.trim())) return 8;
+  if (nn.test(e.trim())) return 8;
   try {
     const t = lu(e);
-    return Array.isArray(t) ? 8 : Wt(t) ? 64 : 2;
+    return Array.isArray(t) ? 8 : Xt(t) ? 64 : 2;
   } catch {
   }
   try {
     const t = Pe(e);
-    if (t !== null && t.length === en) return 4;
+    if (t !== null && t.length === tn) return 4;
   } catch {
   }
   return 1;
@@ -1173,7 +1173,7 @@ function je(u) {
     low: BigInt.asIntN(64, n) + ""
   };
 }
-function nn(u, e) {
+function rn(u, e) {
   const t = bu(u), n = bu(e);
   return t === null || n === null ? null : eu([
     t & BigInt(255),
@@ -1203,7 +1203,7 @@ function Me(u) {
     low: BigInt.asUintN(64, n) + ""
   };
 }
-function rn(u, e) {
+function Dn(u, e) {
   const t = bu(u), n = bu(e);
   return t === null || n === null ? null : eu([
     t >> BigInt(56) & BigInt(255),
@@ -1225,13 +1225,13 @@ function rn(u, e) {
   ]);
 }
 var ue = "plain";
-var Dn = "braces";
+var on = "braces";
 function Re(u, e = ue, t = !1) {
   if (typeof u != "string" || u === "") return u;
   const n = t ? u.toUpperCase() : u.toLowerCase();
   return e === "hex" ? n.replace(/-/g, "") : e === "braces" ? `{${n}}` : e === "urn" ? `urn:uuid:${n}` : n;
 }
-function on(u, { resultType: e, intType: t, uuidStyle: n = ue, uuidUpper: r = !1 } = {}) {
+function an(u, { resultType: e, intType: t, uuidStyle: n = ue, uuidUpper: r = !1 } = {}) {
   switch (e) {
     case 8:
       return Ie(u);
@@ -1264,14 +1264,14 @@ function qe(u, e) {
         }
       case 2: {
         const n = lu(t);
-        return (e === 2 ? rn : nn)(n.high, n.low);
+        return (e === 2 ? Dn : rn)(n.high, n.low);
       }
       case 64:
-        return zt(lu(t));
+        return Wt(lu(t));
       case 4:
         return Pe(t);
       case 16:
-        return Xt(t);
+        return Kt(t);
       default: {
         const n = tu(t);
         return n === null ? null : eu(n);
@@ -1292,7 +1292,7 @@ var Ve = {
       label: "hex"
     },
     {
-      id: Dn,
+      id: on,
       label: "braces"
     },
     {
@@ -1342,8 +1342,8 @@ var Ve = {
     id: "quad",
     label: "w1;w2;w3;w4"
   }]
-}, an = [...new Set(Object.values(Ve).flat().map((u) => u.id))];
-function cn(u) {
+}, cn = [...new Set(Object.values(Ve).flat().map((u) => u.id))];
+function sn(u) {
   try {
     const e = JSON.parse(u);
     return Array.isArray(e) ? e : null;
@@ -1351,12 +1351,12 @@ function cn(u) {
     return null;
   }
 }
-function sn(u, e) {
+function ln(u, e) {
   const t = new RegExp(`"?${e}"?\\s*:\\s*"?(-?\\d+)"?`).exec(u);
   return t === null ? null : t[1];
 }
 function Ce(u, e) {
-  const t = e.map((n) => sn(u, n));
+  const t = e.map((n) => ln(u, n));
   return t.every((n) => n !== null) ? t : null;
 }
 function Ju(u, e, t, n = !1) {
@@ -1365,7 +1365,7 @@ function Ju(u, e, t, n = !1) {
   if (u === 4) return t === "url" ? e.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "") : e;
   if (u === 16) return t === "lower" ? e.toLowerCase() : e.toUpperCase();
   if (u === 8) {
-    const r = cn(e);
+    const r = sn(e);
     if (r === null) return e;
     if (t === "hex") {
       const i = r.map((o) => o.toString(16).padStart(2, "0"));
@@ -1400,10 +1400,10 @@ var Yu = {
   ulid: 16,
   hex: 32,
   words: 64
-}, Sr = Object.fromEntries(Object.entries(Yu).map(([u, e]) => [e, u])), Gu = {
+}, br = Object.fromEntries(Object.entries(Yu).map(([u, e]) => [e, u])), Gu = {
   signed: 1,
   unsigned: 2
-}, br = Object.fromEntries(Object.entries(Gu).map(([u, e]) => [e, u]));
+}, Ir = Object.fromEntries(Object.entries(Gu).map(([u, e]) => [e, u]));
 function Fe(u, e) {
   if (typeof u != "string") return null;
   const t = (new URLSearchParams(u.replace(/^#/, "")).get(e) || "").toLowerCase();
@@ -1412,25 +1412,25 @@ function Fe(u, e) {
 function Ae(u) {
   return Fe(u, "in") ?? Fe(u, "int");
 }
-function ln(u) {
+function fn(u) {
   if (typeof u != "string") return null;
   const e = (new URLSearchParams(u.replace(/^#/, "")).get("style") || "").toLowerCase();
-  return an.includes(e) ? e : null;
+  return cn.includes(e) ? e : null;
 }
-function fn(u) {
+function Cn(u) {
   if (typeof u != "string") return null;
   const e = (new URLSearchParams(u.replace(/^#/, "")).get("to") || "").toLowerCase();
   return Object.prototype.hasOwnProperty.call(Yu, e) ? Yu[e] : null;
 }
-var Cn = "0123456789ABCDEFGHJKMNPQRSTVWXYZ", Fn = /^[0-9a-f]{32}$/, Ee = 12219292800000n, de = 10000n, An = 864e13;
+var Fn = "0123456789ABCDEFGHJKMNPQRSTVWXYZ", An = /^[0-9a-f]{32}$/, Ee = 12219292800000n, de = 10000n, En = 864e13;
 function wu(u) {
-  return !Number.isFinite(u) || u < 0 || u > An ? null : new Date(u).toISOString();
+  return !Number.isFinite(u) || u < 0 || u > En ? null : new Date(u).toISOString();
 }
 function ke(u) {
   if (typeof u != "string" || u.length < 10) return null;
   let e = 0;
   for (const t of u.slice(0, 10).toUpperCase()) {
-    const n = Cn.indexOf(t);
+    const n = Fn.indexOf(t);
     if (n === -1) return null;
     e = e * 32 + n;
   }
@@ -1438,7 +1438,7 @@ function ke(u) {
 }
 function He(u) {
   const e = String(u).trim().toLowerCase().replace(/^urn:uuid:/, "").replace(/^\{|\}$/g, "").replace(/-/g, "");
-  if (!Fn.test(e)) return null;
+  if (!An.test(e)) return null;
   switch (parseInt(e[12], 16)) {
     case 1: {
       const t = BigInt("0x" + e.slice(0, 8)), n = BigInt("0x" + e.slice(8, 12)), r = BigInt("0x" + e.slice(13, 16)) << 48n | n << 32n | t;
@@ -1454,12 +1454,12 @@ function He(u) {
       return null;
   }
 }
-var Je = "ffffffff-ffff-ffff-ffff-ffffffffffff", Ye = "00000000-0000-0000-0000-000000000000", En = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/i;
-function dn(u) {
-  return typeof u == "string" && En.test(u);
+var Je = "ffffffff-ffff-ffff-ffff-ffffffffffff", Ye = "00000000-0000-0000-0000-000000000000", dn = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/i;
+function Bn(u) {
+  return typeof u == "string" && dn.test(u);
 }
 function zu(u) {
-  if (!dn(u)) throw TypeError("Invalid UUID");
+  if (!Bn(u)) throw TypeError("Invalid UUID");
   let e;
   return Uint8Array.of((e = parseInt(u.slice(0, 8), 16)) >>> 24, e >>> 16 & 255, e >>> 8 & 255, e & 255, (e = parseInt(u.slice(9, 13), 16)) >>> 8, e & 255, (e = parseInt(u.slice(14, 18), 16)) >>> 8, e & 255, (e = parseInt(u.slice(19, 23), 16)) >>> 8, e & 255, (e = parseInt(u.slice(24, 36), 16)) / 1099511627776 & 255, e / 4294967296 & 255, e >>> 24 & 255, e >>> 16 & 255, e >>> 8 & 255, e & 255);
 }
@@ -1468,9 +1468,9 @@ for (let u = 0; u < 256; ++u) O.push((u + 256).toString(16).slice(1));
 function fu(u, e = 0) {
   return (O[u[e + 0]] + O[u[e + 1]] + O[u[e + 2]] + O[u[e + 3]] + "-" + O[u[e + 4]] + O[u[e + 5]] + "-" + O[u[e + 6]] + O[u[e + 7]] + "-" + O[u[e + 8]] + O[u[e + 9]] + "-" + O[u[e + 10]] + O[u[e + 11]] + O[u[e + 12]] + O[u[e + 13]] + O[u[e + 14]] + O[u[e + 15]]).toLowerCase();
 }
-var Bn = /* @__PURE__ */ new Uint8Array(16);
+var gn = /* @__PURE__ */ new Uint8Array(16);
 function Bu() {
-  return crypto.getRandomValues(Bn);
+  return crypto.getRandomValues(gn);
 }
 var du = {};
 function Ge(u, e, t) {
@@ -1483,11 +1483,11 @@ function Ge(u, e, t) {
   if (u) n = Be(u.random ?? u.rng?.() ?? Bu(), u.msecs, u.nsecs, u.clockseq, u.node, e, t);
   else {
     const i = Date.now(), o = Bu();
-    gn(du, i, o), n = Be(o, du.msecs, du.nsecs, r ? void 0 : du.clockseq, r ? void 0 : du.node, e, t);
+    hn(du, i, o), n = Be(o, du.msecs, du.nsecs, r ? void 0 : du.clockseq, r ? void 0 : du.node, e, t);
   }
   return e ?? fu(n);
 }
-function gn(u, e, t) {
+function hn(u, e, t) {
   return u.msecs ??= -1 / 0, u.nsecs ??= 0, e === u.msecs ? (u.nsecs++, u.nsecs >= 1e4 && (u.node = void 0, u.nsecs = 0)) : e > u.msecs ? u.nsecs = 0 : e < u.msecs && (u.node = void 0), u.node || (u.node = t.slice(10, 16), u.node[0] |= 1, u.clockseq = (t[8] << 8 | t[9]) & 16383), u.msecs = e, u;
 }
 function Be(u, e, t, n, r, i, o = 0) {
@@ -1495,25 +1495,25 @@ function Be(u, e, t, n, r, i, o = 0) {
   if (!i)
     i = /* @__PURE__ */ new Uint8Array(16), o = 0;
   else if (o < 0 || o + 16 > i.length) throw new RangeError(`UUID byte range ${o}:${o + 15} is out of buffer bounds`);
-  e ??= Date.now(), t ??= 0, n ??= (u[8] << 8 | u[9]) & 16383, r ??= u.slice(10, 16), e += 122192928e5;
-  const a = ((e & 268435455) * 1e4 + t) % 4294967296;
-  i[o++] = a >>> 24 & 255, i[o++] = a >>> 16 & 255, i[o++] = a >>> 8 & 255, i[o++] = a & 255;
-  const l = e / 4294967296 * 1e4 & 268435455;
-  i[o++] = l >>> 8 & 255, i[o++] = l & 255, i[o++] = l >>> 24 & 15 | 16, i[o++] = l >>> 16 & 255, i[o++] = n >>> 8 | 128, i[o++] = n & 255;
-  for (let f = 0; f < 6; ++f) i[o++] = r[f];
+  e ??= Date.now(), t ??= 0, n ??= (u[8] << 8 | u[9]) & 16383, r == null && (r = u.slice(10, 16), r[0] |= 1), e += 122192928e5;
+  const a = (e & 268435455) * 1e4 + t, l = a >>> 0;
+  i[o++] = l >>> 24 & 255, i[o++] = l >>> 16 & 255, i[o++] = l >>> 8 & 255, i[o++] = l & 255;
+  const f = (e / 268435456 | 0) * 625 + (a / 4294967296 | 0) & 268435455;
+  i[o++] = f >>> 8 & 255, i[o++] = f & 255, i[o++] = f >>> 24 & 15 | 16, i[o++] = f >>> 16 & 255, i[o++] = n >>> 8 | 128, i[o++] = n & 255;
+  for (let A = 0; A < 6; ++A) i[o++] = r[A];
   return i;
 }
-function hn(u) {
-  const e = pn(typeof u == "string" ? zu(u) : u);
+function pn(u) {
+  const e = mn(typeof u == "string" ? zu(u) : u);
   return typeof u == "string" ? fu(e) : e;
 }
-function pn(u) {
+function mn(u) {
   return Uint8Array.of((u[6] & 15) << 4 | u[7] >> 4 & 15, (u[7] & 15) << 4 | (u[4] & 240) >> 4, (u[4] & 15) << 4 | (u[5] & 240) >> 4, (u[5] & 15) << 4 | (u[0] & 240) >> 4, (u[0] & 15) << 4 | (u[1] & 240) >> 4, (u[1] & 15) << 4 | (u[2] & 240) >> 4, 96 | u[2] & 15, u[3], u[8], u[9], u[10], u[11], u[12], u[13], u[14], u[15]);
 }
-function mn(u) {
-  return vn(yn(wn(u), u.length * 8));
-}
 function vn(u) {
+  return yn(wn(Sn(u), u.length * 8));
+}
+function yn(u) {
   const e = new Uint8Array(u.length * 4);
   for (let t = 0; t < u.length * 4; t++) e[t] = u[t >> 2] >>> t % 4 * 8 & 255;
   return e;
@@ -1521,7 +1521,7 @@ function vn(u) {
 function ze(u) {
   return (u + 64 >>> 9 << 4) + 14 + 1;
 }
-function yn(u, e) {
+function wn(u, e) {
   const t = new Uint32Array(ze(e)).fill(0);
   t.set(u), t[e >> 5] |= 128 << e % 32, t[t.length - 1] = e, u = t;
   let n = 1732584193, r = -271733879, i = -1732584194, o = 271733878;
@@ -1531,7 +1531,7 @@ function yn(u, e) {
   }
   return Uint32Array.of(n, r, i, o);
 }
-function wn(u) {
+function Sn(u) {
   if (u.length === 0) return /* @__PURE__ */ new Uint32Array();
   const e = new Uint32Array(ze(u.length * 8)).fill(0);
   for (let t = 0; t < u.length; t++) e[t >> 2] |= (u[t] & 255) << t % 4 * 8;
@@ -1541,11 +1541,11 @@ function uu(u, e) {
   const t = (u & 65535) + (e & 65535);
   return (u >> 16) + (e >> 16) + (t >> 16) << 16 | t & 65535;
 }
-function Sn(u, e) {
+function bn(u, e) {
   return u << e | u >>> 32 - e;
 }
 function Nu(u, e, t, n, r, i) {
-  return uu(Sn(uu(uu(e, u), uu(n, i)), r), t);
+  return uu(bn(uu(uu(e, u), uu(n, i)), r), t);
 }
 function T(u, e, t, n, r, i, o) {
   return Nu(e & t | ~e & n, u, e, r, i, o);
@@ -1559,7 +1559,7 @@ function j(u, e, t, n, r, i, o) {
 function M(u, e, t, n, r, i, o) {
   return Nu(t ^ (e | ~n), u, e, r, i, o);
 }
-function bn(u) {
+function In(u) {
   u = unescape(encodeURIComponent(u));
   const e = new Uint8Array(u.length);
   for (let t = 0; t < u.length; ++t) e[t] = u.charCodeAt(t);
@@ -1567,7 +1567,7 @@ function bn(u) {
 }
 var We = "6ba7b810-9dad-11d1-80b4-00c04fd430c8", Xe = "6ba7b811-9dad-11d1-80b4-00c04fd430c8";
 function Ke(u, e, t, n, r, i) {
-  const o = typeof t == "string" ? bn(t) : t, a = typeof n == "string" ? zu(n) : n;
+  const o = typeof t == "string" ? In(t) : t, a = typeof n == "string" ? zu(n) : n;
   if (typeof n == "string" && (n = zu(n)), n?.length !== 16) throw TypeError("Namespace must be array-like (16 iterable integer values, 0-255)");
   let l = new Uint8Array(16 + o.length);
   if (l.set(a), l.set(o, a.length), l = e(l), l[6] = l[6] & 15 | u, l[8] = l[8] & 63 | 128, r) {
@@ -1578,14 +1578,14 @@ function Ke(u, e, t, n, r, i) {
   return fu(l);
 }
 function ee(u, e, t, n) {
-  return Ke(48, mn, u, e, t, n);
+  return Ke(48, vn, u, e, t, n);
 }
 ee.DNS = We;
 ee.URL = Xe;
-function In(u, e, t) {
-  return !e && !u && crypto.randomUUID ? crypto.randomUUID() : _n(u, e, t);
-}
 function _n(u, e, t) {
+  return !e && !u && crypto.randomUUID ? crypto.randomUUID() : Nn(u, e, t);
+}
+function Nn(u, e, t) {
   u = u || {};
   const n = u.random ?? u.rng?.() ?? Bu();
   if (n.length < 16) throw new Error("Random bytes length must be >= 16");
@@ -1596,7 +1596,7 @@ function _n(u, e, t) {
   }
   return fu(n);
 }
-function Nn(u, e, t, n) {
+function Pn(u, e, t, n) {
   switch (u) {
     case 0:
       return e & t ^ ~e & n;
@@ -1611,7 +1611,7 @@ function Nn(u, e, t, n) {
 function Vu(u, e) {
   return u << e | u >>> 32 - e;
 }
-function Pn(u) {
+function $n(u) {
   const e = [
     1518500249,
     1859775393,
@@ -1638,7 +1638,7 @@ function Pn(u) {
     for (let _ = 16; _ < 80; ++_) l[_] = Vu(l[_ - 3] ^ l[_ - 8] ^ l[_ - 14] ^ l[_ - 16], 1);
     let f = t[0], A = t[1], v = t[2], b = t[3], R = t[4];
     for (let _ = 0; _ < 80; ++_) {
-      const gu = Math.floor(_ / 20), $u = Vu(f, 5) + Nn(gu, A, v, b) + R + e[gu] + l[_] >>> 0;
+      const gu = Math.floor(_ / 20), $u = Vu(f, 5) + Pn(gu, A, v, b) + R + e[gu] + l[_] >>> 0;
       R = b, b = v, v = Vu(A, 30) >>> 0, A = f, f = $u;
     }
     t[0] = t[0] + f >>> 0, t[1] = t[1] + A >>> 0, t[2] = t[2] + v >>> 0, t[3] = t[3] + b >>> 0, t[4] = t[4] + R >>> 0;
@@ -1646,17 +1646,17 @@ function Pn(u) {
   return Uint8Array.of(t[0] >> 24, t[0] >> 16, t[0] >> 8, t[0], t[1] >> 24, t[1] >> 16, t[1] >> 8, t[1], t[2] >> 24, t[2] >> 16, t[2] >> 8, t[2], t[3] >> 24, t[3] >> 16, t[3] >> 8, t[3], t[4] >> 24, t[4] >> 16, t[4] >> 8, t[4]);
 }
 function te(u, e, t, n) {
-  return Ke(80, Pn, u, e, t, n);
+  return Ke(80, $n, u, e, t, n);
 }
 te.DNS = We;
 te.URL = Xe;
-function $n(u, e, t) {
+function On(u, e, t) {
   u ??= {}, t ??= 0;
   let n = Ge({
     ...u,
     _v6: !0
   }, /* @__PURE__ */ new Uint8Array(16));
-  if (n = hn(n), e) {
+  if (n = pn(n), e) {
     if (t < 0 || t + 16 > e.length) throw new RangeError(`UUID byte range ${t}:${t + 15} is out of buffer bounds`);
     for (let r = 0; r < 16; r++) e[t + r] = n[r];
     return e;
@@ -1669,25 +1669,28 @@ function ge(u, e, t) {
   if (u) n = he(u.random ?? u.rng?.() ?? Bu(), u.msecs, u.seq, e, t);
   else {
     const r = Date.now(), i = Bu();
-    On(ku, r, i), n = he(i, ku.msecs, ku.seq, e, t);
+    Un(ku, r, i), n = he(i, ku.msecs, ku.seq, e, t);
   }
   return e ?? fu(n);
 }
-function On(u, e, t) {
-  return u.msecs ??= -1 / 0, u.seq ??= 0, e > u.msecs ? (u.seq = t[6] << 23 | t[7] << 16 | t[8] << 8 | t[9], u.msecs = e) : (u.seq = u.seq + 1 | 0, u.seq === 0 && u.msecs++), u;
+function Un(u, e, t) {
+  return u.msecs ??= -1 / 0, u.seq ??= 0, e > u.msecs ? (u.seq = Ze(t), u.msecs = e) : (u.seq = u.seq + 1 | 0, u.seq === 0 && u.msecs++), u;
 }
 function he(u, e, t, n, r = 0) {
   if (u.length < 16) throw new Error("Random bytes length must be >= 16");
   if (!n)
     n = /* @__PURE__ */ new Uint8Array(16), r = 0;
   else if (r < 0 || r + 16 > n.length) throw new RangeError(`UUID byte range ${r}:${r + 15} is out of buffer bounds`);
-  return e ??= Date.now(), t ??= u[6] * 127 << 24 | u[7] << 16 | u[8] << 8 | u[9], n[r++] = e / 1099511627776 & 255, n[r++] = e / 4294967296 & 255, n[r++] = e / 16777216 & 255, n[r++] = e / 65536 & 255, n[r++] = e / 256 & 255, n[r++] = e & 255, n[r++] = 112 | t >>> 28 & 15, n[r++] = t >>> 20 & 255, n[r++] = 128 | t >>> 14 & 63, n[r++] = t >>> 6 & 255, n[r++] = t << 2 & 255 | u[10] & 3, n[r++] = u[11], n[r++] = u[12], n[r++] = u[13], n[r++] = u[14], n[r++] = u[15], n;
+  return e ??= Date.now(), t ??= Ze(u), n[r++] = e / 1099511627776 & 255, n[r++] = e / 4294967296 & 255, n[r++] = e / 16777216 & 255, n[r++] = e / 65536 & 255, n[r++] = e / 256 & 255, n[r++] = e & 255, n[r++] = 112 | t >>> 28 & 15, n[r++] = t >>> 20 & 255, n[r++] = 128 | t >>> 14 & 63, n[r++] = t >>> 6 & 255, n[r++] = t << 2 & 255 | u[10] & 3, n[r++] = u[11], n[r++] = u[12], n[r++] = u[13], n[r++] = u[14], n[r++] = u[15], n;
 }
-var Un = /"(-?\d+)"/g;
+function Ze(u) {
+  return (u[6] & 127) << 24 | u[7] << 16 | u[8] << 8 | u[9];
+}
+var Ln = /"(-?\d+)"/g;
 function Wu(u) {
-  return u === null ? null : JSON.stringify(u).replace(Un, "$1");
+  return u === null ? null : JSON.stringify(u).replace(Ln, "$1");
 }
-function Ln(u) {
+function Tn(u) {
   return {
     1: u,
     4: $e(u),
@@ -1697,65 +1700,65 @@ function Ln(u) {
     64: Wu(Ue(u, !0))
   };
 }
-function Ze(u) {
+function Qe(u) {
   if (typeof u != "string" || u === "") return [];
-  const e = Ln(u), t = [Xu(u), Wu(Me(u))];
+  const e = Tn(u), t = [Xu(u), Wu(Me(u))];
   for (const [n, r] of Object.entries(e))
     if (r)
       for (const i of Ve[n] || [])
         t.push(Ju(Number(n), r, i.id, !1)), t.push(Ju(Number(n), r, i.id, !0));
   return [...new Set(t.filter(Boolean).map((n) => n.toLowerCase()))];
 }
-var Tn = new Set(Ze(Ye)), xn = new Set(Ze(Je)), Qe = [
+var xn = new Set(Qe(Ye)), jn = new Set(Qe(Je)), ut = [
   "deadbeef",
   "cafebabe",
   "feedface",
   "deadc0de",
   "badc0ffe",
   "8badf00d"
-], jn = new Map(Qe.map((u) => [u.repeat(4), u]));
-function Mn(u) {
+], Mn = new Map(ut.map((u) => [u.repeat(4), u]));
+function Rn(u) {
   for (let e = 0, t = u.length - 1; e < t; e++, t--) if (u[e] !== u[t]) return !1;
   return !0;
 }
-var Rn = /* @__PURE__ */ new Set([
+var qn = /* @__PURE__ */ new Set([
   "8",
   "9",
   "a",
   "b"
 ]);
-function qn(u) {
+function Vn(u) {
   const e = parseInt(u[12], 16);
-  return !(e >= 1 && e <= 8) || !Rn.has(u[16]);
+  return !(e >= 1 && e <= 8) || !qn.has(u[16]);
 }
-var Vn = 31536e6;
-function kn(u) {
+var kn = 31536e6;
+function Hn(u) {
   const e = He(u) || (_u(u) ? ke(u) : null);
   if (e === null) return !1;
   const t = Date.parse(e);
-  return t > Date.now() + Vn || t < Date.parse("1971-01-01T00:00:00Z");
+  return t > Date.now() + kn || t < Date.parse("1971-01-01T00:00:00Z");
 }
-function Hn(u) {
+function Jn(u) {
   if (typeof u != "string") return [];
   const e = u.trim().toLowerCase(), t = [];
-  Tn.has(e) ? t.push("nil", "palindrome") : xn.has(e) && t.push("max", "palindrome");
+  xn.has(e) ? t.push("nil", "palindrome") : jn.has(e) && t.push("max", "palindrome");
   const n = Xu(e);
   if (n === null) return t;
   t.length === 0 && /^0{32}$/.test(n) ? t.push("nil", "palindrome") : t.length === 0 && /^f{32}$/i.test(n) && t.push("max", "palindrome");
-  const r = jn.get(n);
-  return r && t.push(r), !t.includes("palindrome") && Mn(n) && t.push("palindrome"), t.includes("nil") || t.includes("max") || (qn(n) && t.push("non-rfc"), kn(e) && t.push("time traveler")), t;
+  const r = Mn.get(n);
+  return r && t.push(r), !t.includes("palindrome") && Rn(n) && t.push("palindrome"), t.includes("nil") || t.includes("max") || (Vn(n) && t.push("non-rfc"), Hn(e) && t.push("time traveler")), t;
 }
-function Jn(u) {
-  return Qe.includes(u) ? Iu(u.repeat(4)) : null;
+function Yn(u) {
+  return ut.includes(u) ? Iu(u.repeat(4)) : null;
 }
-function Yn() {
+function Gn() {
   const u = /* @__PURE__ */ new Uint8Array(16);
   crypto.getRandomValues(u);
   let e = "";
   for (const t of u) e += "0123456789abcdef"[t & 15];
   return Iu(e + [...e].reverse().join(""));
 }
-function Gn(u) {
+function zn(u) {
   const e = [[
     48,
     51,
@@ -1988,12 +1991,12 @@ function Gn(u) {
       ];
   }
 }
-function zn(u) {
+function Wn(u) {
   const e = parseInt(u[16], 16);
   return e < 8 ? "NCS (0xxx) — reserved, backward compatibility" : e < 12 ? "RFC 9562 (10xx)" : e < 14 ? "Microsoft (110x) — reserved, backward compatibility" : "reserved for the future (111x)";
 }
-var Wn = /"(-?\d+)"/g;
-function Xn(u) {
+var Xn = /"(-?\d+)"/g;
+function Kn(u) {
   if (typeof u != "string") return null;
   let e = Zu(u);
   try {
@@ -2004,7 +2007,7 @@ function Xn(u) {
       }
       case 2:
       case 64:
-        return JSON.stringify(lu(e)).replace(/,$/g, "").replace(Wn, "$1");
+        return JSON.stringify(lu(e)).replace(/,$/g, "").replace(Xn, "$1");
       case 4:
         return Ne(e);
       case 16:
@@ -2019,7 +2022,7 @@ function Xn(u) {
   const n = tu(e);
   return n === null ? null : eu(n);
 }
-function ut(u) {
+function et(u) {
   if (typeof u != "string") return -1;
   const e = u.indexOf("#");
   let t = -1;
@@ -2029,12 +2032,12 @@ function ut(u) {
   }
   return e === -1 ? t : t === -1 ? e : Math.min(e, t);
 }
-function Kn(u) {
-  const e = ut(u);
+function Zn(u) {
+  const e = et(u);
   return e === -1 ? u : u.slice(0, e);
 }
-function Zn(u) {
-  const e = ut(u);
+function Qn(u) {
+  const e = et(u);
   return e === -1 ? null : u.slice(e + (u[e] === "#" ? 1 : 2)).trim();
 }
 var pe = {
@@ -2043,13 +2046,13 @@ var pe = {
   oid: "6ba7b812-9dad-11d1-80b4-00c04fd430c8",
   x500: "6ba7b814-9dad-11d1-80b4-00c04fd430c8"
 };
-function et(u) {
+function tt(u) {
   if (typeof u != "string") return pe.dns;
   const e = pe[u.toLowerCase()];
   return e || (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(u.trim()) ? u.trim().toLowerCase() : null);
 }
-function tt(u, e, t) {
-  const n = et(e);
+function nt(u, e, t) {
+  const n = tt(e);
   if (n === null || typeof t != "string" || t === "") return null;
   try {
     return u === 3 ? ee(t, n) : te(t, n);
@@ -2058,66 +2061,66 @@ function tt(u, e, t) {
   }
 }
 var ne = 256, me = new Uint32Array(ne), Hu = ne;
-function Qn() {
+function ur() {
   return Hu >= ne && (crypto.getRandomValues(me), Hu = 0), me[Hu++] / 4294967296;
 }
-function ur(u) {
-  return u > 0 ? Math.floor(Qn() * u) : 0;
+function er(u) {
+  return u > 0 ? Math.floor(ur() * u) : 0;
 }
-function er() {
-  const u = Array.from({ length: 16 }, () => ur(256));
+function tr() {
+  const u = Array.from({ length: 16 }, () => er(256));
   u[6] = u[6] & 15 | 128, u[8] = u[8] & 63 | 128;
   const e = u.map((t) => t.toString(16).padStart(2, "0")).join("");
   return `${e.slice(0, 8)}-${e.slice(8, 12)}-${e.slice(12, 16)}-${e.slice(16, 20)}-${e.slice(20)}`;
 }
-var tr = [
+var nr = [
   "v1",
   "v6",
   "v7",
   "ulid"
 ];
-function nr(u) {
-  return tr.includes(u);
-}
 function rr(u) {
+  return nr.includes(u);
+}
+function ir(u) {
   if (typeof u != "string" || u.trim() === "") return {};
   const e = Date.parse(u);
   return Number.isFinite(e) ? { msecs: e } : {};
 }
-function ir(u) {
+function Dr(u) {
   const e = (t, n = 2) => String(t).padStart(n, "0");
   return `${u.getFullYear()}-${e(u.getMonth() + 1)}-${e(u.getDate())}T${e(u.getHours())}:${e(u.getMinutes())}:${e(u.getSeconds())}.${e(u.getMilliseconds(), 3)}`;
 }
-function Dr(u) {
-  const e = fn(`#to=${u}`);
+function or(u) {
+  const e = Cn(`#to=${u}`);
   if (e === null) throw new Error(`unknown format: ${u}`);
   return e;
 }
-function nt(u, e = {}) {
+function rt(u, e = {}) {
   const t = qe(u, e.int === void 0 ? void 0 : Ae(`#in=${e.int}`));
   if (t === null) return null;
-  const n = Dr(e.to ?? "uuid"), r = on(t, {
+  const n = or(e.to ?? "uuid"), r = an(t, {
     resultType: n,
     intType: e.int === void 0 ? void 0 : Ae(`#in=${e.int}`),
-    uuidStyle: e.style === void 0 ? void 0 : ln(`#style=${e.style}`),
+    uuidStyle: e.style === void 0 ? void 0 : fn(`#style=${e.style}`),
     uuidUpper: e.upper === !0
   });
-  return r === null ? null : n === 1 ? r : Ju(n, Xn(r), e.style, e.upper === !0);
+  return r === null ? null : n === 1 ? r : Ju(n, Kn(r), e.style, e.upper === !0);
 }
-function rt(u) {
+function it(u) {
   const e = Te()[Qu(u)] ?? null;
   if (e === null) return null;
   const t = qe(u), n = t === null ? null : Xu(t), r = n === null ? null : parseInt(n[12], 16);
   return {
     format: e,
     uuid: t,
-    variant: n === null ? null : zn(n),
+    variant: n === null ? null : Wn(n),
     version: r !== null && r >= 1 && r <= 8 ? r : null,
-    special: Hn(t ?? u),
+    special: Jn(t ?? u),
     at: t === null ? null : He(t) ?? (_u(u.trim()) ? ke(u.trim()) : null)
   };
 }
-var or = [
+var ar = [
   "v1",
   "v3",
   "v4",
@@ -2133,42 +2136,42 @@ var or = [
   "palindrome"
 ];
 function Pu(u = "v4", e = {}) {
-  if (!or.includes(u)) return null;
-  const t = nr(u) ? rr(e.moment ?? "") : {};
+  if (!ar.includes(u)) return null;
+  const t = rr(u) ? ir(e.moment ?? "") : {};
   switch (u) {
     case "v1":
       return Ge(t);
     case "v6":
-      return $n(t);
+      return On(t);
     case "v7":
       return ge(t);
     case "ulid":
       return Ku(ge(t));
     case "v3":
     case "v5":
-      return tt(u === "v3" ? 3 : 5, e.namespace ?? "dns", e.name ?? "");
+      return nt(u === "v3" ? 3 : 5, e.namespace ?? "dns", e.name ?? "");
     case "v8":
-      return er();
+      return tr();
     case "nil":
       return Ye;
     case "max":
       return Je;
     case "palindrome":
-      return Yn();
+      return Gn();
     case "deadbeef":
     case "cafebabe":
-      return Jn(u);
+      return Yn(u);
     default:
-      return In();
+      return _n();
   }
 }
-function Ir(u) {
-  return et(u);
+function _r(u) {
+  return tt(u);
 }
-function ar(u, e = {}) {
+function cr(u, e = {}) {
   return String(u).split(`
 `).map((t) => t.trim()).filter((t) => t !== "").map((t) => {
-    const n = Kn(t).trim(), r = Zn(t), i = n === "" ? null : nt(n, e);
+    const n = Zn(t).trim(), r = Qn(t), i = n === "" ? null : rt(n, e);
     return {
       input: n,
       comment: r,
@@ -2177,26 +2180,26 @@ function ar(u, e = {}) {
     };
   });
 }
-function cr(u, e = 122) {
+function sr(u, e = 122) {
   const t = 2 ** e, n = Number(u);
   return !Number.isFinite(n) || n <= 1 ? 0 : 1 - Math.exp(-(n * (n - 1)) / (2 * t));
 }
-function sr(u, e = 122) {
+function lr(u, e = 122) {
   const t = 2 ** e, n = Number(u);
   return !Number.isFinite(n) || n <= 0 || n >= 1 ? 1 / 0 : Math.sqrt(2 * t * Math.log(1 / (1 - n)));
 }
-function _r(u, e, t) {
-  return tt(u, e, t);
+function Nr(u, e, t) {
+  return nt(u, e, t);
 }
-var Nr = Te().reduce((u, e) => u.concat([e]), []);
-function lr(u, e) {
+var Pr = Te().reduce((u, e) => u.concat([e]), []);
+function fr(u, e) {
   return u.find(([t, n]) => e >= t && e <= n) || null;
 }
-function fr(u, e, t, n) {
+function Cr(u, e, t, n) {
   const r = BigInt(`0x${u}`), i = t - e + 1, o = r >> BigInt(127 - t) & (1n << BigInt(i)) - 1n, a = Math.ceil(i / 4), l = [`0x${o.toString(16).padStart(a, "0")}`];
   return o <= 9007199254740991n && l.push(o.toString()), i <= 8 && l.push(o.toString(2).padStart(i, "0")), `${n} · bits ${e}-${t} · ${l.join("  ·  ")}`;
 }
-function Cr(u) {
+function Fr(u) {
   const e = u.querySelector(".doc-play-input"), t = u.querySelector(".doc-play-out code"), n = u.querySelector(".doc-play-note"), r = [...u.querySelectorAll(".doc-play-chip")];
   let i = u.dataset.to || "uuid";
   const o = u.dataset.int || void 0;
@@ -2206,7 +2209,7 @@ function Cr(u) {
       t.textContent = "", n.textContent = "Paste an identifier, or take a fresh one.";
       return;
     }
-    const f = nt(l, {
+    const f = rt(l, {
       to: i,
       int: o
     });
@@ -2215,7 +2218,7 @@ function Cr(u) {
       return;
     }
     t.textContent = f;
-    const A = rt(l);
+    const A = it(l);
     n.textContent = A === null || A.version === null ? `read as ${A === null ? "an identifier" : A.format}` : `read as ${A.format}, version ${A.version}${A.at === null ? "" : `, made ${A.at}`}`;
   }
   e.addEventListener("input", a);
@@ -2230,20 +2233,20 @@ function Cr(u) {
   });
   u.hidden = !1, a();
 }
-function Fr(u) {
+function Ar(u) {
   const e = [...u.querySelectorAll(".report-char")], t = [...u.querySelectorAll(".report-bit")], n = [...u.querySelectorAll(".report-run")], r = u.querySelector(".doc-reading");
   if (e.length !== 32 || r === null) return;
-  const i = e.map((f) => f.textContent).join(""), o = parseInt(i[12], 16), a = o >= 1 && o <= 8 ? Gn(o) : [[
+  const i = e.map((f) => f.textContent).join(""), o = parseInt(i[12], 16), a = o >= 1 && o <= 8 ? zn(o) : [[
     0,
     127,
     "random",
     "no fields"
   ]];
   function l(f, A, v) {
-    e.forEach((b, R) => b.classList.toggle("is-picked", R * 4 >= f && R * 4 <= A)), t.forEach((b, R) => b.classList.toggle("is-picked", R >= f && R <= A)), n.forEach((b) => b.classList.toggle("is-picked", b.textContent === v)), r.textContent = fr(i, f, A, v);
+    e.forEach((b, R) => b.classList.toggle("is-picked", R * 4 >= f && R * 4 <= A)), t.forEach((b, R) => b.classList.toggle("is-picked", R >= f && R <= A)), n.forEach((b) => b.classList.toggle("is-picked", b.textContent === v)), r.textContent = Cr(i, f, A, v);
   }
   e.forEach((f, A) => {
-    const v = lr(a, A * 4);
+    const v = fr(a, A * 4);
     v !== null && (f.setAttribute("tabindex", "0"), f.setAttribute("role", "button"), f.addEventListener("click", () => l(v[0], v[1], v[3])), f.addEventListener("mouseenter", () => l(v[0], v[1], v[3])), f.addEventListener("keydown", (b) => {
       (b.key === "Enter" || b.key === " ") && (b.preventDefault(), l(v[0], v[1], v[3]));
     }));
@@ -2254,7 +2257,7 @@ function Fr(u) {
   }
   u.classList.add("is-live"), r.textContent = "Point at a character to read its field.";
 }
-function Ar(u) {
+function Er(u) {
   const e = u.querySelector("#gen-type"), t = u.querySelector("#gen-moment"), n = u.querySelector("#gen-space"), r = n.closest(".doc-play-pick"), i = u.querySelector("#gen-name"), o = u.querySelector(".doc-play-out code"), a = u.querySelector(".doc-play-note"), l = [
     "v1",
     "v6",
@@ -2274,16 +2277,16 @@ function Ar(u) {
       return;
     }
     o.textContent = b;
-    const R = rt(b);
+    const R = it(b);
     a.textContent = R === null || R.at === null ? `${v}, fresh from this page` : `${v}, carrying ${R.at}`;
   }
   e.addEventListener("change", A), t.addEventListener("input", A), n.addEventListener("change", A), i.addEventListener("input", A), u.querySelector("[data-again]").addEventListener("click", A), u.hidden = !1, A();
 }
-function Er(u) {
+function dr(u) {
   const e = u.querySelector(".doc-play-input"), t = u.querySelector(".doc-play-lines code"), n = u.querySelector(".doc-play-note"), r = [...u.querySelectorAll(".doc-play-chip")];
   let i = "uuid";
   function o() {
-    const l = ar(e.value, { to: i });
+    const l = cr(e.value, { to: i });
     t.textContent = l.map((A) => {
       const v = A.ok ? A.output : `${A.input}  ← not an identifier`;
       return A.comment ? `${v}  # ${A.comment}` : v;
@@ -2310,18 +2313,18 @@ function ve(u) {
   const e = Number(String(u).replace(/[\s_]/g, ""));
   return Number.isFinite(e) ? e : null;
 }
-function dr(u) {
+function Br(u) {
   return u >= 1e6 ? u.toExponential(2).replace("e+", " × 10^") : Math.round(u).toLocaleString("en-US");
 }
-function Br(u) {
+function gr(u) {
   const e = u.querySelector("#odds-count"), t = u.querySelector("#odds-target"), n = u.querySelector(".doc-play-out code"), r = u.querySelector(".doc-play-out.is-second code"), i = u.querySelector(".doc-play-note");
   function o() {
     const a = ve(e.value), l = ve(t.value);
-    n.textContent = a === null ? "—" : `${cr(a).toExponential(3)} chance that any two match`, r.textContent = l === null || l <= 0 || l >= 1 ? "—" : `${dr(sr(l))} identifiers`, i.textContent = "Over the 122 random bits of a v4. A generator with a broken random source beats every number here.";
+    n.textContent = a === null ? "—" : `${sr(a).toExponential(3)} chance that any two match`, r.textContent = l === null || l <= 0 || l >= 1 ? "—" : `${Br(lr(l))} identifiers`, i.textContent = "Over the 122 random bits of a v4. A generator with a broken random source beats every number here.";
   }
   e.addEventListener("input", o), t.addEventListener("input", o), u.hidden = !1, o();
 }
-function gr(u) {
+function hr(u) {
   const e = {
     v4: u.querySelector('[data-list="v4"]'),
     v7: u.querySelector('[data-list="v7"]')
@@ -2329,7 +2332,7 @@ function gr(u) {
   function n() {
     const r = Date.now() - 1e3;
     for (const i of ["v4", "v7"]) {
-      const o = Array.from({ length: 5 }, (f, A) => Pu(i, { moment: ir(new Date(r + A * 250)) })), a = new Map(o.map((f, A) => [f, A + 1])), l = [...o].sort();
+      const o = Array.from({ length: 5 }, (f, A) => Pu(i, { moment: Dr(new Date(r + A * 250)) })), a = new Map(o.map((f, A) => [f, A + 1])), l = [...o].sort();
       e[i].innerHTML = "";
       for (const f of l) {
         const A = document.createElement("li");
@@ -2340,30 +2343,30 @@ function gr(u) {
   }
   u.querySelector("[data-again]").addEventListener("click", n), u.hidden = !1, n();
 }
-var hr = {
-  generate: Ar,
-  bulk: Er,
-  collision: Br,
-  sort: gr
+var pr = {
+  generate: Er,
+  bulk: dr,
+  collision: gr,
+  sort: hr
 };
 function ye() {
   for (const u of document.querySelectorAll("[data-widget]")) {
-    const e = hr[u.dataset.widget];
+    const e = pr[u.dataset.widget];
     e !== void 0 && e(u);
   }
-  for (const u of document.querySelectorAll("[data-play]")) Cr(u);
-  for (const u of document.querySelectorAll(".doc-specimen")) Fr(u);
+  for (const u of document.querySelectorAll("[data-play]")) Fr(u);
+  for (const u of document.querySelectorAll(".doc-specimen")) Ar(u);
 }
 document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", ye) : ye();
 export {
-  Nr as FORMATS,
-  or as GENERATORS,
-  sr as collisionCount,
-  cr as collisionOdds,
-  nt as convert,
-  ar as convertMany,
-  _r as derive,
-  rt as detect,
+  Pr as FORMATS,
+  ar as GENERATORS,
+  lr as collisionCount,
+  sr as collisionOdds,
+  rt as convert,
+  cr as convertMany,
+  Nr as derive,
+  it as detect,
   Pu as generate,
-  Ir as namespaceId
+  _r as namespaceId
 };
