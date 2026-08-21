@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.9.1 - 2026-08-21
+
+### What's Changed
+
+* pages by [@rez1dent3](https://github.com/rez1dent3) in https://github.com/bavix/uuid-ui/pull/474
+* chore(npm-deps): bump the npm group across 1 directory with 2 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/475
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.9.0...v1.9.1
+
 ## v1.9.0 - 2026-08-20
 
 ### What's Changed
