@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<!-- uuid-ui:generated-page -->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>What is a UUID? A short, exact answer | UUIDConv</title>
+    <meta name="description" content="A UUID is a 128-bit identifier defined by RFC 9562 that any machine can generate without asking anyone. What that buys you, what it costs, and how UUID and GUID relate.">
+    <link rel="canonical" href="https://bavix.github.io/uuid-ui/what-is-a-uuid/">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="UUIDConv">
+    <meta property="og:title" content="What is a UUID?">
+    <meta property="og:description" content="A UUID is a 128-bit identifier defined by RFC 9562 that any machine can generate without asking anyone. What that buys you, what it costs, and how UUID and GUID relate.">
+    <meta property="og:url" content="https://bavix.github.io/uuid-ui/what-is-a-uuid/">
+    <meta property="og:image" content="https://bavix.github.io/uuid-ui/og.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="What is a UUID?">
+    <meta name="twitter:description" content="A UUID is a 128-bit identifier defined by RFC 9562 that any machine can generate without asking anyone. What that buys you, what it costs, and how UUID and GUID relate.">
+    <meta name="twitter:image" content="https://bavix.github.io/uuid-ui/og.png">
+    <link rel="icon" href="../favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+    <link rel="stylesheet" href="../theme.css">
+    <link rel="stylesheet" href="../docs.css">
+    <script>window.__docCustom=function(root,mode){try{
+var raw=localStorage.getItem('uuid.data');if(!raw){return}
+var held=JSON.parse(raw);var text=held&&held.settings&&held.settings.customTheme&&held.settings.customTheme.value;
+if(typeof text!=='string'||text===''){return}
+var theme=JSON.parse(text);
+var tokens=(theme.variants&&(theme.variants[mode]||theme.variants[mode==='dark'?'light':'dark']))
+||(theme[mode]&&(theme[mode].tokens||theme[mode]))||theme.tokens;
+if(!tokens){return}
+Object.keys(tokens).forEach(function(name){
+var bare=String(name).replace(/^--/,'');var value=String(tokens[name]).trim();
+if(!/^[a-z0-9-]{1,40}$/.test(bare)||/[;{}]|url\(|expression|@import/i.test(value)){return}
+root.style.setProperty('--'+bare,value);});
+}catch(e){}};(function(){try{
+var s=localStorage.getItem('theme')||'';var p=s.split(':');
+var palette=p.length===2?p[0]:'default';var m=p.length===2?p[1]:s;
+if(m==='true'||m==='"true"'){m='dark'}if(m==='false'||m==='"false"'){m='light'}
+if(m!=='dark'&&m!=='light'){m=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+var r=document.documentElement;r.classList.add(m);r.style.colorScheme=m;
+if(/^[a-z0-9][a-z0-9-]{0,31}$/.test(palette)&&palette!=='default'){r.setAttribute('data-theme',palette)}
+if(palette==='custom'&&window.__docCustom){window.__docCustom(r,m)}
+}catch(e){}})();</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://bavix.github.io/uuid-ui/#website","url":"https://bavix.github.io/uuid-ui/","name":"UUIDConv","inLanguage":"en","publisher":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"}},{"@type":"TechArticle","@id":"https://bavix.github.io/uuid-ui/what-is-a-uuid/#article","headline":"What is a UUID?","name":"What is a UUID?","description":"A UUID is a 128-bit identifier defined by RFC 9562 that any machine can generate without asking anyone. What that buys you, what it costs, and how UUID and GUID relate.","abstract":"A UUID is 128 bits, generated locally, unique in practice without a central authority. GUID is the same thing under a different name.","url":"https://bavix.github.io/uuid-ui/what-is-a-uuid/","mainEntityOfPage":"https://bavix.github.io/uuid-ui/what-is-a-uuid/","inLanguage":"en","datePublished":"2026-08-21","dateModified":"2026-08-21","author":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"},"publisher":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"},"isPartOf":{"@id":"https://bavix.github.io/uuid-ui/#website"},"about":{"@id":"https://bavix.github.io/uuid-ui/#app"},"proficiencyLevel":"Beginner"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"UUIDConv","item":"https://bavix.github.io/uuid-ui/"},{"@type":"ListItem","position":2,"name":"UUID reference","item":"https://bavix.github.io/uuid-ui/reference/"},{"@type":"ListItem","position":3,"name":"What is a UUID?","item":"https://bavix.github.io/uuid-ui/what-is-a-uuid/"}]},{"@type":"FAQPage","@id":"https://bavix.github.io/uuid-ui/what-is-a-uuid/#faq","mainEntity":[{"@type":"Question","name":"Is a GUID the same as a UUID?","acceptedAnswer":{"@type":"Answer","text":"Yes. Same 128 bits and the same layouts. Only the byte order used by some Microsoft APIs differs."}},{"@type":"Question","name":"How likely is a UUID collision?","acceptedAnswer":{"@type":"Answer","text":"For v4, negligible: 122 random bits put even odds of a collision at about 2.7 × 10^18 identifiers. Broken randomness is a far more realistic risk."}},{"@type":"Question","name":"Which RFC defines UUIDs now?","acceptedAnswer":{"@type":"Answer","text":"RFC 9562, published in May 2024. It replaced RFC 4122 and added versions 6, 7 and 8 along with the Max UUID."}}]}]}</script>
+</head>
+<body class="doc type-uuid">
+<nav class="app-header backdrop-blur-sm shadow-md border-b sticky top-0 z-50" role="navigation" aria-label="main navigation">
+    <div class="container mx-auto max-w-7xl">
+        <div class="doc-bar">
+            <a class="doc-brand" href="../">
+                <img src="../android-chrome-192x192.png" class="h-9 w-9 rounded-lg brand-mark" alt="">
+                <span class="brand-text font-bold text-lg gradient-animate">UUIDConv UI</span>
+            </a>
+            <nav class="doc-crumbs" aria-label="Breadcrumb"><a href="../reference/">UUID reference</a><span class="doc-crumb-sep" aria-hidden="true">/</span><span aria-current="page">What is a UUID?</span></nav>
+            <div class="doc-bar-actions">
+                <a class="doc-open is-bar" href="../#to=uuid">Converter<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+                <a href="https://github.com/bavix/uuid-ui" target="_blank" rel="noopener noreferrer" class="doc-icon" aria-label="Open project on GitHub" title="Open project on GitHub">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.07 3.29 9.37 7.86 10.88.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.38-3.88-1.38-.53-1.36-1.3-1.73-1.3-1.73-1.06-.73.08-.72.08-.72 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.75.41-1.27.75-1.56-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.18 1.19.92-.26 1.9-.39 2.88-.39.98 0 1.96.13 2.88.39 2.2-1.5 3.17-1.19 3.17-1.19.64 1.58.24 2.75.12 3.04.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.41-5.27 5.69.42.36.79 1.08.79 2.17 0 1.57-.01 2.84-.01 3.22 0 .31.21.68.8.56C20.71 21.37 24 17.07 24 12 24 5.73 18.27.5 12 .5z"/></svg>
+                </a>
+                <button type="button" id="doc-theme" class="doc-icon" aria-label="Toggle theme" title="Toggle theme">
+                    <svg class="doc-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.1 5.1l1.4 1.4M17.5 17.5l1.4 1.4M18.9 5.1l-1.4 1.4M6.5 17.5l-1.4 1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    <svg class="doc-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="doc-shell container mx-auto max-w-7xl">
+<nav class="doc-rail" aria-label="Reference"><a class="doc-rail-hub" href="../reference/">UUID reference</a><ul class="doc-rail-list"><li class="doc-rail-group"><p class="doc-rail-title">Start here</p><ul><li><a href="../what-is-a-uuid/" class="is-here" aria-current="page">What is a UUID?</a></li><li><a href="../guid-vs-uuid/">GUID and UUID</a></li><li><a href="../uuid-versions/">All versions side by side</a></li><li><a href="../uuid-v4-vs-v7/">v4 or v7</a></li><li><a href="../uuid-primary-key/">UUID as a primary key</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Making and converting in bulk</p><ul><li><a href="../uuid-generator/">The generator</a></li><li><a href="../uuid-bulk-convert/">A whole column at once</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Converting a UUID</p><ul><li><a href="../uuid-to-bytes/">To a 16-byte array</a></li><li><a href="../uuid-to-hex/">Without dashes</a></li><li><a href="../uuid-formats/">Every way to write one</a></li><li><a href="../uuid-to-base64/">To Base64, and the short forms</a></li><li><a href="../uuid-to-long/">To a high/low 64-bit pair</a></li><li><a href="../uuid-to-words/">To four 32-bit words</a></li><li><a href="../uuid-byte-order/">Byte order: RFC against mixed-endian GUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Reading one</p><ul><li><a href="../uuid-timestamp/">Decoding the timestamp</a></li><li><a href="../uuid-bit-layout/">The bit layout</a></li><li><a href="../uuid-validation/">Validating a UUID</a></li><li><a href="../uuid-collision-probability/">Collision probability</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">The versions, in order</p><ul><li><a href="../uuid-v1/">Version 1</a></li><li><a href="../uuid-v3/">Version 3</a></li><li><a href="../uuid-v4/">Version 4</a></li><li><a href="../uuid-v5/">Version 5</a></li><li><a href="../uuid-v6/">Version 6</a></li><li><a href="../uuid-v7/">Version 7</a></li><li><a href="../uuid-v8/">Version 8</a></li><li><a href="../nil-uuid/">The Nil UUID</a></li><li><a href="../max-uuid/">The Max UUID</a></li><li><a href="../uuid-namespaces/">Namespaces</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">In a database</p><ul><li><a href="../uuid-in-postgresql/">PostgreSQL</a></li><li><a href="../uuid-in-mysql/">MySQL</a></li><li><a href="../uuid-in-sql-server/">SQL Server</a></li><li><a href="../uuid-in-mongodb/">MongoDB</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">ULID and the alternatives</p><ul><li><a href="../ulid/">ULID</a></li><li><a href="../ulid-vs-uuid/">ULID or UUID v7</a></li><li><a href="../uuid-alternatives/">When not to use a UUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Running the tool</p><ul><li><a href="../uuid-code-examples/">Code examples</a></li><li><a href="../self-hosted-uuid-tool/">Self-hosted and offline</a></li></ul></li></ul></nav>
+<main class="doc-main">
+<article>
+<header class="doc-lead">
+<h1>What is a UUID?</h1>
+<p class="doc-meta"><span class="doc-chip">UUID text</span><span>8 sections</span><span>Updated <time datetime="2026-08-21">2026-08-21</time></span></p>
+<p class="doc-tldr">A UUID is 128 bits, generated locally, unique in practice without a central authority. GUID is the same thing under a different name.</p>
+<p class="doc-lede">The value of a UUID is not that it is long. It is that two machines with no connection between them can each make one and be safe assuming the two will never collide. Everything else about the format follows from that.</p>
+</header>
+<p class="doc-cta"><a class="doc-open" href="../#to=uuid">Open the converter: UUID text<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a><span class="doc-try-note">Nothing you paste leaves the browser.</span></p>
+<section class="doc-play" data-play data-to="uuid" hidden><div class="doc-play-head"><span class="doc-chip">Playground</span><span class="doc-play-hint">runs here in the page; nothing is sent anywhere</span></div><div class="doc-play-formats" role="group" aria-label="Format"><button type="button" class="doc-play-chip is-on" data-format="uuid" aria-pressed="true">uuid</button><button type="button" class="doc-play-chip" data-format="high-low" aria-pressed="false">high-low</button><button type="button" class="doc-play-chip" data-format="base64" aria-pressed="false">base64</button><button type="button" class="doc-play-chip" data-format="bytes" aria-pressed="false">bytes</button><button type="button" class="doc-play-chip" data-format="ulid" aria-pressed="false">ulid</button><button type="button" class="doc-play-chip" data-format="words" aria-pressed="false">words</button></div><label class="sr-only" for="doc-play-input">Identifier</label><input id="doc-play-input" class="doc-play-input" spellcheck="false" autocomplete="off" placeholder="paste a UUID, a ULID, a byte array, a pair of longs…"><div class="doc-play-row"><button type="button" class="doc-play-fill" data-fill="v4">Random v4</button><button type="button" class="doc-play-fill" data-fill="v7">Time-ordered v7</button></div><p class="doc-play-out"><code></code></p><p class="doc-play-note"></p></section>
+<details class="doc-toc-mobile"><summary>On this page (8)</summary><ul class="doc-toc-mobile-list"><li><a href="#the-definition">The definition</a></li><li><a href="#why-generate-identifiers-locally">Why generate identifiers locally</a></li><li><a href="#is-a-collision-actually-impossible">Is a collision actually impossible?</a></li><li><a href="#uuid-and-guid">UUID and GUID</a></li><li><a href="#which-version-to-reach-for">Which version to reach for</a></li><li><a href="#what-a-uuid-is-not">What a UUID is not</a></li><li><a href="#questions-people-actually-ask">Questions people actually ask</a></li><li><a href="#related">Related</a></li></ul></details>
+<div class="doc-prose">
+<h2 id="the-definition">The definition<a class="doc-anchor" href="#the-definition" aria-label="Link to this section">#</a></h2>
+<p>A UUID is a 128-bit value with a defined internal layout: four bits say which layout, two say which standard family, and the remaining 122 are spent according to the layout. It is written as 32 hex digits in five hyphenated groups, and RFC 9562 has defined it since May 2024, replacing RFC 4122.</p>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-4" target="_blank" rel="noopener noreferrer">RFC 9562 § 4 · UUID Format</a><span class="rfc-note">The format, in the words of the standard</span></p>
+<h2 id="why-generate-identifiers-locally">Why generate identifiers locally<a class="doc-anchor" href="#why-generate-identifiers-locally" aria-label="Link to this section">#</a></h2>
+<p>A database sequence needs a database. A UUID needs nothing: a mobile client offline on a plane can create a record, name it, and reconcile later without a coordinator handing out numbers. That property is what makes the format worth its 16 bytes: distributed systems, event sourcing, multi-region writes and offline-first clients all rest on it.</p>
+<h2 id="is-a-collision-actually-impossible">Is a collision actually impossible?<a class="doc-anchor" href="#is-a-collision-actually-impossible" aria-label="Link to this section">#</a></h2>
+<p>Not impossible, just too unlikely to plan for. A v4 has 122 random bits: reaching even odds of one collision takes about 2.7 × 10^18 identifiers, and a one-in-a-billion chance still takes around 10^14 of them. The real risks are elsewhere: a broken random source, a virtual machine cloned with its state, or a library that seeded itself from the clock.</p>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-6.7" target="_blank" rel="noopener noreferrer">RFC 9562 § 6.7 · Collision Resistance</a><span class="rfc-note">What the standard says about collision resistance</span></p>
+<h2 id="uuid-and-guid">UUID and GUID<a class="doc-anchor" href="#uuid-and-guid" aria-label="Link to this section">#</a></h2>
+<p>GUID is Microsoft vocabulary for the same 128 bits. The only practical difference is in byte order: several Microsoft APIs store the first three fields little-endian, so the byte arrays differ even though the text forms match. The same identifier is also standardised as ITU-T X.667 and ISO/IEC 9834-8; RFC 9562 says of that pair that both sets of specifications have been aligned and are fully technically compatible.</p>
+<h2 id="which-version-to-reach-for">Which version to reach for<a class="doc-anchor" href="#which-version-to-reach-for" aria-label="Link to this section">#</a></h2>
+<div class="scroller"><table><thead><tr><th scope="col">Version</th><th scope="col">Made from</th><th scope="col">Use it when</th></tr></thead><tbody><tr><td data-th="Version">v4</td><td data-th="Made from">randomness</td><td data-th="Use it when">You need an identifier and nothing more</td></tr><tr><td data-th="Version">v7</td><td data-th="Made from">milliseconds plus randomness</td><td data-th="Use it when">The identifier is a database key and should sort by time</td></tr><tr><td data-th="Version">v5</td><td data-th="Made from">SHA-1 of a namespace and a name</td><td data-th="Use it when">The same input must always produce the same identifier</td></tr><tr><td data-th="Version">v1 / v6</td><td data-th="Made from">a clock and a node</td><td data-th="Use it when">You are reading identifiers made by older systems</td></tr><tr><td data-th="Version">v8</td><td data-th="Made from">whatever you define</td><td data-th="Use it when">You need custom structure and still want a valid UUID</td></tr><tr><td data-th="Version">Nil / Max</td><td data-th="Made from">all zeros / all ones</td><td data-th="Use it when">You need a placeholder that is obviously not a real value</td></tr></tbody></table></div>
+<h2 id="what-a-uuid-is-not">What a UUID is not<a class="doc-anchor" href="#what-a-uuid-is-not" aria-label="Link to this section">#</a></h2>
+<p>It is not a secret: knowing one should never grant access to anything. It is not a checksum: it says nothing about the data it names. And it is not free: 16 bytes per row, per index entry and per foreign key adds up, which is exactly the trade you are making in exchange for not needing a coordinator.</p>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-6.12" target="_blank" rel="noopener noreferrer">RFC 9562 § 6.12 · Opacity</a><span class="rfc-note">Opacity: an identifier is not a place to put meaning</span></p>
+</div>
+<section class="doc-faq"><h2 id="questions-people-actually-ask">Questions people actually ask<a class="doc-anchor" href="#questions-people-actually-ask" aria-label="Link to this section">#</a></h2><div class="doc-qa"><h3>Is a GUID the same as a UUID?</h3><p>Yes. Same 128 bits and the same layouts. Only the byte order used by some Microsoft APIs differs.</p></div><div class="doc-qa"><h3>How likely is a UUID collision?</h3><p>For v4, negligible: 122 random bits put even odds of a collision at about 2.7 × 10^18 identifiers. Broken randomness is a far more realistic risk.</p></div><div class="doc-qa"><h3>Which RFC defines UUIDs now?</h3><p>RFC 9562, published in May 2024. It replaced RFC 4122 and added versions 6, 7 and 8 along with the Max UUID.</p></div></section>
+<nav class="doc-related" aria-label="Related pages"><h2 id="related">Related<a class="doc-anchor" href="#related" aria-label="Link to this section">#</a></h2><ul><li><a href="../uuid-versions/">UUID versions, side by side</a></li><li><a href="../uuid-v7/">UUID version 7</a></li><li><a href="../uuid-bit-layout/">The bit layout of a UUID</a></li></ul></nav>
+<details class="doc-rail-mobile"><summary>Browse the reference</summary><ul class="doc-rail-list"><li class="doc-rail-group"><p class="doc-rail-title">Start here</p><ul><li><a href="../what-is-a-uuid/" class="is-here" aria-current="page">What is a UUID?</a></li><li><a href="../guid-vs-uuid/">GUID and UUID</a></li><li><a href="../uuid-versions/">All versions side by side</a></li><li><a href="../uuid-v4-vs-v7/">v4 or v7</a></li><li><a href="../uuid-primary-key/">UUID as a primary key</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Making and converting in bulk</p><ul><li><a href="../uuid-generator/">The generator</a></li><li><a href="../uuid-bulk-convert/">A whole column at once</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Converting a UUID</p><ul><li><a href="../uuid-to-bytes/">To a 16-byte array</a></li><li><a href="../uuid-to-hex/">Without dashes</a></li><li><a href="../uuid-formats/">Every way to write one</a></li><li><a href="../uuid-to-base64/">To Base64, and the short forms</a></li><li><a href="../uuid-to-long/">To a high/low 64-bit pair</a></li><li><a href="../uuid-to-words/">To four 32-bit words</a></li><li><a href="../uuid-byte-order/">Byte order: RFC against mixed-endian GUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Reading one</p><ul><li><a href="../uuid-timestamp/">Decoding the timestamp</a></li><li><a href="../uuid-bit-layout/">The bit layout</a></li><li><a href="../uuid-validation/">Validating a UUID</a></li><li><a href="../uuid-collision-probability/">Collision probability</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">The versions, in order</p><ul><li><a href="../uuid-v1/">Version 1</a></li><li><a href="../uuid-v3/">Version 3</a></li><li><a href="../uuid-v4/">Version 4</a></li><li><a href="../uuid-v5/">Version 5</a></li><li><a href="../uuid-v6/">Version 6</a></li><li><a href="../uuid-v7/">Version 7</a></li><li><a href="../uuid-v8/">Version 8</a></li><li><a href="../nil-uuid/">The Nil UUID</a></li><li><a href="../max-uuid/">The Max UUID</a></li><li><a href="../uuid-namespaces/">Namespaces</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">In a database</p><ul><li><a href="../uuid-in-postgresql/">PostgreSQL</a></li><li><a href="../uuid-in-mysql/">MySQL</a></li><li><a href="../uuid-in-sql-server/">SQL Server</a></li><li><a href="../uuid-in-mongodb/">MongoDB</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">ULID and the alternatives</p><ul><li><a href="../ulid/">ULID</a></li><li><a href="../ulid-vs-uuid/">ULID or UUID v7</a></li><li><a href="../uuid-alternatives/">When not to use a UUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Running the tool</p><ul><li><a href="../uuid-code-examples/">Code examples</a></li><li><a href="../self-hosted-uuid-tool/">Self-hosted and offline</a></li></ul></li></ul></details>
+<nav class="doc-steps" aria-label="Reference order"><a class="doc-step is-prev" href="../reference/"><span class="doc-step-kind">Previous</span><span class="doc-step-title">UUID reference</span></a><a class="doc-step is-next" href="../guid-vs-uuid/"><span class="doc-step-kind">Next</span><span class="doc-step-title">GUID and UUID</span></a></nav>
+</article>
+</main>
+<aside class="doc-side"><nav class="doc-toc" aria-label="On this page"><p class="doc-side-title">On this page</p><ul class=""><li><a href="#the-definition">The definition</a></li><li><a href="#why-generate-identifiers-locally">Why generate identifiers locally</a></li><li><a href="#is-a-collision-actually-impossible">Is a collision actually impossible?</a></li><li><a href="#uuid-and-guid">UUID and GUID</a></li><li><a href="#which-version-to-reach-for">Which version to reach for</a></li><li><a href="#what-a-uuid-is-not">What a UUID is not</a></li><li><a href="#questions-people-actually-ask">Questions people actually ask</a></li><li><a href="#related">Related</a></li></ul></nav></aside>
+</div>
+<footer class="footer-main">
+    <div class="footer-container">
+        <div class="footer-content">
+            <span class="footer-brand">uuid-ui</span>
+            <span class="footer-text">by</span>
+            <a href="https://github.com/rez1dent3" class="footer-link" target="_blank" rel="noopener noreferrer">Babichev Maksim</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../" class="footer-link">Converter</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../reference/" class="footer-link">UUID reference</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../llms.txt" class="footer-link">llms.txt</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="https://github.com/bavix/uuid-ui" class="footer-link" target="_blank" rel="noopener noreferrer">Source Code</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="https://github.com/bavix/uuid-ui/blob/master/LICENSE" class="footer-link" target="_blank" rel="noopener noreferrer">MIT License</a>
+        </div>
+    </div>
+</footer>
+<script>(function(){
+var root=document.documentElement;
+var button=document.getElementById('doc-theme');
+var applied=[];
+
+function read(){
+var raw=localStorage.getItem('theme')||'';var parts=raw.split(':');
+if(parts.length===2){return{palette:parts[0],mode:parts[1]}}
+if(raw==='dark'||raw==='true'||raw==='"true"'){return{palette:'default',mode:'dark'}}
+if(raw==='light'||raw==='false'||raw==='"false"'){return{palette:'default',mode:'light'}}
+return{palette:'default',mode:'system'};
+}
+
+function resolve(mode){
+return mode==='system'
+?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')
+:mode;
+}
+
+function apply(palette,mode){
+var shown=resolve(mode);
+root.classList.toggle('dark',shown==='dark');
+root.classList.toggle('light',shown==='light');
+root.style.colorScheme=shown;
+if(palette&&palette!=='default'&&/^[a-z0-9][a-z0-9-]{0,31}$/.test(palette)){root.setAttribute('data-theme',palette)}
+else{root.removeAttribute('data-theme')}
+applied.forEach(function(name){root.style.removeProperty(name)});
+applied=[];
+if(palette==='custom'&&window.__docCustom){
+var before=root.getAttribute('style')||'';
+window.__docCustom(root,shown);
+var after=root.getAttribute('style')||'';
+if(after!==before){applied=(after.match(/--[a-z0-9-]+/g)||[])}
+}
+return shown;
+}
+
+function store(palette,mode){
+try{
+localStorage.setItem('theme',palette+':'+mode);
+var raw=localStorage.getItem('uuid.data');
+if(!raw){return}
+var held=JSON.parse(raw);
+if(!held||typeof held!=='object'){return}
+var at=Date.now();
+held.settings=held.settings||{};
+held.settings.palette={value:palette,at:at};
+held.settings.theme={value:mode,at:at};
+localStorage.setItem('uuid.data',JSON.stringify(held));
+}catch(e){}
+}
+
+var current=read();
+apply(current.palette,current.mode);
+
+if(button){
+button.addEventListener('click',function(){
+current.mode=resolve(current.mode)==='dark'?'light':'dark';
+apply(current.palette,current.mode);
+store(current.palette,current.mode);
+});
+}
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){
+if(current.mode==='system'){apply(current.palette,current.mode)}
+});
+
+window.addEventListener('storage',function(e){
+if(e.key!=='theme'&&e.key!=='uuid.data'){return}
+current=read();apply(current.palette,current.mode);
+});
+
+document.addEventListener('click',function(e){
+var b=e.target.closest?e.target.closest('.doc-copy'):null;
+if(!b){return}
+var box=b.closest('.doc-case')||b.closest('.code');
+var el=box&&(box.querySelector('.doc-case-out')||box.querySelector('pre code'));
+if(!el||!navigator.clipboard){return}
+navigator.clipboard.writeText(el.textContent).then(function(){
+b.classList.add('is-done');setTimeout(function(){b.classList.remove('is-done')},1400);});
+});
+
+var links=[].slice.call(document.querySelectorAll('.doc-toc a'));
+if(!links.length||!('IntersectionObserver' in window)){return}
+var byId={};links.forEach(function(a){byId[a.getAttribute('href').slice(1)]=a});
+var seen=[];
+var io=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+var id=e.target.id;var at=seen.indexOf(id);
+if(e.isIntersecting){if(at<0){seen.push(id)}}else if(at>=0){seen.splice(at,1)}
+});
+if(!seen.length){return}
+var first=links.map(function(a){return a.getAttribute('href').slice(1)}).filter(function(id){return seen.indexOf(id)>=0})[0];
+links.forEach(function(a){a.classList.toggle('is-here',a.getAttribute('href').slice(1)===first)});
+},{rootMargin:'-80px 0px -70% 0px'});
+Object.keys(byId).forEach(function(id){var el=document.getElementById(id);if(el){io.observe(el)}});
+})();</script>
+<script type="module" src="../docs.js"></script>
+</body>
+</html>

@@ -618,7 +618,7 @@ export default class AppComponent extends React.Component {
                     onGenerated={this.keepGenerated}
                 />
                 <main className="container mx-auto py-6 max-w-7xl px-4 ink">
-                    <h1 className="sr-only">Convert UUIDs between formats</h1>
+                    <h2 className="sr-only">Convert UUIDs between formats</h2>
                     <div className="flex flex-col lg:flex-row">
                         <div className="w-full lg:w-3/5 shrink-0" id="input-cp">
                             <InputComponent

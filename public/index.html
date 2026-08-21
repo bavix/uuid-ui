@@ -3,7 +3,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>UUIDConv UI</title>
+    <title>UUID Converter &amp; Generator — Base64, hex, bytes, int64, ULID</title>
+    <meta name="description" content="Open-source UUID and GUID converter. Convert a UUID to Base64, hex, a byte array, a high/low 64-bit pair, four 32-bit words or a ULID; generate v1, v4, v6, v7, nil and max UUIDs; read the timestamp and the bit layout. Everything runs in the browser.">
+    <link rel="canonical" href="https://bavix.github.io/uuid-ui/">
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)">
 
@@ -64,14 +66,32 @@
     <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+    <link rel="icon" href="./favicon.ico" sizes="any">
     <link rel="manifest" href="./site.webmanifest">
-  <script type="module" crossorigin src="./assets/bundle-BlINkBzc.js"></script>
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="UUIDConv">
+    <meta property="og:title" content="UUID Converter &amp; Generator — Base64, hex, bytes, int64, ULID">
+    <meta property="og:description" content="Convert a UUID to Base64, hex, bytes, a high/low 64-bit pair, four 32-bit words or a ULID. Generate v1, v4, v6, v7, nil and max UUIDs. Runs entirely in the browser.">
+    <meta property="og:url" content="https://bavix.github.io/uuid-ui/">
+    <meta property="og:image" content="https://bavix.github.io/uuid-ui/og.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="UUID Converter &amp; Generator — Base64, hex, bytes, int64, ULID">
+    <meta name="twitter:description" content="Convert a UUID to Base64, hex, bytes, a high/low 64-bit pair, four 32-bit words or a ULID. Runs entirely in the browser.">
+    <meta name="twitter:image" content="https://bavix.github.io/uuid-ui/og.png">
+
+    <link rel="preconnect" href="https://mc.yandex.ru">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://bavix.github.io/uuid-ui/#website","url":"https://bavix.github.io/uuid-ui/","name":"UUIDConv","inLanguage":"en","publisher":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"}},{"@type":"SoftwareApplication","@id":"https://bavix.github.io/uuid-ui/#app","name":"UUIDConv","alternateName":"UUID converter and generator","url":"https://bavix.github.io/uuid-ui/","applicationCategory":"DeveloperApplication","applicationSubCategory":"Developer utility","operatingSystem":"Any","browserRequirements":"Requires JavaScript","image":"https://bavix.github.io/uuid-ui/og.png","isAccessibleForFree":true,"license":"https://opensource.org/licenses/MIT","author":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"},"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["Convert a UUID to UUID text","Convert a UUID to high/low 64-bit pair","Convert a UUID to Base64","Convert a UUID to byte array","Convert a UUID to ULID","Convert a UUID to four 32-bit words"],"sameAs":["https://github.com/bavix/uuid-ui","https://hub.docker.com/r/bavix/uuid-ui"]},{"@type":"SoftwareSourceCode","@id":"https://bavix.github.io/uuid-ui/#source","name":"bavix/uuid-ui","codeRepository":"https://github.com/bavix/uuid-ui","url":"https://github.com/bavix/uuid-ui","programmingLanguage":["JavaScript","Go"],"runtimePlatform":"Docker","license":"https://opensource.org/licenses/MIT","author":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"},"about":{"@id":"https://bavix.github.io/uuid-ui/#app"}}]}</script>
+  <script type="module" crossorigin src="./assets/bundle-Lgd1rKmB.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/hooks.module-KqFXEyiW.js">
   <link rel="modulepreload" crossorigin href="./assets/compat.module-BVrdTTGK.js">
-  <link rel="stylesheet" crossorigin href="./assets/index-BfUHkNIO.css">
+  <link rel="stylesheet" crossorigin href="./assets/index-2G2OBKWm.css">
 </head>
 <body>
     <div id="app"></div>
+    <h1 class="sr-only">UUID converter and generator: Base64, hex, bytes, high/low 64-bit pair, 32-bit words, ULID</h1>
 
     <footer class="footer-main">
         <div class="footer-container">
@@ -96,6 +116,8 @@
                 >
                     Andreyanov Denis
                 </a>
+                <span class="footer-separator" aria-hidden="true">•</span>
+                <a href="./reference/" class="footer-link">UUID reference</a>
                 <span class="footer-separator" aria-hidden="true">•</span>
                 <a 
                     href="https://github.com/bavix/uuid-ui" 

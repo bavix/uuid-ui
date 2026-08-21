@@ -1,0 +1,95 @@
+# UUIDConv
+
+> UUID converter and generator that runs in your browser. Open source (MIT), self-hostable with `docker run bavix/uuid-ui`, and every conversion happens in the browser: nothing is uploaded.
+
+- Tool: https://bavix.github.io/uuid-ui/
+- Source: https://github.com/bavix/uuid-ui
+- Full text of every page below: https://bavix.github.io/uuid-ui/llms-full.txt
+- Machine-readable constants: https://bavix.github.io/uuid-ui/uuid-facts.json
+
+## Formats it converts between
+
+- `uuid` — UUID text
+- `high-low` — high/low 64-bit pair
+- `base64` — Base64
+- `bytes` — byte array
+- `ulid` — ULID
+- `words` — four 32-bit words
+
+## Linking into the converter
+
+The target format travels in the URL fragment, so a link can open the tool ready to use:
+
+- `https://bavix.github.io/uuid-ui/#to=<uuid|high-low|base64|bytes|ulid|words>` — the format to convert into.
+- `&in=<signed|unsigned>` — how a high/low pair or a set of words is read.
+- `&out=<signed|unsigned>` — the reading to write, when it differs from the one being read.
+- `&style=<plain|hex|braces|urn|std|url|upper|lower|decimal|chex|object|pair|quad>` — the spelling of the result.
+- `&case=upper` — capital hex.
+
+Values are never put in the URL by design: identifiers people paste here are production data,
+and a link carrying one would write it into browser history and into whatever chat it is pasted in.
+
+## Pages
+
+- [UUID reference](https://bavix.github.io/uuid-ui/reference/): A reference for working with UUIDs and GUIDs: the 128-bit layout, versions 1 to 8, and how a UUID maps onto Base64, hex, bytes, 64-bit integers, 32-bit words and ULIDs.
+- [What is a UUID?](https://bavix.github.io/uuid-ui/what-is-a-uuid/): A UUID is a 128-bit identifier defined by RFC 9562 that any machine can generate without asking anyone. What that buys you, what it costs, and how UUID and GUID relate.
+- [GUID and UUID](https://bavix.github.io/uuid-ui/guid-vs-uuid/): Whether a GUID and a UUID are the same thing, where the two words come from, and the one real difference: the byte order some Microsoft APIs use.
+- [UUID versions, side by side](https://bavix.github.io/uuid-ui/uuid-versions/): Every UUID version side by side: what each one is made of, whether it sorts by time, what it reveals, and which to pick. Based on RFC 9562, not the obsolete RFC 4122.
+- [UUID v4 or v7](https://bavix.github.io/uuid-ui/uuid-v4-vs-v7/): A direct comparison of random v4 and time-ordered v7: what each contains, how they behave in a B-tree index, what v7 reveals, and the rule for choosing between them.
+- [UUID as a primary key](https://bavix.github.io/uuid-ui/uuid-primary-key/): What a UUID costs as a primary key, why v7 removes most of that cost, how it compares with a bigint, and what to store in the column in PostgreSQL, MySQL and SQL Server.
+- [Generating identifiers](https://bavix.github.io/uuid-ui/uuid-generator/): Generate any UUID version in the browser: random v4, time-ordered v7, name-based v3 and v5, the v1 and v6 clocks, plus Nil, Max and a ULID. Aim the clock at any moment.
+- [Converting a column of identifiers](https://bavix.github.io/uuid-ui/uuid-bulk-convert/): Paste a whole column of identifiers and convert every line in one go, mixing formats freely, with comments kept and the results held in a searchable history.
+- [UUID to a 16-byte array](https://bavix.github.io/uuid-ui/uuid-to-bytes/): Convert a UUID or GUID into its 16 bytes and back, as decimals, spaced hex or a 0x-prefixed C array, with the byte order every major language uses spelled out.
+- [UUID without dashes, and the other spellings](https://bavix.github.io/uuid-ui/uuid-to-hex/): Strip the dashes from a UUID or put them back, and switch between the plain, hex, braced and urn:uuid spellings, in lower case or the capitals Windows writes.
+- [Every way to write the same UUID](https://bavix.github.io/uuid-ui/uuid-formats/): Every way the same UUID gets written: canonical, 32 bare hex digits, braced, urn:uuid and capitals, with the .NET N/D/B/P/X names and which system expects which.
+- [UUID to Base64, and the short forms](https://bavix.github.io/uuid-ui/uuid-to-base64/): Convert a UUID or GUID to Base64 and back, in the standard alphabet or the URL-safe one, and see how 36 characters become 22 without losing a bit.
+- [UUID to a high/low 64-bit pair](https://bavix.github.io/uuid-ui/uuid-to-long/): Convert a UUID into a high/low pair of 64-bit integers, the shape Java, Kotlin, Kafka and Rust use. Signed and unsigned readings, and why the number comes out negative.
+- [UUID to four 32-bit words](https://bavix.github.io/uuid-ui/uuid-to-words/): Convert a UUID into four 32-bit words: the Minecraft NBT int array, the Unreal FGuid A/B/C/D fields, and the four uint32 a protobuf schema carries an identifier in.
+- [UUID byte order: big-endian, and the Microsoft exception](https://bavix.github.io/uuid-ui/uuid-byte-order/): Why the same GUID comes out of a Microsoft API with its bytes shuffled: mixed-endian layout against the big-endian order RFC 9562 defines, and how to tell which one you were handed.
+- [Get the timestamp out of a UUID](https://bavix.github.io/uuid-ui/uuid-timestamp/): Read the creation time out of a UUID v1, v6 or v7 and out of a ULID: which versions carry a clock, what epoch each one counts from, and what the decoded value can be trusted to mean.
+- [The bit layout of a UUID](https://bavix.github.io/uuid-ui/uuid-bit-layout/): A bit-by-bit map of a UUID: where the version and variant sit, what each version spends its remaining 122 bits on, and how to read the layout off the printed form.
+- [Validating a UUID](https://bavix.github.io/uuid-ui/uuid-validation/): How to check a UUID properly: the regex that matches the canonical form, why the version and variant nibbles matter, and which strings look like UUIDs but are not.
+- [How likely is a UUID collision?](https://bavix.github.io/uuid-ui/uuid-collision-probability/): How likely two random UUIDs are to collide, worked from the birthday problem over 122 random bits, and why a broken generator is the risk that actually matters.
+- [UUID version 1](https://bavix.github.io/uuid-ui/uuid-v1/): How a version 1 UUID stores time as 100-nanosecond ticks since 1582, why the node field is often a real MAC address, and why v1 identifiers do not sort by time.
+- [UUID version 3](https://bavix.github.io/uuid-ui/uuid-v3/): What a version 3 UUID is, how it derives an identifier from a namespace and a name with MD5, and why v5 is the better choice unless you must match an existing system.
+- [UUID version 4](https://bavix.github.io/uuid-ui/uuid-v4/): What a random UUID actually contains, how likely a collision really is, why six of its bits are never random, and when v7 is the better default for a database key.
+- [UUID version 5](https://bavix.github.io/uuid-ui/uuid-v5/): How a version 5 UUID is derived with SHA-1 from a namespace and a name, why the same input always gives the same identifier, and how it differs from v3.
+- [UUID version 6](https://bavix.github.io/uuid-ui/uuid-v6/): Version 6 keeps the v1 clock and node but writes the timestamp most significant bits first, so the identifiers sort by creation time. When to choose it over v7.
+- [UUID version 7](https://bavix.github.io/uuid-ui/uuid-v7/): What a UUID v7 is made of, why it sorts by time, how it compares with v4 and ULID, and what to check before using one as a primary key. Generate and decode v7 in the browser.
+- [UUID version 8](https://bavix.github.io/uuid-ui/uuid-v8/): Version 8 claims only the version and variant bits and leaves the other 122 to you. What to put in them, what breaks when you do, and how to stay a valid UUID.
+- [The Nil UUID](https://bavix.github.io/uuid-ui/nil-uuid/): What the all-zero UUID means, why it has neither a version nor a variant, and when using it as a placeholder is better or worse than NULL.
+- [The Max UUID](https://bavix.github.io/uuid-ui/max-uuid/): The all-ones UUID added by RFC 9562: what it is for, why it has no version, and how it pairs with the Nil UUID as the bounds of a range scan.
+- [Namespaces for name-based UUIDs](https://bavix.github.io/uuid-ui/uuid-namespaces/): The four namespace IDs RFC 9562 registers for name-based UUIDs, what each one means, and how to define your own namespace without colliding with anyone.
+- [UUIDs in PostgreSQL](https://bavix.github.io/uuid-ui/uuid-in-postgresql/): How PostgreSQL stores UUIDs in 16 bytes, which generator to use, why v4 keys hurt a B-tree, and what uuidv7() in PostgreSQL 18 changes.
+- [UUIDs in MySQL](https://bavix.github.io/uuid-ui/uuid-in-mysql/): How to store UUIDs in MySQL without wasting space: the BINARY(16) column, the swap flag on UUID_TO_BIN, and why the swap exists at all.
+- [UUIDs in SQL Server](https://bavix.github.io/uuid-ui/uuid-in-sql-server/): Why SQL Server sorts uniqueidentifier values by the last group first, how its byte order differs from RFC 9562, and what NEWSEQUENTIALID actually guarantees.
+- [UUIDs in MongoDB](https://bavix.github.io/uuid-ui/uuid-in-mongodb/): How MongoDB stores UUIDs as BSON binary, why subtype 3 is a per-driver minefield, and how to move legacy values to the standard subtype 4.
+- [ULID, and how it maps onto a UUID](https://bavix.github.io/uuid-ui/ulid/): What a ULID contains, how its Crockford base32 alphabet works, and how to convert between ULID and UUID without changing a single bit of the identifier.
+- [ULID or UUID v7](https://bavix.github.io/uuid-ui/ulid-vs-uuid/): A direct comparison of ULID and UUID v7 on length, alphabet, entropy, monotonicity, database support and tooling, with a clear rule for picking one.
+- [When not to use a UUID](https://bavix.github.io/uuid-ui/uuid-alternatives/): When a UUID is not the right identifier: Snowflake IDs, KSUID, NanoID, CUID2 and plain auto-increment, compared on length, ordering and coordination.
+- [UUIDs in eight languages](https://bavix.github.io/uuid-ui/uuid-code-examples/): Generating, parsing and converting UUIDs in eight languages, including the byte-order traps in Python bytes_le and .NET ToByteArray.
+- [A UUID tool you can host yourself](https://bavix.github.io/uuid-ui/self-hosted-uuid-tool/): Run a UUID converter and generator inside your own network: one static image, no backend, no telemetry on the identifiers, and the same tool works offline in the browser.
+
+## UUID facts (checkable)
+
+- v1 bit layout: time_low 0-31, time_mid 32-47, version 48-51, variant 64-65, time_high 52-63, clock_seq 66-79, node 80-127
+- v2 bit layout: local_id 0-31, time_mid 32-47, version 48-51, variant 64-65, time_high 52-63, clock_seq_hi 66-71, local_domain 72-79, node 80-127
+- v3 bit layout: md5_high 0-47, version 48-51, variant 64-65, md5_mid 52-63, md5_low 66-127
+- v4 bit layout: random 0-47, version 48-51, variant 64-65, random 52-63, random 66-127
+- v5 bit layout: sha1_high 0-47, version 48-51, variant 64-65, sha1_mid 52-63, sha1_low 66-127
+- v6 bit layout: time_high 0-31, time_mid 32-47, version 48-51, variant 64-65, time_low 52-63, clock_seq 66-79, node 80-127
+- v7 bit layout: unix_ts_ms 0-47, version 48-51, variant 64-65, rand_a 52-63, rand_b 66-127
+- v8 bit layout: custom_a 0-47, version 48-51, variant 64-65, custom_b 52-63, custom_c 66-127
+- A UUID is 128 bits: 4 bits of version, 2 bits of variant, 122 bits left for the layout to spend.
+- v4 spends all 122 on randomness; v7 spends 48 on Unix milliseconds and 74 on randomness.
+- A ULID spends 48 bits on the same milliseconds and 80 on randomness, and prints as 26 Crockford base32 characters.
+- A v1 clock counts 100-nanosecond ticks from 1582-10-15.
+- Nil UUID is 00000000-0000-0000-0000-000000000000; Max UUID is ffffffff-ffff-ffff-ffff-ffffffffffff. Neither carries a version.
+- Base64 of the 16 bytes is 24 characters with padding, 22 without.
+
+## Name-based namespaces (RFC 9562 section 6.6)
+
+- DNS: 6ba7b810-9dad-11d1-80b4-00c04fd430c8
+- URL: 6ba7b811-9dad-11d1-80b4-00c04fd430c8
+- OID: 6ba7b812-9dad-11d1-80b4-00c04fd430c8
+- X500: 6ba7b814-9dad-11d1-80b4-00c04fd430c8

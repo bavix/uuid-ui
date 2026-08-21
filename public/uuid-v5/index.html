@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<!-- uuid-ui:generated-page -->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UUID v5: deterministic identifiers from a name | UUIDConv</title>
+    <meta name="description" content="How a version 5 UUID is derived with SHA-1 from a namespace and a name, why the same input always gives the same identifier, and how it differs from v3.">
+    <link rel="canonical" href="https://bavix.github.io/uuid-ui/uuid-v5/">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="UUIDConv">
+    <meta property="og:title" content="UUID version 5">
+    <meta property="og:description" content="How a version 5 UUID is derived with SHA-1 from a namespace and a name, why the same input always gives the same identifier, and how it differs from v3.">
+    <meta property="og:url" content="https://bavix.github.io/uuid-ui/uuid-v5/">
+    <meta property="og:image" content="https://bavix.github.io/uuid-ui/og.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="UUID version 5">
+    <meta name="twitter:description" content="How a version 5 UUID is derived with SHA-1 from a namespace and a name, why the same input always gives the same identifier, and how it differs from v3.">
+    <meta name="twitter:image" content="https://bavix.github.io/uuid-ui/og.png">
+    <link rel="icon" href="../favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+    <link rel="stylesheet" href="../theme.css">
+    <link rel="stylesheet" href="../docs.css">
+    <script>window.__docCustom=function(root,mode){try{
+var raw=localStorage.getItem('uuid.data');if(!raw){return}
+var held=JSON.parse(raw);var text=held&&held.settings&&held.settings.customTheme&&held.settings.customTheme.value;
+if(typeof text!=='string'||text===''){return}
+var theme=JSON.parse(text);
+var tokens=(theme.variants&&(theme.variants[mode]||theme.variants[mode==='dark'?'light':'dark']))
+||(theme[mode]&&(theme[mode].tokens||theme[mode]))||theme.tokens;
+if(!tokens){return}
+Object.keys(tokens).forEach(function(name){
+var bare=String(name).replace(/^--/,'');var value=String(tokens[name]).trim();
+if(!/^[a-z0-9-]{1,40}$/.test(bare)||/[;{}]|url\(|expression|@import/i.test(value)){return}
+root.style.setProperty('--'+bare,value);});
+}catch(e){}};(function(){try{
+var s=localStorage.getItem('theme')||'';var p=s.split(':');
+var palette=p.length===2?p[0]:'default';var m=p.length===2?p[1]:s;
+if(m==='true'||m==='"true"'){m='dark'}if(m==='false'||m==='"false"'){m='light'}
+if(m!=='dark'&&m!=='light'){m=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+var r=document.documentElement;r.classList.add(m);r.style.colorScheme=m;
+if(/^[a-z0-9][a-z0-9-]{0,31}$/.test(palette)&&palette!=='default'){r.setAttribute('data-theme',palette)}
+if(palette==='custom'&&window.__docCustom){window.__docCustom(r,m)}
+}catch(e){}})();</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://bavix.github.io/uuid-ui/#website","url":"https://bavix.github.io/uuid-ui/","name":"UUIDConv","inLanguage":"en","publisher":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"}},{"@type":"TechArticle","@id":"https://bavix.github.io/uuid-ui/uuid-v5/#article","headline":"UUID version 5","name":"UUID version 5","description":"How a version 5 UUID is derived with SHA-1 from a namespace and a name, why the same input always gives the same identifier, and how it differs from v3.","abstract":"A v5 is the SHA-1 of a namespace UUID and a name, truncated to 128 bits with the version and variant bits overwritten. The same namespace and name always produce the same identifier, on any machine, forever.","url":"https://bavix.github.io/uuid-ui/uuid-v5/","mainEntityOfPage":"https://bavix.github.io/uuid-ui/uuid-v5/","inLanguage":"en","datePublished":"2026-08-21","dateModified":"2026-08-21","author":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"},"publisher":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"},"isPartOf":{"@id":"https://bavix.github.io/uuid-ui/#website"},"about":{"@id":"https://bavix.github.io/uuid-ui/#app"},"proficiencyLevel":"Beginner"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"UUIDConv","item":"https://bavix.github.io/uuid-ui/"},{"@type":"ListItem","position":2,"name":"UUID reference","item":"https://bavix.github.io/uuid-ui/reference/"},{"@type":"ListItem","position":3,"name":"UUID version 5","item":"https://bavix.github.io/uuid-ui/uuid-v5/"}]},{"@type":"FAQPage","@id":"https://bavix.github.io/uuid-ui/uuid-v5/#faq","mainEntity":[{"@type":"Question","name":"Will the same name always give the same UUID v5?","acceptedAnswer":{"@type":"Answer","text":"Yes, in every language and on every machine. It is SHA-1 over the namespace bytes and the name, with six bits overwritten."}},{"@type":"Question","name":"Is UUID v5 secure because it uses SHA-1?","acceptedAnswer":{"@type":"Answer","text":"No. The hash makes it deterministic, not secret. Anyone who can guess the name can compute the identifier."}},{"@type":"Question","name":"Can I use my own namespace UUID?","acceptedAnswer":{"@type":"Answer","text":"Yes. Any UUID works as a namespace; the four registered ones are conveniences, not a requirement."}}]}]}</script>
+</head>
+<body class="doc type-uuid">
+<nav class="app-header backdrop-blur-sm shadow-md border-b sticky top-0 z-50" role="navigation" aria-label="main navigation">
+    <div class="container mx-auto max-w-7xl">
+        <div class="doc-bar">
+            <a class="doc-brand" href="../">
+                <img src="../android-chrome-192x192.png" class="h-9 w-9 rounded-lg brand-mark" alt="">
+                <span class="brand-text font-bold text-lg gradient-animate">UUIDConv UI</span>
+            </a>
+            <nav class="doc-crumbs" aria-label="Breadcrumb"><a href="../reference/">UUID reference</a><span class="doc-crumb-sep" aria-hidden="true">/</span><span aria-current="page">UUID version 5</span></nav>
+            <div class="doc-bar-actions">
+                <a class="doc-open is-bar" href="../#to=uuid">Converter<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+                <a href="https://github.com/bavix/uuid-ui" target="_blank" rel="noopener noreferrer" class="doc-icon" aria-label="Open project on GitHub" title="Open project on GitHub">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.07 3.29 9.37 7.86 10.88.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.38-3.88-1.38-.53-1.36-1.3-1.73-1.3-1.73-1.06-.73.08-.72.08-.72 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.75.41-1.27.75-1.56-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.18 1.19.92-.26 1.9-.39 2.88-.39.98 0 1.96.13 2.88.39 2.2-1.5 3.17-1.19 3.17-1.19.64 1.58.24 2.75.12 3.04.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.41-5.27 5.69.42.36.79 1.08.79 2.17 0 1.57-.01 2.84-.01 3.22 0 .31.21.68.8.56C20.71 21.37 24 17.07 24 12 24 5.73 18.27.5 12 .5z"/></svg>
+                </a>
+                <button type="button" id="doc-theme" class="doc-icon" aria-label="Toggle theme" title="Toggle theme">
+                    <svg class="doc-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.1 5.1l1.4 1.4M17.5 17.5l1.4 1.4M18.9 5.1l-1.4 1.4M6.5 17.5l-1.4 1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    <svg class="doc-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="doc-shell container mx-auto max-w-7xl">
+<nav class="doc-rail" aria-label="Reference"><a class="doc-rail-hub" href="../reference/">UUID reference</a><ul class="doc-rail-list"><li class="doc-rail-group"><p class="doc-rail-title">Start here</p><ul><li><a href="../what-is-a-uuid/">What is a UUID?</a></li><li><a href="../guid-vs-uuid/">GUID and UUID</a></li><li><a href="../uuid-versions/">All versions side by side</a></li><li><a href="../uuid-v4-vs-v7/">v4 or v7</a></li><li><a href="../uuid-primary-key/">UUID as a primary key</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Making and converting in bulk</p><ul><li><a href="../uuid-generator/">The generator</a></li><li><a href="../uuid-bulk-convert/">A whole column at once</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Converting a UUID</p><ul><li><a href="../uuid-to-bytes/">To a 16-byte array</a></li><li><a href="../uuid-to-hex/">Without dashes</a></li><li><a href="../uuid-formats/">Every way to write one</a></li><li><a href="../uuid-to-base64/">To Base64, and the short forms</a></li><li><a href="../uuid-to-long/">To a high/low 64-bit pair</a></li><li><a href="../uuid-to-words/">To four 32-bit words</a></li><li><a href="../uuid-byte-order/">Byte order: RFC against mixed-endian GUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Reading one</p><ul><li><a href="../uuid-timestamp/">Decoding the timestamp</a></li><li><a href="../uuid-bit-layout/">The bit layout</a></li><li><a href="../uuid-validation/">Validating a UUID</a></li><li><a href="../uuid-collision-probability/">Collision probability</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">The versions, in order</p><ul><li><a href="../uuid-v1/">Version 1</a></li><li><a href="../uuid-v3/">Version 3</a></li><li><a href="../uuid-v4/">Version 4</a></li><li><a href="../uuid-v5/" class="is-here" aria-current="page">Version 5</a></li><li><a href="../uuid-v6/">Version 6</a></li><li><a href="../uuid-v7/">Version 7</a></li><li><a href="../uuid-v8/">Version 8</a></li><li><a href="../nil-uuid/">The Nil UUID</a></li><li><a href="../max-uuid/">The Max UUID</a></li><li><a href="../uuid-namespaces/">Namespaces</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">In a database</p><ul><li><a href="../uuid-in-postgresql/">PostgreSQL</a></li><li><a href="../uuid-in-mysql/">MySQL</a></li><li><a href="../uuid-in-sql-server/">SQL Server</a></li><li><a href="../uuid-in-mongodb/">MongoDB</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">ULID and the alternatives</p><ul><li><a href="../ulid/">ULID</a></li><li><a href="../ulid-vs-uuid/">ULID or UUID v7</a></li><li><a href="../uuid-alternatives/">When not to use a UUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Running the tool</p><ul><li><a href="../uuid-code-examples/">Code examples</a></li><li><a href="../self-hosted-uuid-tool/">Self-hosted and offline</a></li></ul></li></ul></nav>
+<main class="doc-main">
+<article>
+<header class="doc-lead">
+<h1>UUID version 5</h1>
+<p class="doc-meta"><span class="doc-chip">UUID text</span><span>8 sections</span><span>Updated <time datetime="2026-08-21">2026-08-21</time></span></p>
+<p class="doc-tldr">A v5 is the SHA-1 of a namespace UUID and a name, truncated to 128 bits with the version and variant bits overwritten. The same namespace and name always produce the same identifier, on any machine, forever.</p>
+<p class="doc-lede">Version 5 is the one UUID you can recompute. That makes it the right tool when two systems must agree on an identifier without talking to each other, and the wrong tool when the identifier has to be unguessable.</p>
+</header>
+<section class="doc-try" id="worked-example" aria-label="Worked example"><div class="doc-try-head"><span class="doc-chip">What the converter reads</span><span class="doc-try-hint">computed by the converter itself</span></div><div class="doc-cases"><div class="doc-case"><span class="doc-case-tag">in</span><code class="doc-case-in">cfbff0d1-9375-5685-968c-48ce8b15ae17</code><span class="doc-case-tag is-out">out</span><code class="doc-case-out">uuid · RFC 9562 (10xx) · version 5</code><button type="button" class="doc-copy" aria-label="Copy this value"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="doc-case-note">DNS namespace, example.com</p></div><div class="doc-case"><span class="doc-case-tag">in</span><code class="doc-case-in">5cb4f8c0-aecd-590e-b4ac-82b9ab7f1529</code><span class="doc-case-tag is-out">out</span><code class="doc-case-out">uuid · RFC 9562 (10xx) · version 5</code><button type="button" class="doc-copy" aria-label="Copy this value"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="doc-case-note">DNS namespace, bavix.github.io</p></div></div><div class="doc-try-foot"><a class="doc-open" href="../#to=uuid">Open the converter: UUID text<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a><span class="doc-try-note">Nothing you paste leaves the browser.</span></div></section>
+<section class="doc-play" data-play data-to="uuid" hidden><div class="doc-play-head"><span class="doc-chip">Playground</span><span class="doc-play-hint">runs here in the page; nothing is sent anywhere</span></div><div class="doc-play-formats" role="group" aria-label="Format"><button type="button" class="doc-play-chip is-on" data-format="uuid" aria-pressed="true">uuid</button><button type="button" class="doc-play-chip" data-format="high-low" aria-pressed="false">high-low</button><button type="button" class="doc-play-chip" data-format="base64" aria-pressed="false">base64</button><button type="button" class="doc-play-chip" data-format="bytes" aria-pressed="false">bytes</button><button type="button" class="doc-play-chip" data-format="ulid" aria-pressed="false">ulid</button><button type="button" class="doc-play-chip" data-format="words" aria-pressed="false">words</button></div><label class="sr-only" for="doc-play-input">Identifier</label><input id="doc-play-input" class="doc-play-input" spellcheck="false" autocomplete="off" placeholder="paste a UUID, a ULID, a byte array, a pair of longs…"><div class="doc-play-row"><button type="button" class="doc-play-fill" data-fill="v4">Random v4</button><button type="button" class="doc-play-fill" data-fill="v7">Time-ordered v7</button></div><p class="doc-play-out"><code></code></p><p class="doc-play-note"></p></section>
+<details class="doc-toc-mobile"><summary>On this page (8)</summary><ul class="doc-toc-mobile-list"><li><a href="#worked-example">Worked example</a></li><li><a href="#how-it-is-derived">How it is derived</a></li><li><a href="#the-same-name-computed-here">The same name, computed here</a></li><li><a href="#what-it-is-good-for">What it is good for</a></li><li><a href="#what-it-is-not-good-for">What it is not good for</a></li><li><a href="#v5-or-v3">v5 or v3</a></li><li><a href="#questions-people-actually-ask">Questions people actually ask</a></li><li><a href="#related">Related</a></li></ul></details>
+<div class="doc-prose">
+<h2 id="how-it-is-derived">How it is derived<a class="doc-anchor" href="#how-it-is-derived" aria-label="Link to this section">#</a></h2>
+<p>Take the 16 bytes of the namespace UUID, append the name as bytes, hash with SHA-1, keep the first 16 bytes of the digest, then overwrite four bits with the version and two with the variant. Nothing is random and nothing depends on the machine, so the result is a pure function of two inputs.</p>
+<figure class="doc-specimen report"><div class="report-specimen"><div class="report-chars" role="img" aria-label="cfbff0d1-9375-5685-968c-48ce8b15ae17, a version 5 identifier, field by field"><span class="report-char k-hash" title="sha1_high">c</span><span class="report-char k-hash" title="sha1_high">f</span><span class="report-char k-hash" title="sha1_high">b</span><span class="report-char k-hash" title="sha1_high">f</span><span class="report-char k-hash" title="sha1_high">f</span><span class="report-char k-hash" title="sha1_high">0</span><span class="report-char k-hash" title="sha1_high">d</span><span class="report-char k-hash" title="sha1_high">1</span><span class="report-char k-hash is-group" title="sha1_high">9</span><span class="report-char k-hash" title="sha1_high">3</span><span class="report-char k-hash" title="sha1_high">7</span><span class="report-char k-hash" title="sha1_high">5</span><span class="report-char k-version is-group" title="version">5</span><span class="report-char k-hash" title="sha1_mid">6</span><span class="report-char k-hash" title="sha1_mid">8</span><span class="report-char k-hash" title="sha1_mid">5</span><span class="report-char k-variant is-group" title="variant">9</span><span class="report-char k-hash" title="sha1_low">6</span><span class="report-char k-hash" title="sha1_low">8</span><span class="report-char k-hash" title="sha1_low">c</span><span class="report-char k-hash is-group" title="sha1_low">4</span><span class="report-char k-hash" title="sha1_low">8</span><span class="report-char k-hash" title="sha1_low">c</span><span class="report-char k-hash" title="sha1_low">e</span><span class="report-char k-hash" title="sha1_low">8</span><span class="report-char k-hash" title="sha1_low">b</span><span class="report-char k-hash" title="sha1_low">1</span><span class="report-char k-hash" title="sha1_low">5</span><span class="report-char k-hash" title="sha1_low">a</span><span class="report-char k-hash" title="sha1_low">e</span><span class="report-char k-hash" title="sha1_low">1</span><span class="report-char k-hash" title="sha1_low">7</span></div><div class="report-bits" aria-hidden="true"><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on is-group"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-version is-group"></span><span class="report-bit k-version is-on"></span><span class="report-bit k-version"></span><span class="report-bit k-version is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-variant is-on is-group"></span><span class="report-bit k-variant"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-group"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span><span class="report-bit k-hash is-on"></span></div><div class="report-ruler" aria-hidden="true"><span class="report-run k-hash" style="flex-grow:48">sha1_high</span><span class="report-run k-version is-narrow" style="flex-grow:4">version</span><span class="report-run k-hash" style="flex-grow:12">sha1_mid</span><span class="report-run k-variant is-narrow" style="flex-grow:2">variant</span><span class="report-run k-hash" style="flex-grow:62">sha1_low</span></div><div class="report-octets" aria-hidden="true"><span class="report-octet">byte 0</span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet">byte 4</span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet">byte 8</span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet">byte 12</span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet"></span></div></div><div class="report-chips"><span class="report-chip k-hash">sha1_high 0-47</span><span class="report-chip k-version">version 48-51</span><span class="report-chip k-hash">sha1_mid 52-63</span><span class="report-chip k-variant">variant 64-65</span><span class="report-chip k-hash">sha1_low 66-127</span></div><p class="doc-reading" aria-live="polite"></p><figcaption>A SHA-1 digest with six bits overwritten.</figcaption></figure>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-5.5" target="_blank" rel="noopener noreferrer">RFC 9562 § 5.5 · UUID Version 5</a><span class="rfc-note">The v5 layout</span></p>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-6.5" target="_blank" rel="noopener noreferrer">RFC 9562 § 6.5 · Name-Based UUID Generation</a><span class="rfc-note">The name-based derivation, step by step</span></p>
+<h2 id="the-same-name-computed-here">The same name, computed here<a class="doc-anchor" href="#the-same-name-computed-here" aria-label="Link to this section">#</a></h2>
+<div class="scroller"><table><thead><tr><th scope="col">Name (DNS namespace)</th><th scope="col">UUID v5</th></tr></thead><tbody><tr><td data-th="Name (DNS namespace)">example.com</td><td data-th="UUID v5">cfbff0d1-9375-5685-968c-48ce8b15ae17</td></tr><tr><td data-th="Name (DNS namespace)">bavix.github.io</td><td data-th="UUID v5">5cb4f8c0-aecd-590e-b4ac-82b9ab7f1529</td></tr><tr><td data-th="Name (DNS namespace)">uuid-ui</td><td data-th="UUID v5">ef2cfb92-8335-5f49-8919-b20b627019ea</td></tr></tbody></table></div>
+<p>Run the same pair through any library in any language and you get the same row. That is the whole promise of the layout.</p>
+<h2 id="what-it-is-good-for">What it is good for<a class="doc-anchor" href="#what-it-is-good-for" aria-label="Link to this section">#</a></h2>
+<ul><li>Idempotent imports: the identifier of a row derived from its natural key, so re-running the import updates instead of duplicating.</li><li>Cross-system agreement: two services that both know the tenant and the resource name compute the same identifier without a lookup.</li><li>Stable test fixtures: no random values in snapshots.</li><li>Content addressing where a real hash would be too long to fit a UUID column.</li></ul>
+<h2 id="what-it-is-not-good-for">What it is not good for<a class="doc-anchor" href="#what-it-is-not-good-for" aria-label="Link to this section">#</a></h2>
+<p>A v5 is guessable by construction. If the name is an email address, a username or a sequential number, anyone who can guess the name can compute the identifier, and if that identifier grants access, you have built a lookup table for attackers. The SHA-1 here is a mapping function, not a security boundary, and the standard says so plainly.</p>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-6.9" target="_blank" rel="noopener noreferrer">RFC 9562 § 6.9 · Unguessability</a><span class="rfc-note">Unguessability, and why a name-based identifier is not a secret</span></p>
+<h2 id="v5-or-v3">v5 or v3<a class="doc-anchor" href="#v5-or-v3" aria-label="Link to this section">#</a></h2>
+<p>Identical contract, different hash: v5 uses SHA-1, v3 uses MD5. Neither is being used for its collision resistance, and both truncate to 128 bits anyway. Pick v5 for anything new, and v3 only when an existing system already computes MD5-based identifiers you have to match.</p>
+</div>
+<section class="doc-faq"><h2 id="questions-people-actually-ask">Questions people actually ask<a class="doc-anchor" href="#questions-people-actually-ask" aria-label="Link to this section">#</a></h2><div class="doc-qa"><h3>Will the same name always give the same UUID v5?</h3><p>Yes, in every language and on every machine. It is SHA-1 over the namespace bytes and the name, with six bits overwritten.</p></div><div class="doc-qa"><h3>Is UUID v5 secure because it uses SHA-1?</h3><p>No. The hash makes it deterministic, not secret. Anyone who can guess the name can compute the identifier.</p></div><div class="doc-qa"><h3>Can I use my own namespace UUID?</h3><p>Yes. Any UUID works as a namespace; the four registered ones are conveniences, not a requirement.</p></div></section>
+<nav class="doc-related" aria-label="Related pages"><h2 id="related">Related<a class="doc-anchor" href="#related" aria-label="Link to this section">#</a></h2><ul><li><a href="../uuid-v3/">UUID version 3</a></li><li><a href="../uuid-namespaces/">Namespaces for name-based UUIDs</a></li><li><a href="../uuid-versions/">UUID versions, side by side</a></li><li><a href="../uuid-v4/">UUID version 4</a></li></ul></nav>
+<details class="doc-rail-mobile"><summary>Browse the reference</summary><ul class="doc-rail-list"><li class="doc-rail-group"><p class="doc-rail-title">Start here</p><ul><li><a href="../what-is-a-uuid/">What is a UUID?</a></li><li><a href="../guid-vs-uuid/">GUID and UUID</a></li><li><a href="../uuid-versions/">All versions side by side</a></li><li><a href="../uuid-v4-vs-v7/">v4 or v7</a></li><li><a href="../uuid-primary-key/">UUID as a primary key</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Making and converting in bulk</p><ul><li><a href="../uuid-generator/">The generator</a></li><li><a href="../uuid-bulk-convert/">A whole column at once</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Converting a UUID</p><ul><li><a href="../uuid-to-bytes/">To a 16-byte array</a></li><li><a href="../uuid-to-hex/">Without dashes</a></li><li><a href="../uuid-formats/">Every way to write one</a></li><li><a href="../uuid-to-base64/">To Base64, and the short forms</a></li><li><a href="../uuid-to-long/">To a high/low 64-bit pair</a></li><li><a href="../uuid-to-words/">To four 32-bit words</a></li><li><a href="../uuid-byte-order/">Byte order: RFC against mixed-endian GUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Reading one</p><ul><li><a href="../uuid-timestamp/">Decoding the timestamp</a></li><li><a href="../uuid-bit-layout/">The bit layout</a></li><li><a href="../uuid-validation/">Validating a UUID</a></li><li><a href="../uuid-collision-probability/">Collision probability</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">The versions, in order</p><ul><li><a href="../uuid-v1/">Version 1</a></li><li><a href="../uuid-v3/">Version 3</a></li><li><a href="../uuid-v4/">Version 4</a></li><li><a href="../uuid-v5/" class="is-here" aria-current="page">Version 5</a></li><li><a href="../uuid-v6/">Version 6</a></li><li><a href="../uuid-v7/">Version 7</a></li><li><a href="../uuid-v8/">Version 8</a></li><li><a href="../nil-uuid/">The Nil UUID</a></li><li><a href="../max-uuid/">The Max UUID</a></li><li><a href="../uuid-namespaces/">Namespaces</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">In a database</p><ul><li><a href="../uuid-in-postgresql/">PostgreSQL</a></li><li><a href="../uuid-in-mysql/">MySQL</a></li><li><a href="../uuid-in-sql-server/">SQL Server</a></li><li><a href="../uuid-in-mongodb/">MongoDB</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">ULID and the alternatives</p><ul><li><a href="../ulid/">ULID</a></li><li><a href="../ulid-vs-uuid/">ULID or UUID v7</a></li><li><a href="../uuid-alternatives/">When not to use a UUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Running the tool</p><ul><li><a href="../uuid-code-examples/">Code examples</a></li><li><a href="../self-hosted-uuid-tool/">Self-hosted and offline</a></li></ul></li></ul></details>
+<nav class="doc-steps" aria-label="Reference order"><a class="doc-step is-prev" href="../uuid-v4/"><span class="doc-step-kind">Previous</span><span class="doc-step-title">UUID version 4</span></a><a class="doc-step is-next" href="../uuid-v6/"><span class="doc-step-kind">Next</span><span class="doc-step-title">UUID version 6</span></a></nav>
+</article>
+</main>
+<aside class="doc-side"><nav class="doc-toc" aria-label="On this page"><p class="doc-side-title">On this page</p><ul class=""><li><a href="#worked-example">Worked example</a></li><li><a href="#how-it-is-derived">How it is derived</a></li><li><a href="#the-same-name-computed-here">The same name, computed here</a></li><li><a href="#what-it-is-good-for">What it is good for</a></li><li><a href="#what-it-is-not-good-for">What it is not good for</a></li><li><a href="#v5-or-v3">v5 or v3</a></li><li><a href="#questions-people-actually-ask">Questions people actually ask</a></li><li><a href="#related">Related</a></li></ul></nav></aside>
+</div>
+<footer class="footer-main">
+    <div class="footer-container">
+        <div class="footer-content">
+            <span class="footer-brand">uuid-ui</span>
+            <span class="footer-text">by</span>
+            <a href="https://github.com/rez1dent3" class="footer-link" target="_blank" rel="noopener noreferrer">Babichev Maksim</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../" class="footer-link">Converter</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../reference/" class="footer-link">UUID reference</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../llms.txt" class="footer-link">llms.txt</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="https://github.com/bavix/uuid-ui" class="footer-link" target="_blank" rel="noopener noreferrer">Source Code</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="https://github.com/bavix/uuid-ui/blob/master/LICENSE" class="footer-link" target="_blank" rel="noopener noreferrer">MIT License</a>
+        </div>
+    </div>
+</footer>
+<script>(function(){
+var root=document.documentElement;
+var button=document.getElementById('doc-theme');
+var applied=[];
+
+function read(){
+var raw=localStorage.getItem('theme')||'';var parts=raw.split(':');
+if(parts.length===2){return{palette:parts[0],mode:parts[1]}}
+if(raw==='dark'||raw==='true'||raw==='"true"'){return{palette:'default',mode:'dark'}}
+if(raw==='light'||raw==='false'||raw==='"false"'){return{palette:'default',mode:'light'}}
+return{palette:'default',mode:'system'};
+}
+
+function resolve(mode){
+return mode==='system'
+?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')
+:mode;
+}
+
+function apply(palette,mode){
+var shown=resolve(mode);
+root.classList.toggle('dark',shown==='dark');
+root.classList.toggle('light',shown==='light');
+root.style.colorScheme=shown;
+if(palette&&palette!=='default'&&/^[a-z0-9][a-z0-9-]{0,31}$/.test(palette)){root.setAttribute('data-theme',palette)}
+else{root.removeAttribute('data-theme')}
+applied.forEach(function(name){root.style.removeProperty(name)});
+applied=[];
+if(palette==='custom'&&window.__docCustom){
+var before=root.getAttribute('style')||'';
+window.__docCustom(root,shown);
+var after=root.getAttribute('style')||'';
+if(after!==before){applied=(after.match(/--[a-z0-9-]+/g)||[])}
+}
+return shown;
+}
+
+function store(palette,mode){
+try{
+localStorage.setItem('theme',palette+':'+mode);
+var raw=localStorage.getItem('uuid.data');
+if(!raw){return}
+var held=JSON.parse(raw);
+if(!held||typeof held!=='object'){return}
+var at=Date.now();
+held.settings=held.settings||{};
+held.settings.palette={value:palette,at:at};
+held.settings.theme={value:mode,at:at};
+localStorage.setItem('uuid.data',JSON.stringify(held));
+}catch(e){}
+}
+
+var current=read();
+apply(current.palette,current.mode);
+
+if(button){
+button.addEventListener('click',function(){
+current.mode=resolve(current.mode)==='dark'?'light':'dark';
+apply(current.palette,current.mode);
+store(current.palette,current.mode);
+});
+}
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){
+if(current.mode==='system'){apply(current.palette,current.mode)}
+});
+
+window.addEventListener('storage',function(e){
+if(e.key!=='theme'&&e.key!=='uuid.data'){return}
+current=read();apply(current.palette,current.mode);
+});
+
+document.addEventListener('click',function(e){
+var b=e.target.closest?e.target.closest('.doc-copy'):null;
+if(!b){return}
+var box=b.closest('.doc-case')||b.closest('.code');
+var el=box&&(box.querySelector('.doc-case-out')||box.querySelector('pre code'));
+if(!el||!navigator.clipboard){return}
+navigator.clipboard.writeText(el.textContent).then(function(){
+b.classList.add('is-done');setTimeout(function(){b.classList.remove('is-done')},1400);});
+});
+
+var links=[].slice.call(document.querySelectorAll('.doc-toc a'));
+if(!links.length||!('IntersectionObserver' in window)){return}
+var byId={};links.forEach(function(a){byId[a.getAttribute('href').slice(1)]=a});
+var seen=[];
+var io=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+var id=e.target.id;var at=seen.indexOf(id);
+if(e.isIntersecting){if(at<0){seen.push(id)}}else if(at>=0){seen.splice(at,1)}
+});
+if(!seen.length){return}
+var first=links.map(function(a){return a.getAttribute('href').slice(1)}).filter(function(id){return seen.indexOf(id)>=0})[0];
+links.forEach(function(a){a.classList.toggle('is-here',a.getAttribute('href').slice(1)===first)});
+},{rootMargin:'-80px 0px -70% 0px'});
+Object.keys(byId).forEach(function(id){var el=document.getElementById(id);if(el){io.observe(el)}});
+})();</script>
+<script type="module" src="../docs.js"></script>
+</body>
+</html>

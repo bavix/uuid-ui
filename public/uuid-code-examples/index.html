@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<!-- uuid-ui:generated-page -->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UUID code examples: JS, Python, Go, Java, Rust, C# | UUIDConv</title>
+    <meta name="description" content="Generating, parsing and converting UUIDs in eight languages, including the byte-order traps in Python bytes_le and .NET ToByteArray.">
+    <link rel="canonical" href="https://bavix.github.io/uuid-ui/uuid-code-examples/">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="UUIDConv">
+    <meta property="og:title" content="UUIDs in eight languages">
+    <meta property="og:description" content="Generating, parsing and converting UUIDs in eight languages, including the byte-order traps in Python bytes_le and .NET ToByteArray.">
+    <meta property="og:url" content="https://bavix.github.io/uuid-ui/uuid-code-examples/">
+    <meta property="og:image" content="https://bavix.github.io/uuid-ui/og.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="UUIDs in eight languages">
+    <meta name="twitter:description" content="Generating, parsing and converting UUIDs in eight languages, including the byte-order traps in Python bytes_le and .NET ToByteArray.">
+    <meta name="twitter:image" content="https://bavix.github.io/uuid-ui/og.png">
+    <link rel="icon" href="../favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+    <link rel="stylesheet" href="../theme.css">
+    <link rel="stylesheet" href="../docs.css">
+    <script>window.__docCustom=function(root,mode){try{
+var raw=localStorage.getItem('uuid.data');if(!raw){return}
+var held=JSON.parse(raw);var text=held&&held.settings&&held.settings.customTheme&&held.settings.customTheme.value;
+if(typeof text!=='string'||text===''){return}
+var theme=JSON.parse(text);
+var tokens=(theme.variants&&(theme.variants[mode]||theme.variants[mode==='dark'?'light':'dark']))
+||(theme[mode]&&(theme[mode].tokens||theme[mode]))||theme.tokens;
+if(!tokens){return}
+Object.keys(tokens).forEach(function(name){
+var bare=String(name).replace(/^--/,'');var value=String(tokens[name]).trim();
+if(!/^[a-z0-9-]{1,40}$/.test(bare)||/[;{}]|url\(|expression|@import/i.test(value)){return}
+root.style.setProperty('--'+bare,value);});
+}catch(e){}};(function(){try{
+var s=localStorage.getItem('theme')||'';var p=s.split(':');
+var palette=p.length===2?p[0]:'default';var m=p.length===2?p[1]:s;
+if(m==='true'||m==='"true"'){m='dark'}if(m==='false'||m==='"false"'){m='light'}
+if(m!=='dark'&&m!=='light'){m=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+var r=document.documentElement;r.classList.add(m);r.style.colorScheme=m;
+if(/^[a-z0-9][a-z0-9-]{0,31}$/.test(palette)&&palette!=='default'){r.setAttribute('data-theme',palette)}
+if(palette==='custom'&&window.__docCustom){window.__docCustom(r,m)}
+}catch(e){}})();</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://bavix.github.io/uuid-ui/#website","url":"https://bavix.github.io/uuid-ui/","name":"UUIDConv","inLanguage":"en","publisher":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"}},{"@type":"TechArticle","@id":"https://bavix.github.io/uuid-ui/uuid-code-examples/#article","headline":"UUIDs in eight languages","name":"UUIDs in eight languages","description":"Generating, parsing and converting UUIDs in eight languages, including the byte-order traps in Python bytes_le and .NET ToByteArray.","abstract":"Every language generates and parses UUIDs the same way; they differ in what they hand you for the bytes. Python offers two byte orders, .NET defaults to the mixed-endian one, and Java gives you two longs instead.","url":"https://bavix.github.io/uuid-ui/uuid-code-examples/","mainEntityOfPage":"https://bavix.github.io/uuid-ui/uuid-code-examples/","inLanguage":"en","datePublished":"2026-08-21","dateModified":"2026-08-21","author":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"},"publisher":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"},"isPartOf":{"@id":"https://bavix.github.io/uuid-ui/#website"},"about":{"@id":"https://bavix.github.io/uuid-ui/#app"},"proficiencyLevel":"Beginner"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"UUIDConv","item":"https://bavix.github.io/uuid-ui/"},{"@type":"ListItem","position":2,"name":"UUID reference","item":"https://bavix.github.io/uuid-ui/reference/"},{"@type":"ListItem","position":3,"name":"UUIDs in eight languages","item":"https://bavix.github.io/uuid-ui/uuid-code-examples/"}]},{"@type":"FAQPage","@id":"https://bavix.github.io/uuid-ui/uuid-code-examples/#faq","mainEntity":[{"@type":"Question","name":"How do I generate a UUID v7?","acceptedAnswer":{"@type":"Answer","text":"uuid.v7() in JavaScript, uuid.NewV7() in Go, Uuid::now_v7() in Rust, Guid.CreateVersion7() in .NET 9, Uuid::uuid7() with ramsey/uuid, and uuidv7() in PostgreSQL 18."}},{"@type":"Question","name":"What is the difference between bytes and bytes_le in Python?","acceptedAnswer":{"@type":"Answer","text":"bytes is the RFC big-endian order; bytes_le reverses the first three fields for Windows APIs. They are different arrays for the same identifier."}},{"@type":"Question","name":"Does crypto.randomUUID work everywhere?","acceptedAnswer":{"@type":"Answer","text":"In Node, and in browsers only on a secure context; an HTTP page does not have it. It produces a v4 and nothing else."}}]}]}</script>
+</head>
+<body class="doc type-bytes">
+<nav class="app-header backdrop-blur-sm shadow-md border-b sticky top-0 z-50" role="navigation" aria-label="main navigation">
+    <div class="container mx-auto max-w-7xl">
+        <div class="doc-bar">
+            <a class="doc-brand" href="../">
+                <img src="../android-chrome-192x192.png" class="h-9 w-9 rounded-lg brand-mark" alt="">
+                <span class="brand-text font-bold text-lg gradient-animate">UUIDConv UI</span>
+            </a>
+            <nav class="doc-crumbs" aria-label="Breadcrumb"><a href="../reference/">UUID reference</a><span class="doc-crumb-sep" aria-hidden="true">/</span><span aria-current="page">UUIDs in eight languages</span></nav>
+            <div class="doc-bar-actions">
+                <a class="doc-open is-bar" href="../#to=bytes&amp;style=chex">Converter<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+                <a href="https://github.com/bavix/uuid-ui" target="_blank" rel="noopener noreferrer" class="doc-icon" aria-label="Open project on GitHub" title="Open project on GitHub">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.07 3.29 9.37 7.86 10.88.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.38-3.88-1.38-.53-1.36-1.3-1.73-1.3-1.73-1.06-.73.08-.72.08-.72 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.75.41-1.27.75-1.56-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.18 1.19.92-.26 1.9-.39 2.88-.39.98 0 1.96.13 2.88.39 2.2-1.5 3.17-1.19 3.17-1.19.64 1.58.24 2.75.12 3.04.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.41-5.27 5.69.42.36.79 1.08.79 2.17 0 1.57-.01 2.84-.01 3.22 0 .31.21.68.8.56C20.71 21.37 24 17.07 24 12 24 5.73 18.27.5 12 .5z"/></svg>
+                </a>
+                <button type="button" id="doc-theme" class="doc-icon" aria-label="Toggle theme" title="Toggle theme">
+                    <svg class="doc-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.1 5.1l1.4 1.4M17.5 17.5l1.4 1.4M18.9 5.1l-1.4 1.4M6.5 17.5l-1.4 1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    <svg class="doc-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="doc-shell container mx-auto max-w-7xl">
+<nav class="doc-rail" aria-label="Reference"><a class="doc-rail-hub" href="../reference/">UUID reference</a><ul class="doc-rail-list"><li class="doc-rail-group"><p class="doc-rail-title">Start here</p><ul><li><a href="../what-is-a-uuid/">What is a UUID?</a></li><li><a href="../guid-vs-uuid/">GUID and UUID</a></li><li><a href="../uuid-versions/">All versions side by side</a></li><li><a href="../uuid-v4-vs-v7/">v4 or v7</a></li><li><a href="../uuid-primary-key/">UUID as a primary key</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Making and converting in bulk</p><ul><li><a href="../uuid-generator/">The generator</a></li><li><a href="../uuid-bulk-convert/">A whole column at once</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Converting a UUID</p><ul><li><a href="../uuid-to-bytes/">To a 16-byte array</a></li><li><a href="../uuid-to-hex/">Without dashes</a></li><li><a href="../uuid-formats/">Every way to write one</a></li><li><a href="../uuid-to-base64/">To Base64, and the short forms</a></li><li><a href="../uuid-to-long/">To a high/low 64-bit pair</a></li><li><a href="../uuid-to-words/">To four 32-bit words</a></li><li><a href="../uuid-byte-order/">Byte order: RFC against mixed-endian GUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Reading one</p><ul><li><a href="../uuid-timestamp/">Decoding the timestamp</a></li><li><a href="../uuid-bit-layout/">The bit layout</a></li><li><a href="../uuid-validation/">Validating a UUID</a></li><li><a href="../uuid-collision-probability/">Collision probability</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">The versions, in order</p><ul><li><a href="../uuid-v1/">Version 1</a></li><li><a href="../uuid-v3/">Version 3</a></li><li><a href="../uuid-v4/">Version 4</a></li><li><a href="../uuid-v5/">Version 5</a></li><li><a href="../uuid-v6/">Version 6</a></li><li><a href="../uuid-v7/">Version 7</a></li><li><a href="../uuid-v8/">Version 8</a></li><li><a href="../nil-uuid/">The Nil UUID</a></li><li><a href="../max-uuid/">The Max UUID</a></li><li><a href="../uuid-namespaces/">Namespaces</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">In a database</p><ul><li><a href="../uuid-in-postgresql/">PostgreSQL</a></li><li><a href="../uuid-in-mysql/">MySQL</a></li><li><a href="../uuid-in-sql-server/">SQL Server</a></li><li><a href="../uuid-in-mongodb/">MongoDB</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">ULID and the alternatives</p><ul><li><a href="../ulid/">ULID</a></li><li><a href="../ulid-vs-uuid/">ULID or UUID v7</a></li><li><a href="../uuid-alternatives/">When not to use a UUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Running the tool</p><ul><li><a href="../uuid-code-examples/" class="is-here" aria-current="page">Code examples</a></li><li><a href="../self-hosted-uuid-tool/">Self-hosted and offline</a></li></ul></li></ul></nav>
+<main class="doc-main">
+<article>
+<header class="doc-lead">
+<h1>UUIDs in eight languages</h1>
+<p class="doc-meta"><span class="doc-chip">byte array</span><span>12 sections</span><span>Updated <time datetime="2026-08-21">2026-08-21</time></span></p>
+<p class="doc-tldr">Every language generates and parses UUIDs the same way; they differ in what they hand you for the bytes. Python offers two byte orders, .NET defaults to the mixed-endian one, and Java gives you two longs instead.</p>
+<p class="doc-lede">Reference snippets for the four things people actually do with a UUID: make one, parse one, get its bytes, get its time. The platform-specific traps are marked.</p>
+</header>
+<section class="doc-try" id="worked-example" aria-label="Worked example"><div class="doc-try-head"><span class="doc-chip">byte array</span><span class="doc-try-hint">computed by the converter itself</span></div><div class="doc-cases"><div class="doc-case"><span class="doc-case-tag">in</span><code class="doc-case-in">01890a5d-ac96-774b-bcce-b302099a8057</code><span class="doc-case-tag is-out">out</span><code class="doc-case-out">[0x01, 0x89, 0x0a, 0x5d, 0xac, 0x96, 0x77, 0x4b, 0xbc, 0xce, 0xb3, 0x02, 0x09, 0x9a, 0x80, 0x57]</code><button type="button" class="doc-copy" aria-label="Copy this value"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="doc-case-note">RFC byte order — big-endian, as printed</p></div></div><div class="doc-try-foot"><a class="doc-open" href="../#to=bytes&amp;style=chex">Open the converter: byte array<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a><span class="doc-try-note">Nothing you paste leaves the browser.</span></div></section>
+<section class="doc-play" data-play data-to="bytes" hidden><div class="doc-play-head"><span class="doc-chip">Playground</span><span class="doc-play-hint">runs here in the page; nothing is sent anywhere</span></div><div class="doc-play-formats" role="group" aria-label="Format"><button type="button" class="doc-play-chip" data-format="uuid" aria-pressed="false">uuid</button><button type="button" class="doc-play-chip" data-format="high-low" aria-pressed="false">high-low</button><button type="button" class="doc-play-chip" data-format="base64" aria-pressed="false">base64</button><button type="button" class="doc-play-chip is-on" data-format="bytes" aria-pressed="true">bytes</button><button type="button" class="doc-play-chip" data-format="ulid" aria-pressed="false">ulid</button><button type="button" class="doc-play-chip" data-format="words" aria-pressed="false">words</button></div><label class="sr-only" for="doc-play-input">Identifier</label><input id="doc-play-input" class="doc-play-input" spellcheck="false" autocomplete="off" placeholder="paste a UUID, a ULID, a byte array, a pair of longs…"><div class="doc-play-row"><button type="button" class="doc-play-fill" data-fill="v4">Random v4</button><button type="button" class="doc-play-fill" data-fill="v7">Time-ordered v7</button></div><p class="doc-play-out"><code></code></p><p class="doc-play-note"></p></section>
+<details class="doc-toc-mobile"><summary>On this page (12)</summary><ul class="doc-toc-mobile-list"><li><a href="#worked-example">Worked example</a></li><li><a href="#javascript-and-typescript">JavaScript and TypeScript</a></li><li><a href="#python">Python</a></li><li><a href="#go">Go</a></li><li><a href="#java-and-kotlin">Java and Kotlin</a></li><li><a href="#rust">Rust</a></li><li><a href="#c-and-net">C# and .NET</a></li><li><a href="#php-and-sql">PHP and SQL</a></li><li><a href="#protobuf-and-the-wire-shape-of-an-identifier">Protobuf, and the wire shape of an identifier</a></li><li><a href="#the-three-traps-in-one-place">The three traps, in one place</a></li><li><a href="#questions-people-actually-ask">Questions people actually ask</a></li><li><a href="#related">Related</a></li></ul></details>
+<div class="doc-prose">
+<h2 id="javascript-and-typescript">JavaScript and TypeScript<a class="doc-anchor" href="#javascript-and-typescript" aria-label="Link to this section">#</a></h2>
+<figure class="code"><div class="code-head"><span class="code-lang">javascript</span><button type="button" class="doc-copy" aria-label="Copy this snippet"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><pre><code>// built in, v4, no dependency
+const id = crypto.randomUUID();
+
+// the uuid package, for v7 and for bytes
+import { v7, parse, stringify } from &quot;uuid&quot;;
+
+const ordered = v7();
+const bytes = parse(ordered);        // Uint8Array(16), RFC order
+const back = stringify(bytes);</code></pre></figure>
+<p><code>crypto.randomUUID()</code> exists in browsers and in Node, and only makes v4. It requires a secure context in the browser, which is why it is missing on plain HTTP pages.</p>
+<h2 id="python">Python<a class="doc-anchor" href="#python" aria-label="Link to this section">#</a></h2>
+<figure class="code"><div class="code-head"><span class="code-lang">python</span><button type="button" class="doc-copy" aria-label="Copy this snippet"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><pre><code>import uuid
+
+id = uuid.uuid4()
+parsed = uuid.UUID(&quot;01890a5d-ac96-774b-bcce-b302099a8057&quot;)
+
+parsed.bytes      # RFC order, use this
+parsed.bytes_le   # mixed-endian, for Windows APIs
+parsed.int        # the whole 128 bits as one integer
+parsed.hex        # 32 digits, no hyphens</code></pre></figure>
+<aside class="note"><code>bytes</code> and <code>bytes_le</code> are different byte arrays for the same identifier. Passing <code>bytes_le</code> to something expecting RFC order silently produces a different UUID.</aside>
+<h2 id="go">Go<a class="doc-anchor" href="#go" aria-label="Link to this section">#</a></h2>
+<figure class="code"><div class="code-head"><span class="code-lang">go</span><button type="button" class="doc-copy" aria-label="Copy this snippet"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><pre><code>import &quot;github.com/google/uuid&quot;
+
+id, _ := uuid.NewV7()
+parsed, err := uuid.Parse(&quot;01890a5d-ac96-774b-bcce-b302099a8057&quot;)
+
+b := parsed[:]                  // []byte over the 16, RFC order
+back, _ := uuid.FromBytes(b)
+
+parsed.Version()                // 7
+parsed.Time()                   // defined for v1, v2, v6 and v7</code></pre></figure>
+<h2 id="java-and-kotlin">Java and Kotlin<a class="doc-anchor" href="#java-and-kotlin" aria-label="Link to this section">#</a></h2>
+<figure class="code"><div class="code-head"><span class="code-lang">java</span><button type="button" class="doc-copy" aria-label="Copy this snippet"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><pre><code>UUID id = UUID.randomUUID();                 // v4
+UUID parsed = UUID.fromString(&quot;01890a5d-ac96-774b-bcce-b302099a8057&quot;);
+
+long msb = parsed.getMostSignificantBits();  // signed, often negative
+long lsb = parsed.getLeastSignificantBits();
+
+ByteBuffer buf = ByteBuffer.allocate(16);
+buf.putLong(msb).putLong(lsb);               // RFC order
+byte[] bytes = buf.array();</code></pre></figure>
+<p>Kotlin has its own <code>kotlin.uuid.Uuid</code>, and reaches the halves through <code>toLongs { msb, lsb -&gt; … }</code> and <code>Uuid.fromLongs(msb, lsb)</code>, documented since Kotlin 2.4. The JDK still has no v7 generator, so that comes from a library either way.</p>
+<h2 id="rust">Rust<a class="doc-anchor" href="#rust" aria-label="Link to this section">#</a></h2>
+<figure class="code"><div class="code-head"><span class="code-lang">rust</span><button type="button" class="doc-copy" aria-label="Copy this snippet"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><pre><code>use uuid::Uuid;
+
+let id = Uuid::now_v7();
+let parsed = Uuid::parse_str(&quot;01890a5d-ac96-774b-bcce-b302099a8057&quot;)?;
+
+let bytes = parsed.as_bytes();        // &amp;[u8; 16], RFC order
+let (hi, lo) = parsed.as_u64_pair();  // unsigned halves</code></pre></figure>
+<h2 id="c-and-net">C# and .NET<a class="doc-anchor" href="#c-and-net" aria-label="Link to this section">#</a></h2>
+<figure class="code"><div class="code-head"><span class="code-lang">csharp</span><button type="button" class="doc-copy" aria-label="Copy this snippet"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><pre><code>var id = Guid.NewGuid();                       // v4
+var v7 = Guid.CreateVersion7();                // .NET 9+
+var parsed = Guid.Parse(&quot;01890a5d-ac96-774b-bcce-b302099a8057&quot;);
+
+byte[] mixed = parsed.ToByteArray();           // mixed-endian!
+byte[] rfc = parsed.ToByteArray(bigEndian: true);   // .NET 8+
+
+parsed.ToString(&quot;N&quot;);   // 32 digits
+parsed.ToString(&quot;B&quot;);   // braces</code></pre></figure>
+<h2 id="php-and-sql">PHP and SQL<a class="doc-anchor" href="#php-and-sql" aria-label="Link to this section">#</a></h2>
+<figure class="code"><div class="code-head"><span class="code-lang">php</span><button type="button" class="doc-copy" aria-label="Copy this snippet"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><pre><code>use Ramsey\Uuid\Uuid;
+
+$id = Uuid::uuid7();
+$parsed = Uuid::fromString(&quot;01890a5d-ac96-774b-bcce-b302099a8057&quot;);
+
+$parsed-&gt;getBytes();   // 16 bytes, RFC order
+$parsed-&gt;toString();</code></pre></figure>
+<figure class="code"><div class="code-head"><span class="code-lang">sql</span><button type="button" class="doc-copy" aria-label="Copy this snippet"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><pre><code>-- PostgreSQL 18+
+SELECT uuidv7();
+
+-- MySQL: text to 16 bytes and back
+SELECT UUID_TO_BIN('01890a5d-ac96-774b-bcce-b302099a8057');
+SELECT BIN_TO_UUID(id) FROM orders;</code></pre></figure>
+<h2 id="protobuf-and-the-wire-shape-of-an-identifier">Protobuf, and the wire shape of an identifier<a class="doc-anchor" href="#protobuf-and-the-wire-shape-of-an-identifier" aria-label="Link to this section">#</a></h2>
+<p>Protobuf has no 128-bit integer, so an identifier travels as two 64-bit fields. <code>bavix/apis</code> declares it once and every service in that family speaks it:</p>
+<figure class="code"><div class="code-head"><span class="code-lang">protobuf</span><button type="button" class="doc-copy" aria-label="Copy this snippet"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><pre><code>message UUID {
+    int64 high = 1;
+    int64 low = 2;
+}</code></pre></figure>
+<figure class="code"><div class="code-head"><span class="code-lang">go</span><button type="button" class="doc-copy" aria-label="Copy this snippet"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><pre><code>import &quot;github.com/bavix/apis/pkg/uuidconv&quot;
+
+high, low := uuidconv.UUID2DoubleInt(id)   // int64, int64
+back := uuidconv.DoubleInt2UUID(high, low)</code></pre></figure>
+<p>Those two numbers are the <code>signed</code> reading in this converter: the halves reinterpreted least significant byte first, which is what an <code>unsafe.Pointer</code> cast gives on any little-endian machine. Eighteen bytes on the wire against thirty-six for the text form, and no parsing on the way in.</p>
+<ul class="doc-links"><li><a href="https://github.com/bavix/apis/blob/master/bavix/api/v1/uuid.proto" target="_blank" rel="noopener noreferrer">bavix/apis — uuid.proto</a><span class="doc-link-note">The message definition</span></li><li><a href="https://github.com/bavix/apis/blob/master/pkg/uuidconv/uuid.go" target="_blank" rel="noopener noreferrer">bavix/apis — pkg/uuidconv</a><span class="doc-link-note">The Go conversion, both directions</span></li><li><a href="https://github.com/bavix/apis" target="_blank" rel="noopener noreferrer">bavix/apis</a><span class="doc-link-note">The shared protobuf definitions</span></li></ul>
+<h2 id="the-three-traps-in-one-place">The three traps, in one place<a class="doc-anchor" href="#the-three-traps-in-one-place" aria-label="Link to this section">#</a></h2>
+<div class="scroller"><table><thead><tr><th scope="col">Platform</th><th scope="col">Trap</th></tr></thead><tbody><tr><td data-th="Platform">Python</td><td data-th="Trap"><code>bytes_le</code> is mixed-endian; <code>bytes</code> is the RFC order</td></tr><tr><td data-th="Platform">.NET before 8</td><td data-th="Trap"><code>ToByteArray()</code> is mixed-endian and has no big-endian overload</td></tr><tr><td data-th="Platform">Java</td><td data-th="Trap"><code>getMostSignificantBits</code> is signed, so the high half is usually negative</td></tr></tbody></table></div>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-4" target="_blank" rel="noopener noreferrer">RFC 9562 § 4 · UUID Format</a><span class="rfc-note">The byte order every one of these should agree on</span></p>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-5.7" target="_blank" rel="noopener noreferrer">RFC 9562 § 5.7 · UUID Version 7</a><span class="rfc-note">The v7 layout the generators above produce</span></p>
+</div>
+<section class="doc-faq"><h2 id="questions-people-actually-ask">Questions people actually ask<a class="doc-anchor" href="#questions-people-actually-ask" aria-label="Link to this section">#</a></h2><div class="doc-qa"><h3>How do I generate a UUID v7?</h3><p>uuid.v7() in JavaScript, uuid.NewV7() in Go, Uuid::now_v7() in Rust, Guid.CreateVersion7() in .NET 9, Uuid::uuid7() with ramsey/uuid, and uuidv7() in PostgreSQL 18.</p></div><div class="doc-qa"><h3>What is the difference between bytes and bytes_le in Python?</h3><p>bytes is the RFC big-endian order; bytes_le reverses the first three fields for Windows APIs. They are different arrays for the same identifier.</p></div><div class="doc-qa"><h3>Does crypto.randomUUID work everywhere?</h3><p>In Node, and in browsers only on a secure context; an HTTP page does not have it. It produces a v4 and nothing else.</p></div></section>
+<nav class="doc-related" aria-label="Related pages"><h2 id="related">Related<a class="doc-anchor" href="#related" aria-label="Link to this section">#</a></h2><ul><li><a href="../uuid-to-bytes/">UUID to a 16-byte array</a></li><li><a href="../uuid-byte-order/">UUID byte order: big-endian, and the Microsoft exception</a></li><li><a href="../uuid-to-long/">UUID to a high/low 64-bit pair</a></li><li><a href="../uuid-v7/">UUID version 7</a></li></ul></nav>
+<details class="doc-rail-mobile"><summary>Browse the reference</summary><ul class="doc-rail-list"><li class="doc-rail-group"><p class="doc-rail-title">Start here</p><ul><li><a href="../what-is-a-uuid/">What is a UUID?</a></li><li><a href="../guid-vs-uuid/">GUID and UUID</a></li><li><a href="../uuid-versions/">All versions side by side</a></li><li><a href="../uuid-v4-vs-v7/">v4 or v7</a></li><li><a href="../uuid-primary-key/">UUID as a primary key</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Making and converting in bulk</p><ul><li><a href="../uuid-generator/">The generator</a></li><li><a href="../uuid-bulk-convert/">A whole column at once</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Converting a UUID</p><ul><li><a href="../uuid-to-bytes/">To a 16-byte array</a></li><li><a href="../uuid-to-hex/">Without dashes</a></li><li><a href="../uuid-formats/">Every way to write one</a></li><li><a href="../uuid-to-base64/">To Base64, and the short forms</a></li><li><a href="../uuid-to-long/">To a high/low 64-bit pair</a></li><li><a href="../uuid-to-words/">To four 32-bit words</a></li><li><a href="../uuid-byte-order/">Byte order: RFC against mixed-endian GUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Reading one</p><ul><li><a href="../uuid-timestamp/">Decoding the timestamp</a></li><li><a href="../uuid-bit-layout/">The bit layout</a></li><li><a href="../uuid-validation/">Validating a UUID</a></li><li><a href="../uuid-collision-probability/">Collision probability</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">The versions, in order</p><ul><li><a href="../uuid-v1/">Version 1</a></li><li><a href="../uuid-v3/">Version 3</a></li><li><a href="../uuid-v4/">Version 4</a></li><li><a href="../uuid-v5/">Version 5</a></li><li><a href="../uuid-v6/">Version 6</a></li><li><a href="../uuid-v7/">Version 7</a></li><li><a href="../uuid-v8/">Version 8</a></li><li><a href="../nil-uuid/">The Nil UUID</a></li><li><a href="../max-uuid/">The Max UUID</a></li><li><a href="../uuid-namespaces/">Namespaces</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">In a database</p><ul><li><a href="../uuid-in-postgresql/">PostgreSQL</a></li><li><a href="../uuid-in-mysql/">MySQL</a></li><li><a href="../uuid-in-sql-server/">SQL Server</a></li><li><a href="../uuid-in-mongodb/">MongoDB</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">ULID and the alternatives</p><ul><li><a href="../ulid/">ULID</a></li><li><a href="../ulid-vs-uuid/">ULID or UUID v7</a></li><li><a href="../uuid-alternatives/">When not to use a UUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Running the tool</p><ul><li><a href="../uuid-code-examples/" class="is-here" aria-current="page">Code examples</a></li><li><a href="../self-hosted-uuid-tool/">Self-hosted and offline</a></li></ul></li></ul></details>
+<nav class="doc-steps" aria-label="Reference order"><a class="doc-step is-prev" href="../uuid-alternatives/"><span class="doc-step-kind">Previous</span><span class="doc-step-title">When not to use a UUID</span></a><a class="doc-step is-next" href="../self-hosted-uuid-tool/"><span class="doc-step-kind">Next</span><span class="doc-step-title">A UUID tool you can host yourself</span></a></nav>
+</article>
+</main>
+<aside class="doc-side"><nav class="doc-toc" aria-label="On this page"><p class="doc-side-title">On this page</p><ul class=""><li><a href="#worked-example">Worked example</a></li><li><a href="#javascript-and-typescript">JavaScript and TypeScript</a></li><li><a href="#python">Python</a></li><li><a href="#go">Go</a></li><li><a href="#java-and-kotlin">Java and Kotlin</a></li><li><a href="#rust">Rust</a></li><li><a href="#c-and-net">C# and .NET</a></li><li><a href="#php-and-sql">PHP and SQL</a></li><li><a href="#protobuf-and-the-wire-shape-of-an-identifier">Protobuf, and the wire shape of an identifier</a></li><li><a href="#the-three-traps-in-one-place">The three traps, in one place</a></li><li><a href="#questions-people-actually-ask">Questions people actually ask</a></li><li><a href="#related">Related</a></li></ul></nav></aside>
+</div>
+<footer class="footer-main">
+    <div class="footer-container">
+        <div class="footer-content">
+            <span class="footer-brand">uuid-ui</span>
+            <span class="footer-text">by</span>
+            <a href="https://github.com/rez1dent3" class="footer-link" target="_blank" rel="noopener noreferrer">Babichev Maksim</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../" class="footer-link">Converter</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../reference/" class="footer-link">UUID reference</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../llms.txt" class="footer-link">llms.txt</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="https://github.com/bavix/uuid-ui" class="footer-link" target="_blank" rel="noopener noreferrer">Source Code</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="https://github.com/bavix/uuid-ui/blob/master/LICENSE" class="footer-link" target="_blank" rel="noopener noreferrer">MIT License</a>
+        </div>
+    </div>
+</footer>
+<script>(function(){
+var root=document.documentElement;
+var button=document.getElementById('doc-theme');
+var applied=[];
+
+function read(){
+var raw=localStorage.getItem('theme')||'';var parts=raw.split(':');
+if(parts.length===2){return{palette:parts[0],mode:parts[1]}}
+if(raw==='dark'||raw==='true'||raw==='"true"'){return{palette:'default',mode:'dark'}}
+if(raw==='light'||raw==='false'||raw==='"false"'){return{palette:'default',mode:'light'}}
+return{palette:'default',mode:'system'};
+}
+
+function resolve(mode){
+return mode==='system'
+?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')
+:mode;
+}
+
+function apply(palette,mode){
+var shown=resolve(mode);
+root.classList.toggle('dark',shown==='dark');
+root.classList.toggle('light',shown==='light');
+root.style.colorScheme=shown;
+if(palette&&palette!=='default'&&/^[a-z0-9][a-z0-9-]{0,31}$/.test(palette)){root.setAttribute('data-theme',palette)}
+else{root.removeAttribute('data-theme')}
+applied.forEach(function(name){root.style.removeProperty(name)});
+applied=[];
+if(palette==='custom'&&window.__docCustom){
+var before=root.getAttribute('style')||'';
+window.__docCustom(root,shown);
+var after=root.getAttribute('style')||'';
+if(after!==before){applied=(after.match(/--[a-z0-9-]+/g)||[])}
+}
+return shown;
+}
+
+function store(palette,mode){
+try{
+localStorage.setItem('theme',palette+':'+mode);
+var raw=localStorage.getItem('uuid.data');
+if(!raw){return}
+var held=JSON.parse(raw);
+if(!held||typeof held!=='object'){return}
+var at=Date.now();
+held.settings=held.settings||{};
+held.settings.palette={value:palette,at:at};
+held.settings.theme={value:mode,at:at};
+localStorage.setItem('uuid.data',JSON.stringify(held));
+}catch(e){}
+}
+
+var current=read();
+apply(current.palette,current.mode);
+
+if(button){
+button.addEventListener('click',function(){
+current.mode=resolve(current.mode)==='dark'?'light':'dark';
+apply(current.palette,current.mode);
+store(current.palette,current.mode);
+});
+}
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){
+if(current.mode==='system'){apply(current.palette,current.mode)}
+});
+
+window.addEventListener('storage',function(e){
+if(e.key!=='theme'&&e.key!=='uuid.data'){return}
+current=read();apply(current.palette,current.mode);
+});
+
+document.addEventListener('click',function(e){
+var b=e.target.closest?e.target.closest('.doc-copy'):null;
+if(!b){return}
+var box=b.closest('.doc-case')||b.closest('.code');
+var el=box&&(box.querySelector('.doc-case-out')||box.querySelector('pre code'));
+if(!el||!navigator.clipboard){return}
+navigator.clipboard.writeText(el.textContent).then(function(){
+b.classList.add('is-done');setTimeout(function(){b.classList.remove('is-done')},1400);});
+});
+
+var links=[].slice.call(document.querySelectorAll('.doc-toc a'));
+if(!links.length||!('IntersectionObserver' in window)){return}
+var byId={};links.forEach(function(a){byId[a.getAttribute('href').slice(1)]=a});
+var seen=[];
+var io=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+var id=e.target.id;var at=seen.indexOf(id);
+if(e.isIntersecting){if(at<0){seen.push(id)}}else if(at>=0){seen.splice(at,1)}
+});
+if(!seen.length){return}
+var first=links.map(function(a){return a.getAttribute('href').slice(1)}).filter(function(id){return seen.indexOf(id)>=0})[0];
+links.forEach(function(a){a.classList.toggle('is-here',a.getAttribute('href').slice(1)===first)});
+},{rootMargin:'-80px 0px -70% 0px'});
+Object.keys(byId).forEach(function(id){var el=document.getElementById(id);if(el){io.observe(el)}});
+})();</script>
+<script type="module" src="../docs.js"></script>
+</body>
+</html>
