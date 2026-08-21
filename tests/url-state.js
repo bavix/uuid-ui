@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import test from 'node:test';
 import {intTypeSlug, parseIntType, parseIntTypes, parseTarget, parseUuidStyle, parseUuidUpper, targetSlug, writeState} from "../src/url-state.js";
 import {SIGNED, UNSIGNED} from "../src/int-type.js";
-import {TYPE_BASE64, TYPE_BYTES, TYPE_HEX, TYPE_HIGH_LOW, TYPE_ULID, TYPE_UUID, TYPE_WORDS} from "../src/type-detector.js";
+import {TYPE_BASE64, TYPE_BYTES, TYPE_HEX, TYPE_HIGH_LOW, TYPE_ULID, TYPE_UUID, TYPE_WORDS, uuidTypeList} from "../src/type-detector.js";
 
 function withWindow(win, work) {
     const held = globalThis.window;
@@ -151,4 +151,17 @@ test('a link says which spelling it carries', async (t) => {
 test('a link written when hex was a format still opens on hex', async (t) => {
     assert.strictEqual(parseTarget('#to=hex'), TYPE_HEX);
     assert.strictEqual(parseUuidStyle('#to=uuid&style=hex'), 'hex');
+});
+
+test('every format the tool can produce has a slug a link can carry', async (t) => {
+    const types = uuidTypeList().reduce((held, name, type) => held.concat([[name, type]]), []);
+
+    assert.ok(types.length > 0);
+
+    for (const [name, type] of types) {
+        const slug = targetSlug(type);
+
+        assert.notStrictEqual(slug, null, `${name} has no slug`);
+        assert.strictEqual(parseTarget(`#to=${slug}`), type, `${slug} does not round-trip`);
+    }
 });

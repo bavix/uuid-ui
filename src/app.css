@@ -7,6 +7,8 @@
 @import "./themes/catppuccin.css";
 @import "./themes/cyberpunk.css";
 
+@source not "../public";
+
 /*
  * The app toggles a .dark class on <html>, but Tailwind v4 does not read
  * darkMode:'class' out of tailwind.config.js — every dark: utility was keying
@@ -2893,6 +2895,17 @@
   font-size: var(--ui-2xs);
   line-height: 1.5;
   color: var(--ink-muted);
+}
+
+.hint-link {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.hint-link:hover {
+  text-decoration-thickness: 2px;
 }
 
 .fmt-chips {

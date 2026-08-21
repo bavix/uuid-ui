@@ -1,0 +1,641 @@
+{
+  "name": "UUIDConv",
+  "url": "https://bavix.github.io/uuid-ui/",
+  "rfc": "https://www.rfc-editor.org/rfc/rfc9562.html",
+  "obsoletes": "https://www.rfc-editor.org/rfc/rfc4122.html",
+  "bits": 128,
+  "formats": [
+    {
+      "slug": "uuid",
+      "name": "UUID text",
+      "link": "https://bavix.github.io/uuid-ui/#to=uuid"
+    },
+    {
+      "slug": "high-low",
+      "name": "high/low 64-bit pair",
+      "link": "https://bavix.github.io/uuid-ui/#to=high-low"
+    },
+    {
+      "slug": "base64",
+      "name": "Base64",
+      "link": "https://bavix.github.io/uuid-ui/#to=base64"
+    },
+    {
+      "slug": "bytes",
+      "name": "byte array",
+      "link": "https://bavix.github.io/uuid-ui/#to=bytes"
+    },
+    {
+      "slug": "ulid",
+      "name": "ULID",
+      "link": "https://bavix.github.io/uuid-ui/#to=ulid"
+    },
+    {
+      "slug": "words",
+      "name": "four 32-bit words",
+      "link": "https://bavix.github.io/uuid-ui/#to=words"
+    }
+  ],
+  "spellings": {
+    "uuid": [
+      "plain",
+      "hex",
+      "braces",
+      "urn"
+    ],
+    "high-low": [
+      "object",
+      "pair"
+    ],
+    "base64": [
+      "std",
+      "url"
+    ],
+    "bytes": [
+      "decimal",
+      "hex",
+      "chex"
+    ],
+    "ulid": [
+      "upper",
+      "lower"
+    ],
+    "words": [
+      "object",
+      "quad"
+    ]
+  },
+  "versions": {
+    "v1": {
+      "rfc": "https://www.rfc-editor.org/rfc/rfc9562.html#section-5.1",
+      "fields": [
+        {
+          "name": "time_low",
+          "kind": "time",
+          "from": 0,
+          "to": 31,
+          "bits": 32
+        },
+        {
+          "name": "time_mid",
+          "kind": "time",
+          "from": 32,
+          "to": 47,
+          "bits": 16
+        },
+        {
+          "name": "version",
+          "kind": "version",
+          "from": 48,
+          "to": 51,
+          "bits": 4
+        },
+        {
+          "name": "variant",
+          "kind": "variant",
+          "from": 64,
+          "to": 65,
+          "bits": 2
+        },
+        {
+          "name": "time_high",
+          "kind": "time",
+          "from": 52,
+          "to": 63,
+          "bits": 12
+        },
+        {
+          "name": "clock_seq",
+          "kind": "clock",
+          "from": 66,
+          "to": 79,
+          "bits": 14
+        },
+        {
+          "name": "node",
+          "kind": "node",
+          "from": 80,
+          "to": 127,
+          "bits": 48
+        }
+      ]
+    },
+    "v2": {
+      "rfc": "https://www.rfc-editor.org/rfc/rfc9562.html#section-5.2",
+      "fields": [
+        {
+          "name": "local_id",
+          "kind": "clock",
+          "from": 0,
+          "to": 31,
+          "bits": 32
+        },
+        {
+          "name": "time_mid",
+          "kind": "time",
+          "from": 32,
+          "to": 47,
+          "bits": 16
+        },
+        {
+          "name": "version",
+          "kind": "version",
+          "from": 48,
+          "to": 51,
+          "bits": 4
+        },
+        {
+          "name": "variant",
+          "kind": "variant",
+          "from": 64,
+          "to": 65,
+          "bits": 2
+        },
+        {
+          "name": "time_high",
+          "kind": "time",
+          "from": 52,
+          "to": 63,
+          "bits": 12
+        },
+        {
+          "name": "clock_seq_hi",
+          "kind": "clock",
+          "from": 66,
+          "to": 71,
+          "bits": 6
+        },
+        {
+          "name": "local_domain",
+          "kind": "clock",
+          "from": 72,
+          "to": 79,
+          "bits": 8
+        },
+        {
+          "name": "node",
+          "kind": "node",
+          "from": 80,
+          "to": 127,
+          "bits": 48
+        }
+      ]
+    },
+    "v3": {
+      "rfc": "https://www.rfc-editor.org/rfc/rfc9562.html#section-5.3",
+      "fields": [
+        {
+          "name": "md5_high",
+          "kind": "hash",
+          "from": 0,
+          "to": 47,
+          "bits": 48
+        },
+        {
+          "name": "version",
+          "kind": "version",
+          "from": 48,
+          "to": 51,
+          "bits": 4
+        },
+        {
+          "name": "variant",
+          "kind": "variant",
+          "from": 64,
+          "to": 65,
+          "bits": 2
+        },
+        {
+          "name": "md5_mid",
+          "kind": "hash",
+          "from": 52,
+          "to": 63,
+          "bits": 12
+        },
+        {
+          "name": "md5_low",
+          "kind": "hash",
+          "from": 66,
+          "to": 127,
+          "bits": 62
+        }
+      ]
+    },
+    "v4": {
+      "rfc": "https://www.rfc-editor.org/rfc/rfc9562.html#section-5.4",
+      "fields": [
+        {
+          "name": "random",
+          "kind": "random",
+          "from": 0,
+          "to": 47,
+          "bits": 48
+        },
+        {
+          "name": "version",
+          "kind": "version",
+          "from": 48,
+          "to": 51,
+          "bits": 4
+        },
+        {
+          "name": "variant",
+          "kind": "variant",
+          "from": 64,
+          "to": 65,
+          "bits": 2
+        },
+        {
+          "name": "random",
+          "kind": "random",
+          "from": 52,
+          "to": 63,
+          "bits": 12
+        },
+        {
+          "name": "random",
+          "kind": "random",
+          "from": 66,
+          "to": 127,
+          "bits": 62
+        }
+      ]
+    },
+    "v5": {
+      "rfc": "https://www.rfc-editor.org/rfc/rfc9562.html#section-5.5",
+      "fields": [
+        {
+          "name": "sha1_high",
+          "kind": "hash",
+          "from": 0,
+          "to": 47,
+          "bits": 48
+        },
+        {
+          "name": "version",
+          "kind": "version",
+          "from": 48,
+          "to": 51,
+          "bits": 4
+        },
+        {
+          "name": "variant",
+          "kind": "variant",
+          "from": 64,
+          "to": 65,
+          "bits": 2
+        },
+        {
+          "name": "sha1_mid",
+          "kind": "hash",
+          "from": 52,
+          "to": 63,
+          "bits": 12
+        },
+        {
+          "name": "sha1_low",
+          "kind": "hash",
+          "from": 66,
+          "to": 127,
+          "bits": 62
+        }
+      ]
+    },
+    "v6": {
+      "rfc": "https://www.rfc-editor.org/rfc/rfc9562.html#section-5.6",
+      "fields": [
+        {
+          "name": "time_high",
+          "kind": "time",
+          "from": 0,
+          "to": 31,
+          "bits": 32
+        },
+        {
+          "name": "time_mid",
+          "kind": "time",
+          "from": 32,
+          "to": 47,
+          "bits": 16
+        },
+        {
+          "name": "version",
+          "kind": "version",
+          "from": 48,
+          "to": 51,
+          "bits": 4
+        },
+        {
+          "name": "variant",
+          "kind": "variant",
+          "from": 64,
+          "to": 65,
+          "bits": 2
+        },
+        {
+          "name": "time_low",
+          "kind": "time",
+          "from": 52,
+          "to": 63,
+          "bits": 12
+        },
+        {
+          "name": "clock_seq",
+          "kind": "clock",
+          "from": 66,
+          "to": 79,
+          "bits": 14
+        },
+        {
+          "name": "node",
+          "kind": "node",
+          "from": 80,
+          "to": 127,
+          "bits": 48
+        }
+      ]
+    },
+    "v7": {
+      "rfc": "https://www.rfc-editor.org/rfc/rfc9562.html#section-5.7",
+      "fields": [
+        {
+          "name": "unix_ts_ms",
+          "kind": "time",
+          "from": 0,
+          "to": 47,
+          "bits": 48
+        },
+        {
+          "name": "version",
+          "kind": "version",
+          "from": 48,
+          "to": 51,
+          "bits": 4
+        },
+        {
+          "name": "variant",
+          "kind": "variant",
+          "from": 64,
+          "to": 65,
+          "bits": 2
+        },
+        {
+          "name": "rand_a",
+          "kind": "random",
+          "from": 52,
+          "to": 63,
+          "bits": 12
+        },
+        {
+          "name": "rand_b",
+          "kind": "random",
+          "from": 66,
+          "to": 127,
+          "bits": 62
+        }
+      ]
+    },
+    "v8": {
+      "rfc": "https://www.rfc-editor.org/rfc/rfc9562.html#section-5.8",
+      "fields": [
+        {
+          "name": "custom_a",
+          "kind": "random",
+          "from": 0,
+          "to": 47,
+          "bits": 48
+        },
+        {
+          "name": "version",
+          "kind": "version",
+          "from": 48,
+          "to": 51,
+          "bits": 4
+        },
+        {
+          "name": "variant",
+          "kind": "variant",
+          "from": 64,
+          "to": 65,
+          "bits": 2
+        },
+        {
+          "name": "custom_b",
+          "kind": "random",
+          "from": 52,
+          "to": 63,
+          "bits": 12
+        },
+        {
+          "name": "custom_c",
+          "kind": "random",
+          "from": 66,
+          "to": 127,
+          "bits": 62
+        }
+      ]
+    }
+  },
+  "namespaces": {
+    "dns": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "url": "6ba7b811-9dad-11d1-80b4-00c04fd430c8",
+    "oid": "6ba7b812-9dad-11d1-80b4-00c04fd430c8",
+    "x500": "6ba7b814-9dad-11d1-80b4-00c04fd430c8"
+  },
+  "special": {
+    "nil": "00000000-0000-0000-0000-000000000000",
+    "max": "ffffffff-ffff-ffff-ffff-ffffffffffff"
+  },
+  "pages": [
+    {
+      "url": "https://bavix.github.io/uuid-ui/reference/",
+      "title": "UUID reference",
+      "summary": "A UUID is 128 bits with 6 of them spoken for: 4 say which layout the rest follows, 2 say which standard it belongs to. Everything else on this site is a way of writing those 128 bits down."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/what-is-a-uuid/",
+      "title": "What is a UUID?",
+      "summary": "A UUID is 128 bits, generated locally, unique in practice without a central authority. GUID is the same thing under a different name."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/guid-vs-uuid/",
+      "title": "GUID and UUID",
+      "summary": "They are the same 128 bits under two names. GUID is Microsoft vocabulary, UUID is the RFC's. The only difference that can bite you is the byte order in which some Microsoft APIs write them."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-versions/",
+      "title": "UUID versions, side by side",
+      "summary": "Eight layouts share one shape. v4 is chance, v7 is a clock plus chance, v3 and v5 are hashes of a name, v1 and v6 are a clock plus a machine, v8 is whatever you define, and Nil and Max are constants with no version at all."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-v4-vs-v7/",
+      "title": "UUID v4 or v7",
+      "summary": "Same uniqueness, different behaviour in an index. v4 scatters writes and reveals nothing; v7 keeps writes together and reveals the creation time to the millisecond. Pick by which of those you can afford."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-primary-key/",
+      "title": "UUID as a primary key",
+      "summary": "The cost is 16 bytes in the column, again in every foreign key, and again in every secondary index if the engine is InnoDB. With v4 you also pay in scattered index writes; v7 removes that part. If one sequence would do, an integer is still smaller and simpler."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-generator/",
+      "title": "Generating identifiers",
+      "summary": "The tool generates every layout anyone makes in practice (v1, v3, v4, v5, v6, v7 and v8), plus a ULID and the two constants. For the ones that carry a clock you can pick the moment; for the name-based ones you pick a namespace and a name."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-bulk-convert/",
+      "title": "Converting a column of identifiers",
+      "summary": "The tool works line by line. Paste a hundred identifiers in whatever formats they happen to be in, pick one target, and every line is converted at once; anything unreadable is reported rather than dropped."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-to-bytes/",
+      "title": "UUID to a 16-byte array",
+      "summary": "A UUID is 16 bytes. Written out big-endian, byte 0 is the first pair of hex digits in the printed form, and byte 6 carries the version in its high nibble."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-to-hex/",
+      "title": "UUID without dashes, and the other spellings",
+      "summary": "The dashes carry no information. A UUID is 32 hex digits; the 8-4-4-4-12 grouping, the braces and the urn:uuid prefix are all ways of printing the same 128 bits."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-formats/",
+      "title": "Every way to write the same UUID",
+      "summary": "The 128 bits never change; the punctuation does. Canonical, bare hex, braces, urn:uuid and upper case are five spellings of one identifier, and comparing two of them as strings is a bug."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-to-base64/",
+      "title": "UUID to Base64, and the short forms",
+      "summary": "Base64 of the 16 bytes is 24 characters with padding and 22 without. The URL-safe alphabet swaps + and / for - and _, which is what makes the short form usable in a path or a query string."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-to-long/",
+      "title": "UUID to a high/low 64-bit pair",
+      "summary": "A UUID is two 64-bit halves. Java prints them signed, which is why getMostSignificantBits often returns a negative number. The bits are unchanged; only the sign convention differs."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-to-words/",
+      "title": "UUID to four 32-bit words",
+      "summary": "Four 32-bit words are the same 128 bits cut into quarters, most significant first: w1 is the first block of the printed UUID, w4 the last. Signed and unsigned differ only in how the same bits are printed."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-byte-order/",
+      "title": "UUID byte order: big-endian, and the Microsoft exception",
+      "summary": "RFC 9562 stores a UUID big-endian: the printed order is the byte order. Microsoft APIs store the first three fields little-endian, so the same identifier turns into a different byte array, and reading one as the other silently produces a different UUID."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-timestamp/",
+      "title": "Get the timestamp out of a UUID",
+      "summary": "v1, v6 and v7 carry a clock; v4 carries none, and no amount of decoding will produce a date from one. A v7 holds 48 bits of Unix milliseconds, a v1 holds 100-nanosecond ticks since 1582-10-15."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-bit-layout/",
+      "title": "The bit layout of a UUID",
+      "summary": "Every UUID spends 4 bits on the version and 2 on the variant. The other 122 belong to the layout that the version names, and the tables below come straight out of the code this site runs."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-validation/",
+      "title": "Validating a UUID",
+      "summary": "Matching 32 hex digits proves the shape, not the standard. A value is an RFC 9562 identifier only if its version nibble is 1 to 8 and its variant nibble is 8, 9, a or b."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-collision-probability/",
+      "title": "How likely is a UUID collision?",
+      "summary": "A v4 has 122 random bits. Even odds of a single collision need about 2.7 × 10^18 identifiers; a one-in-a-billion chance still needs around 10^14. The realistic risk is not arithmetic, it is a bad random source."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-v1/",
+      "title": "UUID version 1",
+      "summary": "A v1 holds a 60-bit clock counting 100-nanosecond ticks since 1582-10-15, a clock sequence, and a 48-bit node that is frequently the machine's real MAC address. It does not sort by time, because the high bits of the clock come last."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-v3/",
+      "title": "UUID version 3",
+      "summary": "A v3 is the MD5 of a namespace UUID and a name, truncated to 128 bits with the version and variant bits overwritten. Same contract as v5, older hash."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-v4/",
+      "title": "UUID version 4",
+      "summary": "A v4 is 122 bits of randomness plus 4 version bits and 2 variant bits. It carries no time, no machine and no meaning, which is why it is the safe default when an identifier only has to be unique."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-v5/",
+      "title": "UUID version 5",
+      "summary": "A v5 is the SHA-1 of a namespace UUID and a name, truncated to 128 bits with the version and variant bits overwritten. The same namespace and name always produce the same identifier, on any machine, forever."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-v6/",
+      "title": "UUID version 6",
+      "summary": "A v6 is a v1 with the clock fields written in order, so sorting the identifiers sorts them by time. The 1582 epoch, the clock sequence and the node field are unchanged."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-v7/",
+      "title": "UUID version 7",
+      "summary": "A v7 is 48 bits of Unix milliseconds followed by 74 bits of randomness, with 6 bits spent on the version and variant. Because the clock comes first, sorting the identifiers sorts them by creation time."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-v8/",
+      "title": "UUID version 8",
+      "summary": "Version 8 is deliberately unspecified: six bits are the version and variant, the other 122 are yours. It is the standard's way of saying \"put your structure here instead of inventing a new format\"."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/nil-uuid/",
+      "title": "The Nil UUID",
+      "summary": "The Nil UUID is 128 zero bits: 00000000-0000-0000-0000-000000000000. RFC 9562 defines it as the identifier that names nothing, and it deliberately carries neither a version nor a variant."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/max-uuid/",
+      "title": "The Max UUID",
+      "summary": "The Max UUID is 128 one bits: ffffffff-ffff-ffff-ffff-ffffffffffff. RFC 9562 added it in 2024 as the counterpart to Nil: the largest possible value, with no version and no variant."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-namespaces/",
+      "title": "Namespaces for name-based UUIDs",
+      "summary": "A name-based UUID needs a namespace: a UUID that says which kind of name you are hashing. Four are registered (DNS, URL, OID and X.500), and any UUID of your own works just as well."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-in-postgresql/",
+      "title": "UUIDs in PostgreSQL",
+      "summary": "PostgreSQL has a native 16-byte `uuid` type, so storing identifiers as text wastes both space and comparison speed. The version you generate matters more than the column: v4 scatters index writes, v7 does not."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-in-mysql/",
+      "title": "UUIDs in MySQL",
+      "summary": "MySQL has no UUID type. Store 16 bytes in BINARY(16) with UUID_TO_BIN, read them back with BIN_TO_UUID, and use the swap flag only for v1 identifiers."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-in-sql-server/",
+      "title": "UUIDs in SQL Server",
+      "summary": "SQL Server stores a GUID mixed-endian and sorts it by the last group first, so neither the text order nor the RFC byte order predicts the index order. NEWSEQUENTIALID exists to work around exactly that."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-in-mongodb/",
+      "title": "UUIDs in MongoDB",
+      "summary": "MongoDB stores a UUID as BSON binary. Subtype 4 is the standard, big-endian layout; the legacy subtype 3 has a byte order that depends on which driver wrote it."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/ulid/",
+      "title": "ULID, and how it maps onto a UUID",
+      "summary": "A ULID is 128 bits printed as 26 Crockford base32 characters: 48 bits of Unix milliseconds followed by 80 random bits. The bits fit a UUID exactly, so converting between the two is a change of alphabet, not of value."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/ulid-vs-uuid/",
+      "title": "ULID or UUID v7",
+      "summary": "Same 48-bit millisecond clock, same sorting behaviour. Choose v7 when the value must be a UUID for a column type or a library; choose ULID when the shorter, case-insensitive text form is what people handle."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-alternatives/",
+      "title": "When not to use a UUID",
+      "summary": "A UUID buys you identifiers without coordination, for 16 bytes. If you have coordination anyway, or you need a shorter or unguessable value, one of five other formats fits better."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/uuid-code-examples/",
+      "title": "UUIDs in eight languages",
+      "summary": "Every language generates and parses UUIDs the same way; they differ in what they hand you for the bytes. Python offers two byte orders, .NET defaults to the mixed-endian one, and Java gives you two longs instead."
+    },
+    {
+      "url": "https://bavix.github.io/uuid-ui/self-hosted-uuid-tool/",
+      "title": "A UUID tool you can host yourself",
+      "summary": "Every conversion on this site happens in the browser, and the whole site is a static bundle you can run yourself with one docker command. Identifiers never reach a server, because there is no server to reach."
+    }
+  ]
+}

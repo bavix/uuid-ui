@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { rmSync, readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync } from 'fs';
 import preact from '@preact/preset-vite';
 import { THEMES } from './src/themes/index.js';
+import { jsonLd, siteGraph } from './scripts/pages/schema.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -14,13 +15,42 @@ export default defineConfig({
   plugins: [
     preact(),
     {
-      name: 'theme-pool',
+      name: 'index-html-vars',
       transformIndexHtml(html) {
-        return html.replace('__THEME_POOL__', JSON.stringify(THEMES.map(theme => theme.id)));
+        return html
+          .replace('__THEME_POOL__', JSON.stringify(THEMES.map(theme => theme.id)))
+          .replace('__SITE_JSON_LD__', jsonLd(siteGraph()));
+      }
+    },
+    {
+      name: 'serve-pages',
+      apply: 'serve',
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          const path = (req.url || '/').split('?')[0].split('#')[0];
+
+          if (!path.endsWith('/') || path === '/') {
+            next();
+
+            return;
+          }
+
+          const page = resolve(__dirname, 'public', '.' + path, 'index.html');
+
+          if (!page.startsWith(resolve(__dirname, 'public')) || !existsSync(page)) {
+            next();
+
+            return;
+          }
+
+          res.setHeader('Content-Type', 'text/html; charset=utf-8');
+          res.end(readFileSync(page));
+        });
       }
     },
     {
       name: 'clean-assets',
+      apply: 'build',
       buildStart() {
         const assetsDir = resolve(__dirname, 'public/assets');
         const publicDir = resolve(__dirname, 'public');
@@ -97,7 +127,8 @@ export default defineConfig({
       }
     },
     {
-      name: 'move-html',
+      name: 'emit-html',
+      apply: 'build',
       closeBundle() {
         try {
           let htmlContent = readFileSync(resolve(__dirname, 'public/src/index.html'), 'utf-8');

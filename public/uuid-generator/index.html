@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<!-- uuid-ui:generated-page -->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UUID generator: v1, v4, v6, v7, v3, v5 and more | UUIDConv</title>
+    <meta name="description" content="Generate any UUID version in the browser: random v4, time-ordered v7, name-based v3 and v5, the v1 and v6 clocks, plus Nil, Max and a ULID. Aim the clock at any moment.">
+    <link rel="canonical" href="https://bavix.github.io/uuid-ui/uuid-generator/">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="UUIDConv">
+    <meta property="og:title" content="Generating identifiers">
+    <meta property="og:description" content="Generate any UUID version in the browser: random v4, time-ordered v7, name-based v3 and v5, the v1 and v6 clocks, plus Nil, Max and a ULID. Aim the clock at any moment.">
+    <meta property="og:url" content="https://bavix.github.io/uuid-ui/uuid-generator/">
+    <meta property="og:image" content="https://bavix.github.io/uuid-ui/og.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Generating identifiers">
+    <meta name="twitter:description" content="Generate any UUID version in the browser: random v4, time-ordered v7, name-based v3 and v5, the v1 and v6 clocks, plus Nil, Max and a ULID. Aim the clock at any moment.">
+    <meta name="twitter:image" content="https://bavix.github.io/uuid-ui/og.png">
+    <link rel="icon" href="../favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+    <link rel="stylesheet" href="../theme.css">
+    <link rel="stylesheet" href="../docs.css">
+    <script>window.__docCustom=function(root,mode){try{
+var raw=localStorage.getItem('uuid.data');if(!raw){return}
+var held=JSON.parse(raw);var text=held&&held.settings&&held.settings.customTheme&&held.settings.customTheme.value;
+if(typeof text!=='string'||text===''){return}
+var theme=JSON.parse(text);
+var tokens=(theme.variants&&(theme.variants[mode]||theme.variants[mode==='dark'?'light':'dark']))
+||(theme[mode]&&(theme[mode].tokens||theme[mode]))||theme.tokens;
+if(!tokens){return}
+Object.keys(tokens).forEach(function(name){
+var bare=String(name).replace(/^--/,'');var value=String(tokens[name]).trim();
+if(!/^[a-z0-9-]{1,40}$/.test(bare)||/[;{}]|url\(|expression|@import/i.test(value)){return}
+root.style.setProperty('--'+bare,value);});
+}catch(e){}};(function(){try{
+var s=localStorage.getItem('theme')||'';var p=s.split(':');
+var palette=p.length===2?p[0]:'default';var m=p.length===2?p[1]:s;
+if(m==='true'||m==='"true"'){m='dark'}if(m==='false'||m==='"false"'){m='light'}
+if(m!=='dark'&&m!=='light'){m=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+var r=document.documentElement;r.classList.add(m);r.style.colorScheme=m;
+if(/^[a-z0-9][a-z0-9-]{0,31}$/.test(palette)&&palette!=='default'){r.setAttribute('data-theme',palette)}
+if(palette==='custom'&&window.__docCustom){window.__docCustom(r,m)}
+}catch(e){}})();</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://bavix.github.io/uuid-ui/#website","url":"https://bavix.github.io/uuid-ui/","name":"UUIDConv","inLanguage":"en","publisher":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"}},{"@type":"TechArticle","@id":"https://bavix.github.io/uuid-ui/uuid-generator/#article","headline":"Generating identifiers","name":"Generating identifiers","description":"Generate any UUID version in the browser: random v4, time-ordered v7, name-based v3 and v5, the v1 and v6 clocks, plus Nil, Max and a ULID. Aim the clock at any moment.","abstract":"The tool generates every layout anyone makes in practice (v1, v3, v4, v5, v6, v7 and v8), plus a ULID and the two constants. For the ones that carry a clock you can pick the moment; for the name-based ones you pick a namespace and a name.","url":"https://bavix.github.io/uuid-ui/uuid-generator/","mainEntityOfPage":"https://bavix.github.io/uuid-ui/uuid-generator/","inLanguage":"en","datePublished":"2026-08-21","dateModified":"2026-08-21","author":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"},"publisher":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"},"isPartOf":{"@id":"https://bavix.github.io/uuid-ui/#website"},"about":{"@id":"https://bavix.github.io/uuid-ui/#app"},"proficiencyLevel":"Beginner"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"UUIDConv","item":"https://bavix.github.io/uuid-ui/"},{"@type":"ListItem","position":2,"name":"UUID reference","item":"https://bavix.github.io/uuid-ui/reference/"},{"@type":"ListItem","position":3,"name":"Generating identifiers","item":"https://bavix.github.io/uuid-ui/uuid-generator/"}]},{"@type":"FAQPage","@id":"https://bavix.github.io/uuid-ui/uuid-generator/#faq","mainEntity":[{"@type":"Question","name":"Can I generate a UUID for a specific date?","acceptedAnswer":{"@type":"Answer","text":"Yes, for the versions that carry a clock: v1, v6, v7 and ULID. Set the moment and the timestamp field is filled from it."}},{"@type":"Question","name":"Which version does the generator make by default?","acceptedAnswer":{"@type":"Answer","text":"v4, the random one, which is what most systems expect when nothing else is specified."}},{"@type":"Question","name":"Are the generated identifiers sent anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. They are made in this page by the same code the converter runs, and nothing leaves the tab."}}]}]}</script>
+</head>
+<body class="doc type-uuid">
+<nav class="app-header backdrop-blur-sm shadow-md border-b sticky top-0 z-50" role="navigation" aria-label="main navigation">
+    <div class="container mx-auto max-w-7xl">
+        <div class="doc-bar">
+            <a class="doc-brand" href="../">
+                <img src="../android-chrome-192x192.png" class="h-9 w-9 rounded-lg brand-mark" alt="">
+                <span class="brand-text font-bold text-lg gradient-animate">UUIDConv UI</span>
+            </a>
+            <nav class="doc-crumbs" aria-label="Breadcrumb"><a href="../reference/">UUID reference</a><span class="doc-crumb-sep" aria-hidden="true">/</span><span aria-current="page">Generating identifiers</span></nav>
+            <div class="doc-bar-actions">
+                <a class="doc-open is-bar" href="../#to=uuid">Converter<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+                <a href="https://github.com/bavix/uuid-ui" target="_blank" rel="noopener noreferrer" class="doc-icon" aria-label="Open project on GitHub" title="Open project on GitHub">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.07 3.29 9.37 7.86 10.88.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.38-3.88-1.38-.53-1.36-1.3-1.73-1.3-1.73-1.06-.73.08-.72.08-.72 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.75.41-1.27.75-1.56-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.18 1.19.92-.26 1.9-.39 2.88-.39.98 0 1.96.13 2.88.39 2.2-1.5 3.17-1.19 3.17-1.19.64 1.58.24 2.75.12 3.04.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.41-5.27 5.69.42.36.79 1.08.79 2.17 0 1.57-.01 2.84-.01 3.22 0 .31.21.68.8.56C20.71 21.37 24 17.07 24 12 24 5.73 18.27.5 12 .5z"/></svg>
+                </a>
+                <button type="button" id="doc-theme" class="doc-icon" aria-label="Toggle theme" title="Toggle theme">
+                    <svg class="doc-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.1 5.1l1.4 1.4M17.5 17.5l1.4 1.4M18.9 5.1l-1.4 1.4M6.5 17.5l-1.4 1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    <svg class="doc-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="doc-shell container mx-auto max-w-7xl">
+<nav class="doc-rail" aria-label="Reference"><a class="doc-rail-hub" href="../reference/">UUID reference</a><ul class="doc-rail-list"><li class="doc-rail-group"><p class="doc-rail-title">Start here</p><ul><li><a href="../what-is-a-uuid/">What is a UUID?</a></li><li><a href="../guid-vs-uuid/">GUID and UUID</a></li><li><a href="../uuid-versions/">All versions side by side</a></li><li><a href="../uuid-v4-vs-v7/">v4 or v7</a></li><li><a href="../uuid-primary-key/">UUID as a primary key</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Making and converting in bulk</p><ul><li><a href="../uuid-generator/" class="is-here" aria-current="page">The generator</a></li><li><a href="../uuid-bulk-convert/">A whole column at once</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Converting a UUID</p><ul><li><a href="../uuid-to-bytes/">To a 16-byte array</a></li><li><a href="../uuid-to-hex/">Without dashes</a></li><li><a href="../uuid-formats/">Every way to write one</a></li><li><a href="../uuid-to-base64/">To Base64, and the short forms</a></li><li><a href="../uuid-to-long/">To a high/low 64-bit pair</a></li><li><a href="../uuid-to-words/">To four 32-bit words</a></li><li><a href="../uuid-byte-order/">Byte order: RFC against mixed-endian GUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Reading one</p><ul><li><a href="../uuid-timestamp/">Decoding the timestamp</a></li><li><a href="../uuid-bit-layout/">The bit layout</a></li><li><a href="../uuid-validation/">Validating a UUID</a></li><li><a href="../uuid-collision-probability/">Collision probability</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">The versions, in order</p><ul><li><a href="../uuid-v1/">Version 1</a></li><li><a href="../uuid-v3/">Version 3</a></li><li><a href="../uuid-v4/">Version 4</a></li><li><a href="../uuid-v5/">Version 5</a></li><li><a href="../uuid-v6/">Version 6</a></li><li><a href="../uuid-v7/">Version 7</a></li><li><a href="../uuid-v8/">Version 8</a></li><li><a href="../nil-uuid/">The Nil UUID</a></li><li><a href="../max-uuid/">The Max UUID</a></li><li><a href="../uuid-namespaces/">Namespaces</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">In a database</p><ul><li><a href="../uuid-in-postgresql/">PostgreSQL</a></li><li><a href="../uuid-in-mysql/">MySQL</a></li><li><a href="../uuid-in-sql-server/">SQL Server</a></li><li><a href="../uuid-in-mongodb/">MongoDB</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">ULID and the alternatives</p><ul><li><a href="../ulid/">ULID</a></li><li><a href="../ulid-vs-uuid/">ULID or UUID v7</a></li><li><a href="../uuid-alternatives/">When not to use a UUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Running the tool</p><ul><li><a href="../uuid-code-examples/">Code examples</a></li><li><a href="../self-hosted-uuid-tool/">Self-hosted and offline</a></li></ul></li></ul></nav>
+<main class="doc-main">
+<article>
+<header class="doc-lead">
+<h1>Generating identifiers</h1>
+<p class="doc-meta"><span class="doc-chip">UUID text</span><span>8 sections</span><span>Updated <time datetime="2026-08-21">2026-08-21</time></span></p>
+<p class="doc-tldr">The tool generates every layout anyone makes in practice (v1, v3, v4, v5, v6, v7 and v8), plus a ULID and the two constants. For the ones that carry a clock you can pick the moment; for the name-based ones you pick a namespace and a name.</p>
+<p class="doc-lede">Converting is only half of what the tool does. This page covers the other half: which generator to reach for, what each one puts in the bits, and the two options that only some of them take.</p>
+</header>
+<section class="doc-try" id="worked-example" aria-label="Worked example"><div class="doc-try-head"><span class="doc-chip">What the converter reads back</span><span class="doc-try-hint">computed by the converter itself</span></div><div class="doc-cases"><div class="doc-case"><span class="doc-case-tag">in</span><code class="doc-case-in">cfbff0d1-9375-5685-968c-48ce8b15ae17</code><span class="doc-case-tag is-out">out</span><code class="doc-case-out">uuid · RFC 9562 (10xx) · version 5</code><button type="button" class="doc-copy" aria-label="Copy this value"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="doc-case-note">v5 of the DNS namespace and example.com</p></div><div class="doc-case"><span class="doc-case-tag">in</span><code class="doc-case-in">9073926b-929f-31c2-abc9-fad77ae3e8eb</code><span class="doc-case-tag is-out">out</span><code class="doc-case-out">uuid · RFC 9562 (10xx) · version 3</code><button type="button" class="doc-copy" aria-label="Copy this value"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="doc-case-note">v3 of the same pair</p></div><div class="doc-case"><span class="doc-case-tag">in</span><code class="doc-case-in">00000000-0000-0000-0000-000000000000</code><span class="doc-case-tag is-out">out</span><code class="doc-case-out">uuid · NCS (0xxx) — reserved, backward compatibility · no version · nil, palindrome</code><button type="button" class="doc-copy" aria-label="Copy this value"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="doc-case-note">Nil</p></div><div class="doc-case"><span class="doc-case-tag">in</span><code class="doc-case-in">ffffffff-ffff-ffff-ffff-ffffffffffff</code><span class="doc-case-tag is-out">out</span><code class="doc-case-out">uuid · reserved for the future (111x) · no version · max, palindrome</code><button type="button" class="doc-copy" aria-label="Copy this value"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="doc-case-note">Max</p></div></div><div class="doc-try-foot"><a class="doc-open" href="../#to=uuid">Open the converter: UUID text<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a><span class="doc-try-note">Nothing you paste leaves the browser.</span></div></section>
+<details class="doc-toc-mobile"><summary>On this page (8)</summary><ul class="doc-toc-mobile-list"><li><a href="#worked-example">Worked example</a></li><li><a href="#what-each-generator-gives-you">What each generator gives you</a></li><li><a href="#aiming-the-clock">Aiming the clock</a></li><li><a href="#name-based-generation-in-one-line">Name-based generation, in one line</a></li><li><a href="#the-three-that-are-jokes-with-a-point">The three that are jokes with a point</a></li><li><a href="#which-to-pick">Which to pick</a></li><li><a href="#questions-people-actually-ask">Questions people actually ask</a></li><li><a href="#related">Related</a></li></ul></details>
+<div class="doc-prose">
+<section class="doc-play" data-widget="generate" hidden><div class="doc-play-head"><span class="doc-chip">Generator</span><span class="doc-play-hint">the same generators the tool runs, in this page</span></div><div class="doc-play-row"><label class="sr-only" for="gen-type">Version</label><span class="doc-play-pick"><select id="gen-type" class="doc-play-select"><option value="v1">v1</option><option value="v3">v3</option><option value="v4" selected>v4</option><option value="v5">v5</option><option value="v6">v6</option><option value="v7">v7</option><option value="v8">v8</option><option value="nil">nil</option><option value="max">max</option><option value="ulid">ulid</option><option value="deadbeef">deadbeef</option><option value="cafebabe">cafebabe</option><option value="palindrome">palindrome</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></span><label class="sr-only" for="gen-moment">Moment</label><input id="gen-moment" class="doc-play-input is-inline" type="datetime-local" step="0.001" hidden><label class="sr-only" for="gen-space">Namespace</label><span class="doc-play-pick" hidden><select id="gen-space" class="doc-play-select"><option value="dns">dns</option><option value="url">url</option><option value="oid">oid</option><option value="x500">x500</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></span><label class="sr-only" for="gen-name">Name</label><input id="gen-name" class="doc-play-input is-inline" placeholder="name" hidden><button type="button" class="doc-play-fill" data-again>Generate</button></div><p class="doc-play-out"><code></code></p><p class="doc-play-note"></p></section>
+<h2 id="what-each-generator-gives-you">What each generator gives you<a class="doc-anchor" href="#what-each-generator-gives-you" aria-label="Link to this section">#</a></h2>
+<div class="scroller"><table><thead><tr><th scope="col">Type</th><th scope="col">Made of</th><th scope="col">Takes a moment</th><th scope="col">Takes a name</th></tr></thead><tbody><tr><td data-th="Type">v4</td><td data-th="Made of">122 random bits</td><td data-th="Takes a moment">no</td><td data-th="Takes a name">no</td></tr><tr><td data-th="Type">v7</td><td data-th="Made of">48 bits of Unix ms, then randomness</td><td data-th="Takes a moment">yes</td><td data-th="Takes a name">no</td></tr><tr><td data-th="Type">v1</td><td data-th="Made of">a 1582 clock and a node</td><td data-th="Takes a moment">yes</td><td data-th="Takes a name">no</td></tr><tr><td data-th="Type">v6</td><td data-th="Made of">the v1 clock, reordered to sort</td><td data-th="Takes a moment">yes</td><td data-th="Takes a name">no</td></tr><tr><td data-th="Type">v3</td><td data-th="Made of">MD5 of a namespace and a name</td><td data-th="Takes a moment">no</td><td data-th="Takes a name">yes</td></tr><tr><td data-th="Type">v5</td><td data-th="Made of">SHA-1 of a namespace and a name</td><td data-th="Takes a moment">no</td><td data-th="Takes a name">yes</td></tr><tr><td data-th="Type">v8</td><td data-th="Made of">free bits, filled at random here</td><td data-th="Takes a moment">no</td><td data-th="Takes a name">no</td></tr><tr><td data-th="Type">ULID</td><td data-th="Made of">the v7 clock in Crockford base32</td><td data-th="Takes a moment">yes</td><td data-th="Takes a name">no</td></tr><tr><td data-th="Type">Nil, Max</td><td data-th="Made of">all zeros, all ones</td><td data-th="Takes a moment">no</td><td data-th="Takes a name">no</td></tr></tbody></table></div>
+<p>Version 2 is missing from that list on purpose: DCE Security identifiers need a POSIX user or group id, almost no library makes them, and the layout page covers what they contain if you have been handed one.</p>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-5" target="_blank" rel="noopener noreferrer">RFC 9562 § 5 · UUID Layouts</a><span class="rfc-note">Every layout the generators above follow</span></p>
+<h2 id="aiming-the-clock">Aiming the clock<a class="doc-anchor" href="#aiming-the-clock" aria-label="Link to this section">#</a></h2>
+<p>v1, v6, v7 and ULID carry a timestamp, so the generator lets you set it. Leave the field empty and it uses now; type a date and you get an identifier that claims that moment. The field has no timezone, so the browser reads it as local time, which is what somebody typing <code>2024-05-03 01:09</code> into it means.</p>
+<p>That is useful for fixtures, for reproducing a bug that only shows up around a boundary, and for testing a range query without waiting for the clock. It is not a way to backdate anything real: the identifier says what it was told to say.</p>
+<h2 id="name-based-generation-in-one-line">Name-based generation, in one line<a class="doc-anchor" href="#name-based-generation-in-one-line" aria-label="Link to this section">#</a></h2>
+<p>Pick a namespace, type a name, and the identifier appears. The same pair always gives the same value, on any machine and in any language, which is what makes v5 the tool for identifiers that have to be derived rather than issued.</p>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-6.5" target="_blank" rel="noopener noreferrer">RFC 9562 § 6.5 · Name-Based UUID Generation</a><span class="rfc-note">What the derivation does with the namespace and the name</span></p>
+<h2 id="the-three-that-are-jokes-with-a-point">The three that are jokes with a point<a class="doc-anchor" href="#the-three-that-are-jokes-with-a-point" aria-label="Link to this section">#</a></h2>
+<p><code>deadbeef</code>, <code>cafebabe</code> and <code>palindrome</code> are in the list because a recognisable identifier is genuinely useful in a fixture: nobody mistakes <code>deadbeef-dead-beef-dead-beefdeadbeef</code> for production data, and a palindrome makes a byte-order bug visible at a glance, since reversing it changes nothing.</p>
+<aside class="note">None of these are RFC 9562 identifiers. <code>deadbeef</code> and <code>cafebabe</code> fail on both counts: the 13th digit is a <code>b</code>, so there is no version, and the variant nibble reads as Microsoft's. A palindrome lands wherever chance puts it and only sometimes has a valid version. That is the point: they are obviously fake.</aside>
+<h2 id="which-to-pick">Which to pick<a class="doc-anchor" href="#which-to-pick" aria-label="Link to this section">#</a></h2>
+<ul><li>A database key: v7.</li><li>An identifier and nothing else: v4.</li><li>The same input must always give the same identifier: v5.</li><li>You are matching an older system: v1, v6 or v3, whichever it already writes.</li><li>A placeholder or a range bound: Nil and Max.</li></ul>
+</div>
+<section class="doc-faq"><h2 id="questions-people-actually-ask">Questions people actually ask<a class="doc-anchor" href="#questions-people-actually-ask" aria-label="Link to this section">#</a></h2><div class="doc-qa"><h3>Can I generate a UUID for a specific date?</h3><p>Yes, for the versions that carry a clock: v1, v6, v7 and ULID. Set the moment and the timestamp field is filled from it.</p></div><div class="doc-qa"><h3>Which version does the generator make by default?</h3><p>v4, the random one, which is what most systems expect when nothing else is specified.</p></div><div class="doc-qa"><h3>Are the generated identifiers sent anywhere?</h3><p>No. They are made in this page by the same code the converter runs, and nothing leaves the tab.</p></div></section>
+<nav class="doc-related" aria-label="Related pages"><h2 id="related">Related<a class="doc-anchor" href="#related" aria-label="Link to this section">#</a></h2><ul><li><a href="../uuid-versions/">UUID versions, side by side</a></li><li><a href="../uuid-v7/">UUID version 7</a></li><li><a href="../uuid-namespaces/">Namespaces for name-based UUIDs</a></li><li><a href="../uuid-bulk-convert/">Converting a column of identifiers</a></li></ul></nav>
+<details class="doc-rail-mobile"><summary>Browse the reference</summary><ul class="doc-rail-list"><li class="doc-rail-group"><p class="doc-rail-title">Start here</p><ul><li><a href="../what-is-a-uuid/">What is a UUID?</a></li><li><a href="../guid-vs-uuid/">GUID and UUID</a></li><li><a href="../uuid-versions/">All versions side by side</a></li><li><a href="../uuid-v4-vs-v7/">v4 or v7</a></li><li><a href="../uuid-primary-key/">UUID as a primary key</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Making and converting in bulk</p><ul><li><a href="../uuid-generator/" class="is-here" aria-current="page">The generator</a></li><li><a href="../uuid-bulk-convert/">A whole column at once</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Converting a UUID</p><ul><li><a href="../uuid-to-bytes/">To a 16-byte array</a></li><li><a href="../uuid-to-hex/">Without dashes</a></li><li><a href="../uuid-formats/">Every way to write one</a></li><li><a href="../uuid-to-base64/">To Base64, and the short forms</a></li><li><a href="../uuid-to-long/">To a high/low 64-bit pair</a></li><li><a href="../uuid-to-words/">To four 32-bit words</a></li><li><a href="../uuid-byte-order/">Byte order: RFC against mixed-endian GUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Reading one</p><ul><li><a href="../uuid-timestamp/">Decoding the timestamp</a></li><li><a href="../uuid-bit-layout/">The bit layout</a></li><li><a href="../uuid-validation/">Validating a UUID</a></li><li><a href="../uuid-collision-probability/">Collision probability</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">The versions, in order</p><ul><li><a href="../uuid-v1/">Version 1</a></li><li><a href="../uuid-v3/">Version 3</a></li><li><a href="../uuid-v4/">Version 4</a></li><li><a href="../uuid-v5/">Version 5</a></li><li><a href="../uuid-v6/">Version 6</a></li><li><a href="../uuid-v7/">Version 7</a></li><li><a href="../uuid-v8/">Version 8</a></li><li><a href="../nil-uuid/">The Nil UUID</a></li><li><a href="../max-uuid/">The Max UUID</a></li><li><a href="../uuid-namespaces/">Namespaces</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">In a database</p><ul><li><a href="../uuid-in-postgresql/">PostgreSQL</a></li><li><a href="../uuid-in-mysql/">MySQL</a></li><li><a href="../uuid-in-sql-server/">SQL Server</a></li><li><a href="../uuid-in-mongodb/">MongoDB</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">ULID and the alternatives</p><ul><li><a href="../ulid/">ULID</a></li><li><a href="../ulid-vs-uuid/">ULID or UUID v7</a></li><li><a href="../uuid-alternatives/">When not to use a UUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Running the tool</p><ul><li><a href="../uuid-code-examples/">Code examples</a></li><li><a href="../self-hosted-uuid-tool/">Self-hosted and offline</a></li></ul></li></ul></details>
+<nav class="doc-steps" aria-label="Reference order"><a class="doc-step is-prev" href="../uuid-primary-key/"><span class="doc-step-kind">Previous</span><span class="doc-step-title">UUID as a primary key</span></a><a class="doc-step is-next" href="../uuid-bulk-convert/"><span class="doc-step-kind">Next</span><span class="doc-step-title">Converting a column of identifiers</span></a></nav>
+</article>
+</main>
+<aside class="doc-side"><nav class="doc-toc" aria-label="On this page"><p class="doc-side-title">On this page</p><ul class=""><li><a href="#worked-example">Worked example</a></li><li><a href="#what-each-generator-gives-you">What each generator gives you</a></li><li><a href="#aiming-the-clock">Aiming the clock</a></li><li><a href="#name-based-generation-in-one-line">Name-based generation, in one line</a></li><li><a href="#the-three-that-are-jokes-with-a-point">The three that are jokes with a point</a></li><li><a href="#which-to-pick">Which to pick</a></li><li><a href="#questions-people-actually-ask">Questions people actually ask</a></li><li><a href="#related">Related</a></li></ul></nav></aside>
+</div>
+<footer class="footer-main">
+    <div class="footer-container">
+        <div class="footer-content">
+            <span class="footer-brand">uuid-ui</span>
+            <span class="footer-text">by</span>
+            <a href="https://github.com/rez1dent3" class="footer-link" target="_blank" rel="noopener noreferrer">Babichev Maksim</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../" class="footer-link">Converter</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../reference/" class="footer-link">UUID reference</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../llms.txt" class="footer-link">llms.txt</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="https://github.com/bavix/uuid-ui" class="footer-link" target="_blank" rel="noopener noreferrer">Source Code</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="https://github.com/bavix/uuid-ui/blob/master/LICENSE" class="footer-link" target="_blank" rel="noopener noreferrer">MIT License</a>
+        </div>
+    </div>
+</footer>
+<script>(function(){
+var root=document.documentElement;
+var button=document.getElementById('doc-theme');
+var applied=[];
+
+function read(){
+var raw=localStorage.getItem('theme')||'';var parts=raw.split(':');
+if(parts.length===2){return{palette:parts[0],mode:parts[1]}}
+if(raw==='dark'||raw==='true'||raw==='"true"'){return{palette:'default',mode:'dark'}}
+if(raw==='light'||raw==='false'||raw==='"false"'){return{palette:'default',mode:'light'}}
+return{palette:'default',mode:'system'};
+}
+
+function resolve(mode){
+return mode==='system'
+?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')
+:mode;
+}
+
+function apply(palette,mode){
+var shown=resolve(mode);
+root.classList.toggle('dark',shown==='dark');
+root.classList.toggle('light',shown==='light');
+root.style.colorScheme=shown;
+if(palette&&palette!=='default'&&/^[a-z0-9][a-z0-9-]{0,31}$/.test(palette)){root.setAttribute('data-theme',palette)}
+else{root.removeAttribute('data-theme')}
+applied.forEach(function(name){root.style.removeProperty(name)});
+applied=[];
+if(palette==='custom'&&window.__docCustom){
+var before=root.getAttribute('style')||'';
+window.__docCustom(root,shown);
+var after=root.getAttribute('style')||'';
+if(after!==before){applied=(after.match(/--[a-z0-9-]+/g)||[])}
+}
+return shown;
+}
+
+function store(palette,mode){
+try{
+localStorage.setItem('theme',palette+':'+mode);
+var raw=localStorage.getItem('uuid.data');
+if(!raw){return}
+var held=JSON.parse(raw);
+if(!held||typeof held!=='object'){return}
+var at=Date.now();
+held.settings=held.settings||{};
+held.settings.palette={value:palette,at:at};
+held.settings.theme={value:mode,at:at};
+localStorage.setItem('uuid.data',JSON.stringify(held));
+}catch(e){}
+}
+
+var current=read();
+apply(current.palette,current.mode);
+
+if(button){
+button.addEventListener('click',function(){
+current.mode=resolve(current.mode)==='dark'?'light':'dark';
+apply(current.palette,current.mode);
+store(current.palette,current.mode);
+});
+}
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){
+if(current.mode==='system'){apply(current.palette,current.mode)}
+});
+
+window.addEventListener('storage',function(e){
+if(e.key!=='theme'&&e.key!=='uuid.data'){return}
+current=read();apply(current.palette,current.mode);
+});
+
+document.addEventListener('click',function(e){
+var b=e.target.closest?e.target.closest('.doc-copy'):null;
+if(!b){return}
+var box=b.closest('.doc-case')||b.closest('.code');
+var el=box&&(box.querySelector('.doc-case-out')||box.querySelector('pre code'));
+if(!el||!navigator.clipboard){return}
+navigator.clipboard.writeText(el.textContent).then(function(){
+b.classList.add('is-done');setTimeout(function(){b.classList.remove('is-done')},1400);});
+});
+
+var links=[].slice.call(document.querySelectorAll('.doc-toc a'));
+if(!links.length||!('IntersectionObserver' in window)){return}
+var byId={};links.forEach(function(a){byId[a.getAttribute('href').slice(1)]=a});
+var seen=[];
+var io=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+var id=e.target.id;var at=seen.indexOf(id);
+if(e.isIntersecting){if(at<0){seen.push(id)}}else if(at>=0){seen.splice(at,1)}
+});
+if(!seen.length){return}
+var first=links.map(function(a){return a.getAttribute('href').slice(1)}).filter(function(id){return seen.indexOf(id)>=0})[0];
+links.forEach(function(a){a.classList.toggle('is-here',a.getAttribute('href').slice(1)===first)});
+},{rootMargin:'-80px 0px -70% 0px'});
+Object.keys(byId).forEach(function(id){var el=document.getElementById(id);if(el){io.observe(el)}});
+})();</script>
+<script type="module" src="../docs.js"></script>
+</body>
+</html>

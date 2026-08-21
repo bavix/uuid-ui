@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="edge" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#115e59"/>
+      <stop offset="0.2" stop-color="#9a3412"/>
+      <stop offset="0.4" stop-color="#6d28d9"/>
+      <stop offset="0.6" stop-color="#1d4ed8"/>
+      <stop offset="0.8" stop-color="#be185d"/>
+      <stop offset="1" stop-color="#3f6212"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#0e1320"/>
+  <rect width="1200" height="8" fill="url(#edge)"/>
+  <text x="80" y="150" font-family="Helvetica, Arial, sans-serif" font-size="30" font-weight="700" fill="#93c5fd" letter-spacing="6">UUIDCONV</text>
+  <text x="80" y="270" font-family="Helvetica, Arial, sans-serif" font-size="76" font-weight="700" fill="#e6e9f2">UUID converter</text>
+  <text x="80" y="360" font-family="Helvetica, Arial, sans-serif" font-size="76" font-weight="700" fill="#e6e9f2">and generator</text>
+  <text x="80" y="430" font-family="Helvetica, Arial, sans-serif" font-size="30" fill="#97a0b5">Base64 · hex · bytes · int64 pair · 32-bit words · ULID</text>
+  <text x="80" y="520" font-family="Menlo, monospace" font-size="26" fill="#7dd3fc">01890a5d-ac96-774b-bcce-b302099a8057</text>
+  <text x="80" y="565" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#97a0b5">Runs in your browser · open source · docker run bavix/uuid-ui</text>
+</svg>

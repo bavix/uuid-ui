@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<!-- uuid-ui:generated-page -->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Convert a list of UUIDs at once | UUIDConv</title>
+    <meta name="description" content="Paste a whole column of identifiers and convert every line in one go, mixing formats freely, with comments kept and the results held in a searchable history.">
+    <link rel="canonical" href="https://bavix.github.io/uuid-ui/uuid-bulk-convert/">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="UUIDConv">
+    <meta property="og:title" content="Converting a column of identifiers">
+    <meta property="og:description" content="Paste a whole column of identifiers and convert every line in one go, mixing formats freely, with comments kept and the results held in a searchable history.">
+    <meta property="og:url" content="https://bavix.github.io/uuid-ui/uuid-bulk-convert/">
+    <meta property="og:image" content="https://bavix.github.io/uuid-ui/og.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Converting a column of identifiers">
+    <meta name="twitter:description" content="Paste a whole column of identifiers and convert every line in one go, mixing formats freely, with comments kept and the results held in a searchable history.">
+    <meta name="twitter:image" content="https://bavix.github.io/uuid-ui/og.png">
+    <link rel="icon" href="../favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+    <link rel="stylesheet" href="../theme.css">
+    <link rel="stylesheet" href="../docs.css">
+    <script>window.__docCustom=function(root,mode){try{
+var raw=localStorage.getItem('uuid.data');if(!raw){return}
+var held=JSON.parse(raw);var text=held&&held.settings&&held.settings.customTheme&&held.settings.customTheme.value;
+if(typeof text!=='string'||text===''){return}
+var theme=JSON.parse(text);
+var tokens=(theme.variants&&(theme.variants[mode]||theme.variants[mode==='dark'?'light':'dark']))
+||(theme[mode]&&(theme[mode].tokens||theme[mode]))||theme.tokens;
+if(!tokens){return}
+Object.keys(tokens).forEach(function(name){
+var bare=String(name).replace(/^--/,'');var value=String(tokens[name]).trim();
+if(!/^[a-z0-9-]{1,40}$/.test(bare)||/[;{}]|url\(|expression|@import/i.test(value)){return}
+root.style.setProperty('--'+bare,value);});
+}catch(e){}};(function(){try{
+var s=localStorage.getItem('theme')||'';var p=s.split(':');
+var palette=p.length===2?p[0]:'default';var m=p.length===2?p[1]:s;
+if(m==='true'||m==='"true"'){m='dark'}if(m==='false'||m==='"false"'){m='light'}
+if(m!=='dark'&&m!=='light'){m=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+var r=document.documentElement;r.classList.add(m);r.style.colorScheme=m;
+if(/^[a-z0-9][a-z0-9-]{0,31}$/.test(palette)&&palette!=='default'){r.setAttribute('data-theme',palette)}
+if(palette==='custom'&&window.__docCustom){window.__docCustom(r,m)}
+}catch(e){}})();</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://bavix.github.io/uuid-ui/#website","url":"https://bavix.github.io/uuid-ui/","name":"UUIDConv","inLanguage":"en","publisher":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"}},{"@type":"TechArticle","@id":"https://bavix.github.io/uuid-ui/uuid-bulk-convert/#article","headline":"Converting a column of identifiers","name":"Converting a column of identifiers","description":"Paste a whole column of identifiers and convert every line in one go, mixing formats freely, with comments kept and the results held in a searchable history.","abstract":"The tool works line by line. Paste a hundred identifiers in whatever formats they happen to be in, pick one target, and every line is converted at once; anything unreadable is reported rather than dropped.","url":"https://bavix.github.io/uuid-ui/uuid-bulk-convert/","mainEntityOfPage":"https://bavix.github.io/uuid-ui/uuid-bulk-convert/","inLanguage":"en","datePublished":"2026-08-21","dateModified":"2026-08-21","author":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"},"publisher":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"},"isPartOf":{"@id":"https://bavix.github.io/uuid-ui/#website"},"about":{"@id":"https://bavix.github.io/uuid-ui/#app"},"proficiencyLevel":"Beginner"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"UUIDConv","item":"https://bavix.github.io/uuid-ui/"},{"@type":"ListItem","position":2,"name":"UUID reference","item":"https://bavix.github.io/uuid-ui/reference/"},{"@type":"ListItem","position":3,"name":"Converting a column of identifiers","item":"https://bavix.github.io/uuid-ui/uuid-bulk-convert/"}]},{"@type":"FAQPage","@id":"https://bavix.github.io/uuid-ui/uuid-bulk-convert/#faq","mainEntity":[{"@type":"Question","name":"Can I convert many UUIDs at once?","acceptedAnswer":{"@type":"Answer","text":"Yes. One identifier per line, any mix of formats, one target format for the batch."}},{"@type":"Question","name":"What happens to lines that are not identifiers?","acceptedAnswer":{"@type":"Answer","text":"They are reported as unread rather than dropped, so a long list does not lose rows silently."}},{"@type":"Question","name":"Are my pasted identifiers uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Every line is parsed and converted in the browser, and the history stays in the browser's own storage."}}]}]}</script>
+</head>
+<body class="doc type-uuid">
+<nav class="app-header backdrop-blur-sm shadow-md border-b sticky top-0 z-50" role="navigation" aria-label="main navigation">
+    <div class="container mx-auto max-w-7xl">
+        <div class="doc-bar">
+            <a class="doc-brand" href="../">
+                <img src="../android-chrome-192x192.png" class="h-9 w-9 rounded-lg brand-mark" alt="">
+                <span class="brand-text font-bold text-lg gradient-animate">UUIDConv UI</span>
+            </a>
+            <nav class="doc-crumbs" aria-label="Breadcrumb"><a href="../reference/">UUID reference</a><span class="doc-crumb-sep" aria-hidden="true">/</span><span aria-current="page">Converting a column of identifiers</span></nav>
+            <div class="doc-bar-actions">
+                <a class="doc-open is-bar" href="../#to=uuid">Converter<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+                <a href="https://github.com/bavix/uuid-ui" target="_blank" rel="noopener noreferrer" class="doc-icon" aria-label="Open project on GitHub" title="Open project on GitHub">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.07 3.29 9.37 7.86 10.88.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.38-3.88-1.38-.53-1.36-1.3-1.73-1.3-1.73-1.06-.73.08-.72.08-.72 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.75.41-1.27.75-1.56-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.18 1.19.92-.26 1.9-.39 2.88-.39.98 0 1.96.13 2.88.39 2.2-1.5 3.17-1.19 3.17-1.19.64 1.58.24 2.75.12 3.04.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.41-5.27 5.69.42.36.79 1.08.79 2.17 0 1.57-.01 2.84-.01 3.22 0 .31.21.68.8.56C20.71 21.37 24 17.07 24 12 24 5.73 18.27.5 12 .5z"/></svg>
+                </a>
+                <button type="button" id="doc-theme" class="doc-icon" aria-label="Toggle theme" title="Toggle theme">
+                    <svg class="doc-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.1 5.1l1.4 1.4M17.5 17.5l1.4 1.4M18.9 5.1l-1.4 1.4M6.5 17.5l-1.4 1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    <svg class="doc-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="doc-shell container mx-auto max-w-7xl">
+<nav class="doc-rail" aria-label="Reference"><a class="doc-rail-hub" href="../reference/">UUID reference</a><ul class="doc-rail-list"><li class="doc-rail-group"><p class="doc-rail-title">Start here</p><ul><li><a href="../what-is-a-uuid/">What is a UUID?</a></li><li><a href="../guid-vs-uuid/">GUID and UUID</a></li><li><a href="../uuid-versions/">All versions side by side</a></li><li><a href="../uuid-v4-vs-v7/">v4 or v7</a></li><li><a href="../uuid-primary-key/">UUID as a primary key</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Making and converting in bulk</p><ul><li><a href="../uuid-generator/">The generator</a></li><li><a href="../uuid-bulk-convert/" class="is-here" aria-current="page">A whole column at once</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Converting a UUID</p><ul><li><a href="../uuid-to-bytes/">To a 16-byte array</a></li><li><a href="../uuid-to-hex/">Without dashes</a></li><li><a href="../uuid-formats/">Every way to write one</a></li><li><a href="../uuid-to-base64/">To Base64, and the short forms</a></li><li><a href="../uuid-to-long/">To a high/low 64-bit pair</a></li><li><a href="../uuid-to-words/">To four 32-bit words</a></li><li><a href="../uuid-byte-order/">Byte order: RFC against mixed-endian GUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Reading one</p><ul><li><a href="../uuid-timestamp/">Decoding the timestamp</a></li><li><a href="../uuid-bit-layout/">The bit layout</a></li><li><a href="../uuid-validation/">Validating a UUID</a></li><li><a href="../uuid-collision-probability/">Collision probability</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">The versions, in order</p><ul><li><a href="../uuid-v1/">Version 1</a></li><li><a href="../uuid-v3/">Version 3</a></li><li><a href="../uuid-v4/">Version 4</a></li><li><a href="../uuid-v5/">Version 5</a></li><li><a href="../uuid-v6/">Version 6</a></li><li><a href="../uuid-v7/">Version 7</a></li><li><a href="../uuid-v8/">Version 8</a></li><li><a href="../nil-uuid/">The Nil UUID</a></li><li><a href="../max-uuid/">The Max UUID</a></li><li><a href="../uuid-namespaces/">Namespaces</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">In a database</p><ul><li><a href="../uuid-in-postgresql/">PostgreSQL</a></li><li><a href="../uuid-in-mysql/">MySQL</a></li><li><a href="../uuid-in-sql-server/">SQL Server</a></li><li><a href="../uuid-in-mongodb/">MongoDB</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">ULID and the alternatives</p><ul><li><a href="../ulid/">ULID</a></li><li><a href="../ulid-vs-uuid/">ULID or UUID v7</a></li><li><a href="../uuid-alternatives/">When not to use a UUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Running the tool</p><ul><li><a href="../uuid-code-examples/">Code examples</a></li><li><a href="../self-hosted-uuid-tool/">Self-hosted and offline</a></li></ul></li></ul></nav>
+<main class="doc-main">
+<article>
+<header class="doc-lead">
+<h1>Converting a column of identifiers</h1>
+<p class="doc-meta"><span class="doc-chip">UUID text</span><span>7 sections</span><span>Updated <time datetime="2026-08-21">2026-08-21</time></span></p>
+<p class="doc-tldr">The tool works line by line. Paste a hundred identifiers in whatever formats they happen to be in, pick one target, and every line is converted at once; anything unreadable is reported rather than dropped.</p>
+<p class="doc-lede">A single conversion is the demo. The reason to keep the tab open is the column you copied out of a query result, a log or a spreadsheet, where half the lines are one format and half are another.</p>
+</header>
+<section class="doc-try" id="worked-example" aria-label="Worked example"><div class="doc-try-head"><span class="doc-chip">UUID text</span><span class="doc-try-hint">computed by the converter itself</span></div><div class="doc-cases"><div class="doc-case"><span class="doc-case-tag">in</span><code class="doc-case-in">f81d4fae7dec11d0a76500a0c91e6bf6</code><span class="doc-case-tag is-out">out</span><code class="doc-case-out">f81d4fae-7dec-11d0-a765-00a0c91e6bf6</code><button type="button" class="doc-copy" aria-label="Copy this value"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="doc-case-note">bare hex, as a database column holds it</p></div><div class="doc-case"><span class="doc-case-tag">in</span><code class="doc-case-in">{01890a5d-ac96-774b-bcce-b302099a8057}</code><span class="doc-case-tag is-out">out</span><code class="doc-case-out">01890a5d-ac96-774b-bcce-b302099a8057</code><button type="button" class="doc-copy" aria-label="Copy this value"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="doc-case-note">braced, as Windows writes it</p></div><div class="doc-case"><span class="doc-case-tag">in</span><code class="doc-case-in">AYkKXayWd0u8zrMCCZqAVw==</code><span class="doc-case-tag is-out">out</span><code class="doc-case-out">01890a5d-ac96-774b-bcce-b302099a8057</code><button type="button" class="doc-copy" aria-label="Copy this value"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="doc-case-note">Base64, as BSON prints it</p></div><div class="doc-case"><span class="doc-case-tag">in</span><code class="doc-case-in">7R3N7TWZFC278AES80M34HWTZP</code><span class="doc-case-tag is-out">out</span><code class="doc-case-out">f81d4fae-7dec-11d0-a765-00a0c91e6bf6</code><button type="button" class="doc-copy" aria-label="Copy this value"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="doc-case-note">a ULID</p></div></div><div class="doc-try-foot"><a class="doc-open" href="../#to=uuid">Open the converter: UUID text<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a><span class="doc-try-note">Nothing you paste leaves the browser.</span></div></section>
+<details class="doc-toc-mobile"><summary>On this page (7)</summary><ul class="doc-toc-mobile-list"><li><a href="#worked-example">Worked example</a></li><li><a href="#mixed-input-is-the-normal-case">Mixed input is the normal case</a></li><li><a href="#comments-survive-the-trip">Comments survive the trip</a></li><li><a href="#nothing-disappears-quietly">Nothing disappears quietly</a></li><li><a href="#where-the-results-go">Where the results go</a></li><li><a href="#questions-people-actually-ask">Questions people actually ask</a></li><li><a href="#related">Related</a></li></ul></details>
+<div class="doc-prose">
+<section class="doc-play" data-widget="bulk" hidden><div class="doc-play-head"><span class="doc-chip">Bulk</span><span class="doc-play-hint">one identifier per line, converted as you type</span></div><div class="doc-play-formats" role="group" aria-label="Format"><button type="button" class="doc-play-chip is-on" data-format="uuid" aria-pressed="true">uuid</button><button type="button" class="doc-play-chip" data-format="high-low" aria-pressed="false">high-low</button><button type="button" class="doc-play-chip" data-format="base64" aria-pressed="false">base64</button><button type="button" class="doc-play-chip" data-format="bytes" aria-pressed="false">bytes</button><button type="button" class="doc-play-chip" data-format="ulid" aria-pressed="false">ulid</button><button type="button" class="doc-play-chip" data-format="words" aria-pressed="false">words</button></div><label class="sr-only" for="bulk-in">Identifiers</label><textarea id="bulk-in" class="doc-play-input is-area" rows="4" spellcheck="false" placeholder="f81d4fae-7dec-11d0-a765-00a0c91e6bf6&#10;01890a5d-ac96-774b-bcce-b302099a8057"></textarea><div class="doc-play-row"><button type="button" class="doc-play-fill" data-fill-many="5">Five fresh v7</button></div><pre class="doc-play-lines"><code></code></pre><p class="doc-play-note"></p></section>
+<h2 id="mixed-input-is-the-normal-case">Mixed input is the normal case<a class="doc-anchor" href="#mixed-input-is-the-normal-case" aria-label="Link to this section">#</a></h2>
+<p>Every line is read on its own, so a list can hold canonical UUIDs, bare hex, braced Windows values, base64, byte arrays, ULIDs and high/low pairs at the same time. The reader recognises each and converts it to the one format you chose. That is what makes the tool useful on the output of a query somebody else wrote.</p>
+<h2 id="comments-survive-the-trip">Comments survive the trip<a class="doc-anchor" href="#comments-survive-the-trip" aria-label="Link to this section">#</a></h2>
+<p>A <code>#</code> opens a comment, and so does <code>//</code> at the start of a line or after whitespace. The text after it is kept next to the result instead of being thrown away, which means a list can carry its own labels:</p>
+<figure class="code"><div class="code-head"><span class="code-lang">text</span><button type="button" class="doc-copy" aria-label="Copy this snippet"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><pre><code>f81d4fae-7dec-11d0-a765-00a0c91e6bf6   # the row that broke
+01890a5d-ac96-774b-bcce-b302099a8057   // fixture, do not delete</code></pre></figure>
+<aside class="note"><code>//</code> only opens a comment at a line start or after whitespace, because standard base64 uses <code>/</code> as a payload character: roughly one identifier in 250 encodes to something containing <code>//</code>.</aside>
+<h2 id="nothing-disappears-quietly">Nothing disappears quietly<a class="doc-anchor" href="#nothing-disappears-quietly" aria-label="Link to this section">#</a></h2>
+<p>A line the reader cannot make sense of is reported, not skipped, and a line that is already in the target format says so instead of pretending to convert. That matters when the list is long enough that you would not notice two missing rows.</p>
+<h2 id="where-the-results-go">Where the results go<a class="doc-anchor" href="#where-the-results-go" aria-label="Link to this section">#</a></h2>
+<p>Converted lines land in a history you can search, tag and keep across reloads, because it lives in the browser's own storage. Nothing is uploaded: the whole pipeline runs in the tab, which is the same reason the pages of this reference can compute their examples in front of you.</p>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-4" target="_blank" rel="noopener noreferrer">RFC 9562 § 4 · UUID Format</a><span class="rfc-note">The text forms a reader has to accept, which is why mixed input works at all</span></p>
+</div>
+<section class="doc-faq"><h2 id="questions-people-actually-ask">Questions people actually ask<a class="doc-anchor" href="#questions-people-actually-ask" aria-label="Link to this section">#</a></h2><div class="doc-qa"><h3>Can I convert many UUIDs at once?</h3><p>Yes. One identifier per line, any mix of formats, one target format for the batch.</p></div><div class="doc-qa"><h3>What happens to lines that are not identifiers?</h3><p>They are reported as unread rather than dropped, so a long list does not lose rows silently.</p></div><div class="doc-qa"><h3>Are my pasted identifiers uploaded anywhere?</h3><p>No. Every line is parsed and converted in the browser, and the history stays in the browser's own storage.</p></div></section>
+<nav class="doc-related" aria-label="Related pages"><h2 id="related">Related<a class="doc-anchor" href="#related" aria-label="Link to this section">#</a></h2><ul><li><a href="../uuid-generator/">Generating identifiers</a></li><li><a href="../uuid-formats/">Every way to write the same UUID</a></li><li><a href="../uuid-validation/">Validating a UUID</a></li><li><a href="../uuid-to-bytes/">UUID to a 16-byte array</a></li></ul></nav>
+<details class="doc-rail-mobile"><summary>Browse the reference</summary><ul class="doc-rail-list"><li class="doc-rail-group"><p class="doc-rail-title">Start here</p><ul><li><a href="../what-is-a-uuid/">What is a UUID?</a></li><li><a href="../guid-vs-uuid/">GUID and UUID</a></li><li><a href="../uuid-versions/">All versions side by side</a></li><li><a href="../uuid-v4-vs-v7/">v4 or v7</a></li><li><a href="../uuid-primary-key/">UUID as a primary key</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Making and converting in bulk</p><ul><li><a href="../uuid-generator/">The generator</a></li><li><a href="../uuid-bulk-convert/" class="is-here" aria-current="page">A whole column at once</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Converting a UUID</p><ul><li><a href="../uuid-to-bytes/">To a 16-byte array</a></li><li><a href="../uuid-to-hex/">Without dashes</a></li><li><a href="../uuid-formats/">Every way to write one</a></li><li><a href="../uuid-to-base64/">To Base64, and the short forms</a></li><li><a href="../uuid-to-long/">To a high/low 64-bit pair</a></li><li><a href="../uuid-to-words/">To four 32-bit words</a></li><li><a href="../uuid-byte-order/">Byte order: RFC against mixed-endian GUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Reading one</p><ul><li><a href="../uuid-timestamp/">Decoding the timestamp</a></li><li><a href="../uuid-bit-layout/">The bit layout</a></li><li><a href="../uuid-validation/">Validating a UUID</a></li><li><a href="../uuid-collision-probability/">Collision probability</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">The versions, in order</p><ul><li><a href="../uuid-v1/">Version 1</a></li><li><a href="../uuid-v3/">Version 3</a></li><li><a href="../uuid-v4/">Version 4</a></li><li><a href="../uuid-v5/">Version 5</a></li><li><a href="../uuid-v6/">Version 6</a></li><li><a href="../uuid-v7/">Version 7</a></li><li><a href="../uuid-v8/">Version 8</a></li><li><a href="../nil-uuid/">The Nil UUID</a></li><li><a href="../max-uuid/">The Max UUID</a></li><li><a href="../uuid-namespaces/">Namespaces</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">In a database</p><ul><li><a href="../uuid-in-postgresql/">PostgreSQL</a></li><li><a href="../uuid-in-mysql/">MySQL</a></li><li><a href="../uuid-in-sql-server/">SQL Server</a></li><li><a href="../uuid-in-mongodb/">MongoDB</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">ULID and the alternatives</p><ul><li><a href="../ulid/">ULID</a></li><li><a href="../ulid-vs-uuid/">ULID or UUID v7</a></li><li><a href="../uuid-alternatives/">When not to use a UUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Running the tool</p><ul><li><a href="../uuid-code-examples/">Code examples</a></li><li><a href="../self-hosted-uuid-tool/">Self-hosted and offline</a></li></ul></li></ul></details>
+<nav class="doc-steps" aria-label="Reference order"><a class="doc-step is-prev" href="../uuid-generator/"><span class="doc-step-kind">Previous</span><span class="doc-step-title">Generating identifiers</span></a><a class="doc-step is-next" href="../uuid-to-bytes/"><span class="doc-step-kind">Next</span><span class="doc-step-title">UUID to a 16-byte array</span></a></nav>
+</article>
+</main>
+<aside class="doc-side"><nav class="doc-toc" aria-label="On this page"><p class="doc-side-title">On this page</p><ul class=""><li><a href="#worked-example">Worked example</a></li><li><a href="#mixed-input-is-the-normal-case">Mixed input is the normal case</a></li><li><a href="#comments-survive-the-trip">Comments survive the trip</a></li><li><a href="#nothing-disappears-quietly">Nothing disappears quietly</a></li><li><a href="#where-the-results-go">Where the results go</a></li><li><a href="#questions-people-actually-ask">Questions people actually ask</a></li><li><a href="#related">Related</a></li></ul></nav></aside>
+</div>
+<footer class="footer-main">
+    <div class="footer-container">
+        <div class="footer-content">
+            <span class="footer-brand">uuid-ui</span>
+            <span class="footer-text">by</span>
+            <a href="https://github.com/rez1dent3" class="footer-link" target="_blank" rel="noopener noreferrer">Babichev Maksim</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../" class="footer-link">Converter</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../reference/" class="footer-link">UUID reference</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../llms.txt" class="footer-link">llms.txt</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="https://github.com/bavix/uuid-ui" class="footer-link" target="_blank" rel="noopener noreferrer">Source Code</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="https://github.com/bavix/uuid-ui/blob/master/LICENSE" class="footer-link" target="_blank" rel="noopener noreferrer">MIT License</a>
+        </div>
+    </div>
+</footer>
+<script>(function(){
+var root=document.documentElement;
+var button=document.getElementById('doc-theme');
+var applied=[];
+
+function read(){
+var raw=localStorage.getItem('theme')||'';var parts=raw.split(':');
+if(parts.length===2){return{palette:parts[0],mode:parts[1]}}
+if(raw==='dark'||raw==='true'||raw==='"true"'){return{palette:'default',mode:'dark'}}
+if(raw==='light'||raw==='false'||raw==='"false"'){return{palette:'default',mode:'light'}}
+return{palette:'default',mode:'system'};
+}
+
+function resolve(mode){
+return mode==='system'
+?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')
+:mode;
+}
+
+function apply(palette,mode){
+var shown=resolve(mode);
+root.classList.toggle('dark',shown==='dark');
+root.classList.toggle('light',shown==='light');
+root.style.colorScheme=shown;
+if(palette&&palette!=='default'&&/^[a-z0-9][a-z0-9-]{0,31}$/.test(palette)){root.setAttribute('data-theme',palette)}
+else{root.removeAttribute('data-theme')}
+applied.forEach(function(name){root.style.removeProperty(name)});
+applied=[];
+if(palette==='custom'&&window.__docCustom){
+var before=root.getAttribute('style')||'';
+window.__docCustom(root,shown);
+var after=root.getAttribute('style')||'';
+if(after!==before){applied=(after.match(/--[a-z0-9-]+/g)||[])}
+}
+return shown;
+}
+
+function store(palette,mode){
+try{
+localStorage.setItem('theme',palette+':'+mode);
+var raw=localStorage.getItem('uuid.data');
+if(!raw){return}
+var held=JSON.parse(raw);
+if(!held||typeof held!=='object'){return}
+var at=Date.now();
+held.settings=held.settings||{};
+held.settings.palette={value:palette,at:at};
+held.settings.theme={value:mode,at:at};
+localStorage.setItem('uuid.data',JSON.stringify(held));
+}catch(e){}
+}
+
+var current=read();
+apply(current.palette,current.mode);
+
+if(button){
+button.addEventListener('click',function(){
+current.mode=resolve(current.mode)==='dark'?'light':'dark';
+apply(current.palette,current.mode);
+store(current.palette,current.mode);
+});
+}
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){
+if(current.mode==='system'){apply(current.palette,current.mode)}
+});
+
+window.addEventListener('storage',function(e){
+if(e.key!=='theme'&&e.key!=='uuid.data'){return}
+current=read();apply(current.palette,current.mode);
+});
+
+document.addEventListener('click',function(e){
+var b=e.target.closest?e.target.closest('.doc-copy'):null;
+if(!b){return}
+var box=b.closest('.doc-case')||b.closest('.code');
+var el=box&&(box.querySelector('.doc-case-out')||box.querySelector('pre code'));
+if(!el||!navigator.clipboard){return}
+navigator.clipboard.writeText(el.textContent).then(function(){
+b.classList.add('is-done');setTimeout(function(){b.classList.remove('is-done')},1400);});
+});
+
+var links=[].slice.call(document.querySelectorAll('.doc-toc a'));
+if(!links.length||!('IntersectionObserver' in window)){return}
+var byId={};links.forEach(function(a){byId[a.getAttribute('href').slice(1)]=a});
+var seen=[];
+var io=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+var id=e.target.id;var at=seen.indexOf(id);
+if(e.isIntersecting){if(at<0){seen.push(id)}}else if(at>=0){seen.splice(at,1)}
+});
+if(!seen.length){return}
+var first=links.map(function(a){return a.getAttribute('href').slice(1)}).filter(function(id){return seen.indexOf(id)>=0})[0];
+links.forEach(function(a){a.classList.toggle('is-here',a.getAttribute('href').slice(1)===first)});
+},{rootMargin:'-80px 0px -70% 0px'});
+Object.keys(byId).forEach(function(id){var el=document.getElementById(id);if(el){io.observe(el)}});
+})();</script>
+<script type="module" src="../docs.js"></script>
+</body>
+</html>

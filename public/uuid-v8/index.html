@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<!-- uuid-ui:generated-page -->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UUID v8: the layout you define yourself | UUIDConv</title>
+    <meta name="description" content="Version 8 claims only the version and variant bits and leaves the other 122 to you. What to put in them, what breaks when you do, and how to stay a valid UUID.">
+    <link rel="canonical" href="https://bavix.github.io/uuid-ui/uuid-v8/">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="UUIDConv">
+    <meta property="og:title" content="UUID version 8">
+    <meta property="og:description" content="Version 8 claims only the version and variant bits and leaves the other 122 to you. What to put in them, what breaks when you do, and how to stay a valid UUID.">
+    <meta property="og:url" content="https://bavix.github.io/uuid-ui/uuid-v8/">
+    <meta property="og:image" content="https://bavix.github.io/uuid-ui/og.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="UUID version 8">
+    <meta name="twitter:description" content="Version 8 claims only the version and variant bits and leaves the other 122 to you. What to put in them, what breaks when you do, and how to stay a valid UUID.">
+    <meta name="twitter:image" content="https://bavix.github.io/uuid-ui/og.png">
+    <link rel="icon" href="../favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+    <link rel="stylesheet" href="../theme.css">
+    <link rel="stylesheet" href="../docs.css">
+    <script>window.__docCustom=function(root,mode){try{
+var raw=localStorage.getItem('uuid.data');if(!raw){return}
+var held=JSON.parse(raw);var text=held&&held.settings&&held.settings.customTheme&&held.settings.customTheme.value;
+if(typeof text!=='string'||text===''){return}
+var theme=JSON.parse(text);
+var tokens=(theme.variants&&(theme.variants[mode]||theme.variants[mode==='dark'?'light':'dark']))
+||(theme[mode]&&(theme[mode].tokens||theme[mode]))||theme.tokens;
+if(!tokens){return}
+Object.keys(tokens).forEach(function(name){
+var bare=String(name).replace(/^--/,'');var value=String(tokens[name]).trim();
+if(!/^[a-z0-9-]{1,40}$/.test(bare)||/[;{}]|url\(|expression|@import/i.test(value)){return}
+root.style.setProperty('--'+bare,value);});
+}catch(e){}};(function(){try{
+var s=localStorage.getItem('theme')||'';var p=s.split(':');
+var palette=p.length===2?p[0]:'default';var m=p.length===2?p[1]:s;
+if(m==='true'||m==='"true"'){m='dark'}if(m==='false'||m==='"false"'){m='light'}
+if(m!=='dark'&&m!=='light'){m=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+var r=document.documentElement;r.classList.add(m);r.style.colorScheme=m;
+if(/^[a-z0-9][a-z0-9-]{0,31}$/.test(palette)&&palette!=='default'){r.setAttribute('data-theme',palette)}
+if(palette==='custom'&&window.__docCustom){window.__docCustom(r,m)}
+}catch(e){}})();</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://bavix.github.io/uuid-ui/#website","url":"https://bavix.github.io/uuid-ui/","name":"UUIDConv","inLanguage":"en","publisher":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"}},{"@type":"TechArticle","@id":"https://bavix.github.io/uuid-ui/uuid-v8/#article","headline":"UUID version 8","name":"UUID version 8","description":"Version 8 claims only the version and variant bits and leaves the other 122 to you. What to put in them, what breaks when you do, and how to stay a valid UUID.","abstract":"Version 8 is deliberately unspecified: six bits are the version and variant, the other 122 are yours. It is the standard's way of saying \"put your structure here instead of inventing a new format\".","url":"https://bavix.github.io/uuid-ui/uuid-v8/","mainEntityOfPage":"https://bavix.github.io/uuid-ui/uuid-v8/","inLanguage":"en","datePublished":"2026-08-21","dateModified":"2026-08-21","author":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"},"publisher":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"},"isPartOf":{"@id":"https://bavix.github.io/uuid-ui/#website"},"about":{"@id":"https://bavix.github.io/uuid-ui/#app"},"proficiencyLevel":"Beginner"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"UUIDConv","item":"https://bavix.github.io/uuid-ui/"},{"@type":"ListItem","position":2,"name":"UUID reference","item":"https://bavix.github.io/uuid-ui/reference/"},{"@type":"ListItem","position":3,"name":"UUID version 8","item":"https://bavix.github.io/uuid-ui/uuid-v8/"}]},{"@type":"FAQPage","@id":"https://bavix.github.io/uuid-ui/uuid-v8/#faq","mainEntity":[{"@type":"Question","name":"What is a UUID v8 for?","acceptedAnswer":{"@type":"Answer","text":"Custom layouts. The standard fixes only the version and variant bits so that application-specific structure can live in a value that is still a valid UUID."}},{"@type":"Question","name":"Can I put a timestamp in a v8?","acceptedAnswer":{"@type":"Answer","text":"Yes, and put it first if you want the identifiers to sort. v8 is the right home for a clock that v7 cannot express, such as microseconds or a different epoch."}},{"@type":"Question","name":"Will libraries accept a v8?","acceptedAnswer":{"@type":"Answer","text":"Parsing and storage yes, because it is a well-formed UUID. Decoding the meaning is on you; nothing else knows your layout."}}]}]}</script>
+</head>
+<body class="doc type-bytes">
+<nav class="app-header backdrop-blur-sm shadow-md border-b sticky top-0 z-50" role="navigation" aria-label="main navigation">
+    <div class="container mx-auto max-w-7xl">
+        <div class="doc-bar">
+            <a class="doc-brand" href="../">
+                <img src="../android-chrome-192x192.png" class="h-9 w-9 rounded-lg brand-mark" alt="">
+                <span class="brand-text font-bold text-lg gradient-animate">UUIDConv UI</span>
+            </a>
+            <nav class="doc-crumbs" aria-label="Breadcrumb"><a href="../reference/">UUID reference</a><span class="doc-crumb-sep" aria-hidden="true">/</span><span aria-current="page">UUID version 8</span></nav>
+            <div class="doc-bar-actions">
+                <a class="doc-open is-bar" href="../#to=bytes&amp;style=hex">Converter<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+                <a href="https://github.com/bavix/uuid-ui" target="_blank" rel="noopener noreferrer" class="doc-icon" aria-label="Open project on GitHub" title="Open project on GitHub">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.07 3.29 9.37 7.86 10.88.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.38-3.88-1.38-.53-1.36-1.3-1.73-1.3-1.73-1.06-.73.08-.72.08-.72 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.75.41-1.27.75-1.56-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.18 1.19.92-.26 1.9-.39 2.88-.39.98 0 1.96.13 2.88.39 2.2-1.5 3.17-1.19 3.17-1.19.64 1.58.24 2.75.12 3.04.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.41-5.27 5.69.42.36.79 1.08.79 2.17 0 1.57-.01 2.84-.01 3.22 0 .31.21.68.8.56C20.71 21.37 24 17.07 24 12 24 5.73 18.27.5 12 .5z"/></svg>
+                </a>
+                <button type="button" id="doc-theme" class="doc-icon" aria-label="Toggle theme" title="Toggle theme">
+                    <svg class="doc-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.1 5.1l1.4 1.4M17.5 17.5l1.4 1.4M18.9 5.1l-1.4 1.4M6.5 17.5l-1.4 1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    <svg class="doc-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="doc-shell container mx-auto max-w-7xl">
+<nav class="doc-rail" aria-label="Reference"><a class="doc-rail-hub" href="../reference/">UUID reference</a><ul class="doc-rail-list"><li class="doc-rail-group"><p class="doc-rail-title">Start here</p><ul><li><a href="../what-is-a-uuid/">What is a UUID?</a></li><li><a href="../guid-vs-uuid/">GUID and UUID</a></li><li><a href="../uuid-versions/">All versions side by side</a></li><li><a href="../uuid-v4-vs-v7/">v4 or v7</a></li><li><a href="../uuid-primary-key/">UUID as a primary key</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Making and converting in bulk</p><ul><li><a href="../uuid-generator/">The generator</a></li><li><a href="../uuid-bulk-convert/">A whole column at once</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Converting a UUID</p><ul><li><a href="../uuid-to-bytes/">To a 16-byte array</a></li><li><a href="../uuid-to-hex/">Without dashes</a></li><li><a href="../uuid-formats/">Every way to write one</a></li><li><a href="../uuid-to-base64/">To Base64, and the short forms</a></li><li><a href="../uuid-to-long/">To a high/low 64-bit pair</a></li><li><a href="../uuid-to-words/">To four 32-bit words</a></li><li><a href="../uuid-byte-order/">Byte order: RFC against mixed-endian GUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Reading one</p><ul><li><a href="../uuid-timestamp/">Decoding the timestamp</a></li><li><a href="../uuid-bit-layout/">The bit layout</a></li><li><a href="../uuid-validation/">Validating a UUID</a></li><li><a href="../uuid-collision-probability/">Collision probability</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">The versions, in order</p><ul><li><a href="../uuid-v1/">Version 1</a></li><li><a href="../uuid-v3/">Version 3</a></li><li><a href="../uuid-v4/">Version 4</a></li><li><a href="../uuid-v5/">Version 5</a></li><li><a href="../uuid-v6/">Version 6</a></li><li><a href="../uuid-v7/">Version 7</a></li><li><a href="../uuid-v8/" class="is-here" aria-current="page">Version 8</a></li><li><a href="../nil-uuid/">The Nil UUID</a></li><li><a href="../max-uuid/">The Max UUID</a></li><li><a href="../uuid-namespaces/">Namespaces</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">In a database</p><ul><li><a href="../uuid-in-postgresql/">PostgreSQL</a></li><li><a href="../uuid-in-mysql/">MySQL</a></li><li><a href="../uuid-in-sql-server/">SQL Server</a></li><li><a href="../uuid-in-mongodb/">MongoDB</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">ULID and the alternatives</p><ul><li><a href="../ulid/">ULID</a></li><li><a href="../ulid-vs-uuid/">ULID or UUID v7</a></li><li><a href="../uuid-alternatives/">When not to use a UUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Running the tool</p><ul><li><a href="../uuid-code-examples/">Code examples</a></li><li><a href="../self-hosted-uuid-tool/">Self-hosted and offline</a></li></ul></li></ul></nav>
+<main class="doc-main">
+<article>
+<header class="doc-lead">
+<h1>UUID version 8</h1>
+<p class="doc-meta"><span class="doc-chip">byte array</span><span>7 sections</span><span>Updated <time datetime="2026-08-21">2026-08-21</time></span></p>
+<p class="doc-tldr">Version 8 is deliberately unspecified: six bits are the version and variant, the other 122 are yours. It is the standard's way of saying &quot;put your structure here instead of inventing a new format&quot;.</p>
+<p class="doc-lede">Every team eventually wants a shard number, a tenant, or a different clock inside the identifier. Version 8 is where that goes: a custom layout that still validates as a UUID, fits a <code>uuid</code> column, and survives every library on the way.</p>
+</header>
+<section class="doc-try" id="worked-example" aria-label="Worked example"><div class="doc-try-head"><span class="doc-chip">What the converter reads</span><span class="doc-try-hint">computed by the converter itself</span></div><div class="doc-cases"><div class="doc-case"><span class="doc-case-tag">in</span><code class="doc-case-in">018f3c00-0000-8000-8000-0000deadbeef</code><span class="doc-case-tag is-out">out</span><code class="doc-case-out">uuid · RFC 9562 (10xx) · version 8</code><button type="button" class="doc-copy" aria-label="Copy this value"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="doc-case-note">Valid v8 — the version nibble is 8 and the variant is 10xx</p></div><div class="doc-case"><span class="doc-case-tag">in</span><code class="doc-case-in">018f3c00-0000-8000-0000-0000deadbeef</code><span class="doc-case-tag is-out">out</span><code class="doc-case-out">uuid · NCS (0xxx) — reserved, backward compatibility · version 8 · non-rfc</code><button type="button" class="doc-copy" aria-label="Copy this value"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="doc-case-note">Same bits, wrong variant nibble: no longer an RFC 9562 identifier</p></div></div><div class="doc-try-foot"><a class="doc-open" href="../#to=bytes&amp;style=hex">Open the converter: byte array<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a><span class="doc-try-note">Nothing you paste leaves the browser.</span></div></section>
+<section class="doc-play" data-play data-to="bytes" hidden><div class="doc-play-head"><span class="doc-chip">Playground</span><span class="doc-play-hint">runs here in the page; nothing is sent anywhere</span></div><div class="doc-play-formats" role="group" aria-label="Format"><button type="button" class="doc-play-chip" data-format="uuid" aria-pressed="false">uuid</button><button type="button" class="doc-play-chip" data-format="high-low" aria-pressed="false">high-low</button><button type="button" class="doc-play-chip" data-format="base64" aria-pressed="false">base64</button><button type="button" class="doc-play-chip is-on" data-format="bytes" aria-pressed="true">bytes</button><button type="button" class="doc-play-chip" data-format="ulid" aria-pressed="false">ulid</button><button type="button" class="doc-play-chip" data-format="words" aria-pressed="false">words</button></div><label class="sr-only" for="doc-play-input">Identifier</label><input id="doc-play-input" class="doc-play-input" spellcheck="false" autocomplete="off" placeholder="paste a UUID, a ULID, a byte array, a pair of longs…"><div class="doc-play-row"><button type="button" class="doc-play-fill" data-fill="v4">Random v4</button><button type="button" class="doc-play-fill" data-fill="v7">Time-ordered v7</button></div><p class="doc-play-out"><code></code></p><p class="doc-play-note"></p></section>
+<details class="doc-toc-mobile"><summary>On this page (7)</summary><ul class="doc-toc-mobile-list"><li><a href="#worked-example">Worked example</a></li><li><a href="#what-the-standard-claims-and-what-it-leaves">What the standard claims, and what it leaves</a></li><li><a href="#what-people-put-in-one">What people put in one</a></li><li><a href="#what-you-give-up">What you give up</a></li><li><a href="#staying-sortable">Staying sortable</a></li><li><a href="#questions-people-actually-ask">Questions people actually ask</a></li><li><a href="#related">Related</a></li></ul></details>
+<div class="doc-prose">
+<h2 id="what-the-standard-claims-and-what-it-leaves">What the standard claims, and what it leaves<a class="doc-anchor" href="#what-the-standard-claims-and-what-it-leaves" aria-label="Link to this section">#</a></h2>
+<figure class="doc-specimen report"><div class="report-specimen"><div class="report-chars" role="img" aria-label="018f3c00-0000-8000-8000-0000deadbeef, a version 8 identifier, field by field"><span class="report-char k-random" title="custom_a">0</span><span class="report-char k-random" title="custom_a">1</span><span class="report-char k-random" title="custom_a">8</span><span class="report-char k-random" title="custom_a">f</span><span class="report-char k-random" title="custom_a">3</span><span class="report-char k-random" title="custom_a">c</span><span class="report-char k-random" title="custom_a">0</span><span class="report-char k-random" title="custom_a">0</span><span class="report-char k-random is-group" title="custom_a">0</span><span class="report-char k-random" title="custom_a">0</span><span class="report-char k-random" title="custom_a">0</span><span class="report-char k-random" title="custom_a">0</span><span class="report-char k-version is-group" title="version">8</span><span class="report-char k-random" title="custom_b">0</span><span class="report-char k-random" title="custom_b">0</span><span class="report-char k-random" title="custom_b">0</span><span class="report-char k-variant is-group" title="variant">8</span><span class="report-char k-random" title="custom_c">0</span><span class="report-char k-random" title="custom_c">0</span><span class="report-char k-random" title="custom_c">0</span><span class="report-char k-random is-group" title="custom_c">0</span><span class="report-char k-random" title="custom_c">0</span><span class="report-char k-random" title="custom_c">0</span><span class="report-char k-random" title="custom_c">0</span><span class="report-char k-random" title="custom_c">d</span><span class="report-char k-random" title="custom_c">e</span><span class="report-char k-random" title="custom_c">a</span><span class="report-char k-random" title="custom_c">d</span><span class="report-char k-random" title="custom_c">b</span><span class="report-char k-random" title="custom_c">e</span><span class="report-char k-random" title="custom_c">e</span><span class="report-char k-random" title="custom_c">f</span></div><div class="report-bits" aria-hidden="true"><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-group"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-version is-on is-group"></span><span class="report-bit k-version"></span><span class="report-bit k-version"></span><span class="report-bit k-version"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-variant is-on is-group"></span><span class="report-bit k-variant"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-group"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span></div><div class="report-ruler" aria-hidden="true"><span class="report-run k-random" style="flex-grow:48">custom_a</span><span class="report-run k-version is-narrow" style="flex-grow:4">version</span><span class="report-run k-random" style="flex-grow:12">custom_b</span><span class="report-run k-variant is-narrow" style="flex-grow:2">variant</span><span class="report-run k-random" style="flex-grow:62">custom_c</span></div><div class="report-octets" aria-hidden="true"><span class="report-octet">byte 0</span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet">byte 4</span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet">byte 8</span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet">byte 12</span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet"></span></div></div><div class="report-chips"><span class="report-chip k-random">custom_a 0-47</span><span class="report-chip k-version">version 48-51</span><span class="report-chip k-random">custom_b 52-63</span><span class="report-chip k-variant">variant 64-65</span><span class="report-chip k-random">custom_c 66-127</span></div><p class="doc-reading" aria-live="polite"></p><figcaption>Only the version and variant are spoken for; the other 122 bits are yours.</figcaption></figure>
+<p>Bits 48-51 must read 1000 and bits 64-65 must read 10. Everything else is yours: three runs of 48, 12 and 62 bits, split by the two fixed fields. That awkward split is the main design constraint, because a field cannot straddle the version or variant without being reassembled on read.</p>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-5.8" target="_blank" rel="noopener noreferrer">RFC 9562 § 5.8 · UUID Version 8</a><span class="rfc-note">The deliberately empty specification</span></p>
+<h2 id="what-people-put-in-one">What people put in one<a class="doc-anchor" href="#what-people-put-in-one" aria-label="Link to this section">#</a></h2>
+<ul><li>A clock with a different epoch or resolution than v7 offers — microseconds, or a domain epoch that buys extra years.</li><li>A shard or partition number, so routing needs no lookup.</li><li>A tenant identifier, so a leaked row cannot be re-keyed into another tenant.</li><li>A short type tag, so an identifier in a log says what it names.</li><li>A checksum over the rest, to catch transcription errors before a database round trip.</li></ul>
+<h2 id="what-you-give-up">What you give up<a class="doc-anchor" href="#what-you-give-up" aria-label="Link to this section">#</a></h2>
+<p>Opacity, mostly. The standard's advice is that an identifier should not carry meaning others can parse, because everything encoded in it becomes a contract you cannot change and information you cannot un-leak. A tenant id in the key means the key tells an outsider how many tenants you have and which one a row belongs to.</p>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-6.12" target="_blank" rel="noopener noreferrer">RFC 9562 § 6.12 · Opacity</a><span class="rfc-note">Opacity: the argument against putting meaning in an identifier</span></p>
+<p>You also give up interoperability of meaning: another system sees a valid v8 and can read nothing from it. Write the layout down next to the schema, with bit offsets, or the next engineer will reverse-engineer it from examples.</p>
+<h2 id="staying-sortable">Staying sortable<a class="doc-anchor" href="#staying-sortable" aria-label="Link to this section">#</a></h2>
+<p>If ordering matters, the time field has to lead, as in v7: the first 48 bits, most significant first. Put a shard number in front instead and you have grouped by shard, not ordered by time, and the index will behave accordingly.</p>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-6.11" target="_blank" rel="noopener noreferrer">RFC 9562 § 6.11 · Sorting</a><span class="rfc-note">Sorting, which a custom layout has to earn for itself</span></p>
+</div>
+<section class="doc-faq"><h2 id="questions-people-actually-ask">Questions people actually ask<a class="doc-anchor" href="#questions-people-actually-ask" aria-label="Link to this section">#</a></h2><div class="doc-qa"><h3>What is a UUID v8 for?</h3><p>Custom layouts. The standard fixes only the version and variant bits so that application-specific structure can live in a value that is still a valid UUID.</p></div><div class="doc-qa"><h3>Can I put a timestamp in a v8?</h3><p>Yes, and put it first if you want the identifiers to sort. v8 is the right home for a clock that v7 cannot express, such as microseconds or a different epoch.</p></div><div class="doc-qa"><h3>Will libraries accept a v8?</h3><p>Parsing and storage yes, because it is a well-formed UUID. Decoding the meaning is on you; nothing else knows your layout.</p></div></section>
+<nav class="doc-related" aria-label="Related pages"><h2 id="related">Related<a class="doc-anchor" href="#related" aria-label="Link to this section">#</a></h2><ul><li><a href="../uuid-v7/">UUID version 7</a></li><li><a href="../uuid-versions/">UUID versions, side by side</a></li><li><a href="../uuid-bit-layout/">The bit layout of a UUID</a></li><li><a href="../uuid-formats/">Every way to write the same UUID</a></li></ul></nav>
+<details class="doc-rail-mobile"><summary>Browse the reference</summary><ul class="doc-rail-list"><li class="doc-rail-group"><p class="doc-rail-title">Start here</p><ul><li><a href="../what-is-a-uuid/">What is a UUID?</a></li><li><a href="../guid-vs-uuid/">GUID and UUID</a></li><li><a href="../uuid-versions/">All versions side by side</a></li><li><a href="../uuid-v4-vs-v7/">v4 or v7</a></li><li><a href="../uuid-primary-key/">UUID as a primary key</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Making and converting in bulk</p><ul><li><a href="../uuid-generator/">The generator</a></li><li><a href="../uuid-bulk-convert/">A whole column at once</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Converting a UUID</p><ul><li><a href="../uuid-to-bytes/">To a 16-byte array</a></li><li><a href="../uuid-to-hex/">Without dashes</a></li><li><a href="../uuid-formats/">Every way to write one</a></li><li><a href="../uuid-to-base64/">To Base64, and the short forms</a></li><li><a href="../uuid-to-long/">To a high/low 64-bit pair</a></li><li><a href="../uuid-to-words/">To four 32-bit words</a></li><li><a href="../uuid-byte-order/">Byte order: RFC against mixed-endian GUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Reading one</p><ul><li><a href="../uuid-timestamp/">Decoding the timestamp</a></li><li><a href="../uuid-bit-layout/">The bit layout</a></li><li><a href="../uuid-validation/">Validating a UUID</a></li><li><a href="../uuid-collision-probability/">Collision probability</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">The versions, in order</p><ul><li><a href="../uuid-v1/">Version 1</a></li><li><a href="../uuid-v3/">Version 3</a></li><li><a href="../uuid-v4/">Version 4</a></li><li><a href="../uuid-v5/">Version 5</a></li><li><a href="../uuid-v6/">Version 6</a></li><li><a href="../uuid-v7/">Version 7</a></li><li><a href="../uuid-v8/" class="is-here" aria-current="page">Version 8</a></li><li><a href="../nil-uuid/">The Nil UUID</a></li><li><a href="../max-uuid/">The Max UUID</a></li><li><a href="../uuid-namespaces/">Namespaces</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">In a database</p><ul><li><a href="../uuid-in-postgresql/">PostgreSQL</a></li><li><a href="../uuid-in-mysql/">MySQL</a></li><li><a href="../uuid-in-sql-server/">SQL Server</a></li><li><a href="../uuid-in-mongodb/">MongoDB</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">ULID and the alternatives</p><ul><li><a href="../ulid/">ULID</a></li><li><a href="../ulid-vs-uuid/">ULID or UUID v7</a></li><li><a href="../uuid-alternatives/">When not to use a UUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Running the tool</p><ul><li><a href="../uuid-code-examples/">Code examples</a></li><li><a href="../self-hosted-uuid-tool/">Self-hosted and offline</a></li></ul></li></ul></details>
+<nav class="doc-steps" aria-label="Reference order"><a class="doc-step is-prev" href="../uuid-v7/"><span class="doc-step-kind">Previous</span><span class="doc-step-title">UUID version 7</span></a><a class="doc-step is-next" href="../nil-uuid/"><span class="doc-step-kind">Next</span><span class="doc-step-title">The Nil UUID</span></a></nav>
+</article>
+</main>
+<aside class="doc-side"><nav class="doc-toc" aria-label="On this page"><p class="doc-side-title">On this page</p><ul class=""><li><a href="#worked-example">Worked example</a></li><li><a href="#what-the-standard-claims-and-what-it-leaves">What the standard claims, and what it leaves</a></li><li><a href="#what-people-put-in-one">What people put in one</a></li><li><a href="#what-you-give-up">What you give up</a></li><li><a href="#staying-sortable">Staying sortable</a></li><li><a href="#questions-people-actually-ask">Questions people actually ask</a></li><li><a href="#related">Related</a></li></ul></nav></aside>
+</div>
+<footer class="footer-main">
+    <div class="footer-container">
+        <div class="footer-content">
+            <span class="footer-brand">uuid-ui</span>
+            <span class="footer-text">by</span>
+            <a href="https://github.com/rez1dent3" class="footer-link" target="_blank" rel="noopener noreferrer">Babichev Maksim</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../" class="footer-link">Converter</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../reference/" class="footer-link">UUID reference</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../llms.txt" class="footer-link">llms.txt</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="https://github.com/bavix/uuid-ui" class="footer-link" target="_blank" rel="noopener noreferrer">Source Code</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="https://github.com/bavix/uuid-ui/blob/master/LICENSE" class="footer-link" target="_blank" rel="noopener noreferrer">MIT License</a>
+        </div>
+    </div>
+</footer>
+<script>(function(){
+var root=document.documentElement;
+var button=document.getElementById('doc-theme');
+var applied=[];
+
+function read(){
+var raw=localStorage.getItem('theme')||'';var parts=raw.split(':');
+if(parts.length===2){return{palette:parts[0],mode:parts[1]}}
+if(raw==='dark'||raw==='true'||raw==='"true"'){return{palette:'default',mode:'dark'}}
+if(raw==='light'||raw==='false'||raw==='"false"'){return{palette:'default',mode:'light'}}
+return{palette:'default',mode:'system'};
+}
+
+function resolve(mode){
+return mode==='system'
+?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')
+:mode;
+}
+
+function apply(palette,mode){
+var shown=resolve(mode);
+root.classList.toggle('dark',shown==='dark');
+root.classList.toggle('light',shown==='light');
+root.style.colorScheme=shown;
+if(palette&&palette!=='default'&&/^[a-z0-9][a-z0-9-]{0,31}$/.test(palette)){root.setAttribute('data-theme',palette)}
+else{root.removeAttribute('data-theme')}
+applied.forEach(function(name){root.style.removeProperty(name)});
+applied=[];
+if(palette==='custom'&&window.__docCustom){
+var before=root.getAttribute('style')||'';
+window.__docCustom(root,shown);
+var after=root.getAttribute('style')||'';
+if(after!==before){applied=(after.match(/--[a-z0-9-]+/g)||[])}
+}
+return shown;
+}
+
+function store(palette,mode){
+try{
+localStorage.setItem('theme',palette+':'+mode);
+var raw=localStorage.getItem('uuid.data');
+if(!raw){return}
+var held=JSON.parse(raw);
+if(!held||typeof held!=='object'){return}
+var at=Date.now();
+held.settings=held.settings||{};
+held.settings.palette={value:palette,at:at};
+held.settings.theme={value:mode,at:at};
+localStorage.setItem('uuid.data',JSON.stringify(held));
+}catch(e){}
+}
+
+var current=read();
+apply(current.palette,current.mode);
+
+if(button){
+button.addEventListener('click',function(){
+current.mode=resolve(current.mode)==='dark'?'light':'dark';
+apply(current.palette,current.mode);
+store(current.palette,current.mode);
+});
+}
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){
+if(current.mode==='system'){apply(current.palette,current.mode)}
+});
+
+window.addEventListener('storage',function(e){
+if(e.key!=='theme'&&e.key!=='uuid.data'){return}
+current=read();apply(current.palette,current.mode);
+});
+
+document.addEventListener('click',function(e){
+var b=e.target.closest?e.target.closest('.doc-copy'):null;
+if(!b){return}
+var box=b.closest('.doc-case')||b.closest('.code');
+var el=box&&(box.querySelector('.doc-case-out')||box.querySelector('pre code'));
+if(!el||!navigator.clipboard){return}
+navigator.clipboard.writeText(el.textContent).then(function(){
+b.classList.add('is-done');setTimeout(function(){b.classList.remove('is-done')},1400);});
+});
+
+var links=[].slice.call(document.querySelectorAll('.doc-toc a'));
+if(!links.length||!('IntersectionObserver' in window)){return}
+var byId={};links.forEach(function(a){byId[a.getAttribute('href').slice(1)]=a});
+var seen=[];
+var io=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+var id=e.target.id;var at=seen.indexOf(id);
+if(e.isIntersecting){if(at<0){seen.push(id)}}else if(at>=0){seen.splice(at,1)}
+});
+if(!seen.length){return}
+var first=links.map(function(a){return a.getAttribute('href').slice(1)}).filter(function(id){return seen.indexOf(id)>=0})[0];
+links.forEach(function(a){a.classList.toggle('is-here',a.getAttribute('href').slice(1)===first)});
+},{rootMargin:'-80px 0px -70% 0px'});
+Object.keys(byId).forEach(function(id){var el=document.getElementById(id);if(el){io.observe(el)}});
+})();</script>
+<script type="module" src="../docs.js"></script>
+</body>
+</html>

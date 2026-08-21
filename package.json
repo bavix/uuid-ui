@@ -6,10 +6,11 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/build-pages.mjs",
     "preview": "vite preview",
     "lint": "eslint .",
-    "test": "node --test ./tests/*"
+    "test": "node --test ./tests/*",
+    "pages": "node scripts/build-pages.mjs"
   },
   "repository": {
     "type": "git",

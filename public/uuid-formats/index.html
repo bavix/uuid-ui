@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<!-- uuid-ui:generated-page -->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UUID formats: plain, hex, braces and urn:uuid | UUIDConv</title>
+    <meta name="description" content="Every way the same UUID gets written: canonical, 32 bare hex digits, braced, urn:uuid and capitals, with the .NET N/D/B/P/X names and which system expects which.">
+    <link rel="canonical" href="https://bavix.github.io/uuid-ui/uuid-formats/">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="UUIDConv">
+    <meta property="og:title" content="Every way to write the same UUID">
+    <meta property="og:description" content="Every way the same UUID gets written: canonical, 32 bare hex digits, braced, urn:uuid and capitals, with the .NET N/D/B/P/X names and which system expects which.">
+    <meta property="og:url" content="https://bavix.github.io/uuid-ui/uuid-formats/">
+    <meta property="og:image" content="https://bavix.github.io/uuid-ui/og.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Every way to write the same UUID">
+    <meta name="twitter:description" content="Every way the same UUID gets written: canonical, 32 bare hex digits, braced, urn:uuid and capitals, with the .NET N/D/B/P/X names and which system expects which.">
+    <meta name="twitter:image" content="https://bavix.github.io/uuid-ui/og.png">
+    <link rel="icon" href="../favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+    <link rel="stylesheet" href="../theme.css">
+    <link rel="stylesheet" href="../docs.css">
+    <script>window.__docCustom=function(root,mode){try{
+var raw=localStorage.getItem('uuid.data');if(!raw){return}
+var held=JSON.parse(raw);var text=held&&held.settings&&held.settings.customTheme&&held.settings.customTheme.value;
+if(typeof text!=='string'||text===''){return}
+var theme=JSON.parse(text);
+var tokens=(theme.variants&&(theme.variants[mode]||theme.variants[mode==='dark'?'light':'dark']))
+||(theme[mode]&&(theme[mode].tokens||theme[mode]))||theme.tokens;
+if(!tokens){return}
+Object.keys(tokens).forEach(function(name){
+var bare=String(name).replace(/^--/,'');var value=String(tokens[name]).trim();
+if(!/^[a-z0-9-]{1,40}$/.test(bare)||/[;{}]|url\(|expression|@import/i.test(value)){return}
+root.style.setProperty('--'+bare,value);});
+}catch(e){}};(function(){try{
+var s=localStorage.getItem('theme')||'';var p=s.split(':');
+var palette=p.length===2?p[0]:'default';var m=p.length===2?p[1]:s;
+if(m==='true'||m==='"true"'){m='dark'}if(m==='false'||m==='"false"'){m='light'}
+if(m!=='dark'&&m!=='light'){m=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+var r=document.documentElement;r.classList.add(m);r.style.colorScheme=m;
+if(/^[a-z0-9][a-z0-9-]{0,31}$/.test(palette)&&palette!=='default'){r.setAttribute('data-theme',palette)}
+if(palette==='custom'&&window.__docCustom){window.__docCustom(r,m)}
+}catch(e){}})();</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://bavix.github.io/uuid-ui/#website","url":"https://bavix.github.io/uuid-ui/","name":"UUIDConv","inLanguage":"en","publisher":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"}},{"@type":"TechArticle","@id":"https://bavix.github.io/uuid-ui/uuid-formats/#article","headline":"Every way to write the same UUID","name":"Every way to write the same UUID","description":"Every way the same UUID gets written: canonical, 32 bare hex digits, braced, urn:uuid and capitals, with the .NET N/D/B/P/X names and which system expects which.","abstract":"The 128 bits never change; the punctuation does. Canonical, bare hex, braces, urn:uuid and upper case are five spellings of one identifier, and comparing two of them as strings is a bug.","url":"https://bavix.github.io/uuid-ui/uuid-formats/","mainEntityOfPage":"https://bavix.github.io/uuid-ui/uuid-formats/","inLanguage":"en","datePublished":"2026-08-21","dateModified":"2026-08-21","author":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"},"publisher":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"},"isPartOf":{"@id":"https://bavix.github.io/uuid-ui/#website"},"about":{"@id":"https://bavix.github.io/uuid-ui/#app"},"proficiencyLevel":"Beginner"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"UUIDConv","item":"https://bavix.github.io/uuid-ui/"},{"@type":"ListItem","position":2,"name":"UUID reference","item":"https://bavix.github.io/uuid-ui/reference/"},{"@type":"ListItem","position":3,"name":"Every way to write the same UUID","item":"https://bavix.github.io/uuid-ui/uuid-formats/"}]},{"@type":"FAQPage","@id":"https://bavix.github.io/uuid-ui/uuid-formats/#faq","mainEntity":[{"@type":"Question","name":"Is a braced GUID a different value?","acceptedAnswer":{"@type":"Answer","text":"No. Braces, hyphens, the urn: prefix and letter case are all punctuation. The identifier is the 32 hex digits."}},{"@type":"Question","name":"What is the .NET N format?","acceptedAnswer":{"@type":"Answer","text":"32 hex digits with no hyphens, the same thing as the hex spelling in the table above."}},{"@type":"Question","name":"Should I store UUIDs upper or lower case?","acceptedAnswer":{"@type":"Answer","text":"Lower case, and normalise on the way in. The standard writes lower case, and mixed case in one column produces duplicate rows for one entity."}}]}]}</script>
+</head>
+<body class="doc type-uuid">
+<nav class="app-header backdrop-blur-sm shadow-md border-b sticky top-0 z-50" role="navigation" aria-label="main navigation">
+    <div class="container mx-auto max-w-7xl">
+        <div class="doc-bar">
+            <a class="doc-brand" href="../">
+                <img src="../android-chrome-192x192.png" class="h-9 w-9 rounded-lg brand-mark" alt="">
+                <span class="brand-text font-bold text-lg gradient-animate">UUIDConv UI</span>
+            </a>
+            <nav class="doc-crumbs" aria-label="Breadcrumb"><a href="../reference/">UUID reference</a><span class="doc-crumb-sep" aria-hidden="true">/</span><span aria-current="page">Every way to write the same UUID</span></nav>
+            <div class="doc-bar-actions">
+                <a class="doc-open is-bar" href="../#to=uuid&amp;style=braces">Converter<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+                <a href="https://github.com/bavix/uuid-ui" target="_blank" rel="noopener noreferrer" class="doc-icon" aria-label="Open project on GitHub" title="Open project on GitHub">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.07 3.29 9.37 7.86 10.88.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.38-3.88-1.38-.53-1.36-1.3-1.73-1.3-1.73-1.06-.73.08-.72.08-.72 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.75.41-1.27.75-1.56-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.18 1.19.92-.26 1.9-.39 2.88-.39.98 0 1.96.13 2.88.39 2.2-1.5 3.17-1.19 3.17-1.19.64 1.58.24 2.75.12 3.04.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.41-5.27 5.69.42.36.79 1.08.79 2.17 0 1.57-.01 2.84-.01 3.22 0 .31.21.68.8.56C20.71 21.37 24 17.07 24 12 24 5.73 18.27.5 12 .5z"/></svg>
+                </a>
+                <button type="button" id="doc-theme" class="doc-icon" aria-label="Toggle theme" title="Toggle theme">
+                    <svg class="doc-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.1 5.1l1.4 1.4M17.5 17.5l1.4 1.4M18.9 5.1l-1.4 1.4M6.5 17.5l-1.4 1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    <svg class="doc-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="doc-shell container mx-auto max-w-7xl">
+<nav class="doc-rail" aria-label="Reference"><a class="doc-rail-hub" href="../reference/">UUID reference</a><ul class="doc-rail-list"><li class="doc-rail-group"><p class="doc-rail-title">Start here</p><ul><li><a href="../what-is-a-uuid/">What is a UUID?</a></li><li><a href="../guid-vs-uuid/">GUID and UUID</a></li><li><a href="../uuid-versions/">All versions side by side</a></li><li><a href="../uuid-v4-vs-v7/">v4 or v7</a></li><li><a href="../uuid-primary-key/">UUID as a primary key</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Making and converting in bulk</p><ul><li><a href="../uuid-generator/">The generator</a></li><li><a href="../uuid-bulk-convert/">A whole column at once</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Converting a UUID</p><ul><li><a href="../uuid-to-bytes/">To a 16-byte array</a></li><li><a href="../uuid-to-hex/">Without dashes</a></li><li><a href="../uuid-formats/" class="is-here" aria-current="page">Every way to write one</a></li><li><a href="../uuid-to-base64/">To Base64, and the short forms</a></li><li><a href="../uuid-to-long/">To a high/low 64-bit pair</a></li><li><a href="../uuid-to-words/">To four 32-bit words</a></li><li><a href="../uuid-byte-order/">Byte order: RFC against mixed-endian GUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Reading one</p><ul><li><a href="../uuid-timestamp/">Decoding the timestamp</a></li><li><a href="../uuid-bit-layout/">The bit layout</a></li><li><a href="../uuid-validation/">Validating a UUID</a></li><li><a href="../uuid-collision-probability/">Collision probability</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">The versions, in order</p><ul><li><a href="../uuid-v1/">Version 1</a></li><li><a href="../uuid-v3/">Version 3</a></li><li><a href="../uuid-v4/">Version 4</a></li><li><a href="../uuid-v5/">Version 5</a></li><li><a href="../uuid-v6/">Version 6</a></li><li><a href="../uuid-v7/">Version 7</a></li><li><a href="../uuid-v8/">Version 8</a></li><li><a href="../nil-uuid/">The Nil UUID</a></li><li><a href="../max-uuid/">The Max UUID</a></li><li><a href="../uuid-namespaces/">Namespaces</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">In a database</p><ul><li><a href="../uuid-in-postgresql/">PostgreSQL</a></li><li><a href="../uuid-in-mysql/">MySQL</a></li><li><a href="../uuid-in-sql-server/">SQL Server</a></li><li><a href="../uuid-in-mongodb/">MongoDB</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">ULID and the alternatives</p><ul><li><a href="../ulid/">ULID</a></li><li><a href="../ulid-vs-uuid/">ULID or UUID v7</a></li><li><a href="../uuid-alternatives/">When not to use a UUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Running the tool</p><ul><li><a href="../uuid-code-examples/">Code examples</a></li><li><a href="../self-hosted-uuid-tool/">Self-hosted and offline</a></li></ul></li></ul></nav>
+<main class="doc-main">
+<article>
+<header class="doc-lead">
+<h1>Every way to write the same UUID</h1>
+<p class="doc-meta"><span class="doc-chip">UUID text</span><span>8 sections</span><span>Updated <time datetime="2026-08-21">2026-08-21</time></span></p>
+<p class="doc-tldr">The 128 bits never change; the punctuation does. Canonical, bare hex, braces, urn:uuid and upper case are five spellings of one identifier, and comparing two of them as strings is a bug.</p>
+<p class="doc-lede">Half the identifier bugs that reach production are spelling mismatches: a braced GUID from a registry export compared with a canonical one from an API. This page lists every form the tool reads and writes, and says who expects each.</p>
+</header>
+<section class="doc-try" id="worked-example" aria-label="Worked example"><div class="doc-try-head"><span class="doc-chip">UUID text</span><span class="doc-try-hint">computed by the converter itself</span></div><div class="doc-cases"><div class="doc-case"><span class="doc-case-tag">in</span><code class="doc-case-in">f81d4fae-7dec-11d0-a765-00a0c91e6bf6</code><span class="doc-case-tag is-out">out</span><code class="doc-case-out">{f81d4fae-7dec-11d0-a765-00a0c91e6bf6}</code><button type="button" class="doc-copy" aria-label="Copy this value"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="doc-case-note">.NET calls this format B</p></div><div class="doc-case"><span class="doc-case-tag">in</span><code class="doc-case-in">01890a5d-ac96-774b-bcce-b302099a8057</code><span class="doc-case-tag is-out">out</span><code class="doc-case-out">{01890a5d-ac96-774b-bcce-b302099a8057}</code><button type="button" class="doc-copy" aria-label="Copy this value"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="doc-case-note">A v7 — punctuation does not touch the version nibble</p></div></div><div class="doc-try-foot"><a class="doc-open" href="../#to=uuid&amp;style=braces">Open the converter: UUID text<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a><span class="doc-try-note">Nothing you paste leaves the browser.</span></div></section>
+<section class="doc-play" data-play data-to="uuid" hidden><div class="doc-play-head"><span class="doc-chip">Playground</span><span class="doc-play-hint">runs here in the page; nothing is sent anywhere</span></div><div class="doc-play-formats" role="group" aria-label="Format"><button type="button" class="doc-play-chip is-on" data-format="uuid" aria-pressed="true">uuid</button><button type="button" class="doc-play-chip" data-format="high-low" aria-pressed="false">high-low</button><button type="button" class="doc-play-chip" data-format="base64" aria-pressed="false">base64</button><button type="button" class="doc-play-chip" data-format="bytes" aria-pressed="false">bytes</button><button type="button" class="doc-play-chip" data-format="ulid" aria-pressed="false">ulid</button><button type="button" class="doc-play-chip" data-format="words" aria-pressed="false">words</button></div><label class="sr-only" for="doc-play-input">Identifier</label><input id="doc-play-input" class="doc-play-input" spellcheck="false" autocomplete="off" placeholder="paste a UUID, a ULID, a byte array, a pair of longs…"><div class="doc-play-row"><button type="button" class="doc-play-fill" data-fill="v4">Random v4</button><button type="button" class="doc-play-fill" data-fill="v7">Time-ordered v7</button></div><p class="doc-play-out"><code></code></p><p class="doc-play-note"></p></section>
+<details class="doc-toc-mobile"><summary>On this page (8)</summary><ul class="doc-toc-mobile-list"><li><a href="#worked-example">Worked example</a></li><li><a href="#the-five-spellings">The five spellings</a></li><li><a href="#the-net-format-letters">The .NET format letters</a></li><li><a href="#urn-uuid-and-when-a-uuid-must-be-a-uri">urn:uuid, and when a UUID must be a URI</a></li><li><a href="#case-and-the-comparison-bug">Case, and the comparison bug</a></li><li><a href="#which-to-store">Which to store</a></li><li><a href="#questions-people-actually-ask">Questions people actually ask</a></li><li><a href="#related">Related</a></li></ul></details>
+<div class="doc-prose">
+<h2 id="the-five-spellings">The five spellings<a class="doc-anchor" href="#the-five-spellings" aria-label="Link to this section">#</a></h2>
+<div class="scroller"><table><thead><tr><th scope="col">Spelling</th><th scope="col">The same identifier</th><th scope="col">Where it is expected</th></tr></thead><tbody><tr><td data-th="Spelling">plain</td><td data-th="The same identifier">f81d4fae-7dec-11d0-a765-00a0c91e6bf6</td><td data-th="Where it is expected">The canonical form. What RFC 9562 writes and what every parser accepts.</td></tr><tr><td data-th="Spelling">hex</td><td data-th="The same identifier">f81d4fae7dec11d0a76500a0c91e6bf6</td><td data-th="Where it is expected">.NET format N. What a CHAR(32) column and most cache keys hold.</td></tr><tr><td data-th="Spelling">braces</td><td data-th="The same identifier">{f81d4fae-7dec-11d0-a765-00a0c91e6bf6}</td><td data-th="Where it is expected">.NET format B. The Windows registry and COM write this.</td></tr><tr><td data-th="Spelling">urn</td><td data-th="The same identifier">urn:uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6</td><td data-th="Where it is expected">A valid URN, for XML, RDF and anything that needs a URI.</td></tr><tr><td data-th="Spelling">upper case</td><td data-th="The same identifier">F81D4FAE-7DEC-11D0-A765-00A0C91E6BF6</td><td data-th="Where it is expected">Case is not significant; Windows tools write capitals.</td></tr></tbody></table></div>
+<p>The converter reads all of them, in any case, and writes whichever you pick. Nothing in this table changes a single bit.</p>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-4" target="_blank" rel="noopener noreferrer">RFC 9562 § 4 · UUID Format</a><span class="rfc-note">The text form the standard defines, and what a reader must accept</span></p>
+<h2 id="the-net-format-letters">The .NET format letters<a class="doc-anchor" href="#the-net-format-letters" aria-label="Link to this section">#</a></h2>
+<div class="scroller"><table><thead><tr><th scope="col">Letter</th><th scope="col">Looks like</th><th scope="col">Same as</th></tr></thead><tbody><tr><td data-th="Letter">N</td><td data-th="Looks like">32 digits, no punctuation</td><td data-th="Same as">the hex spelling above</td></tr><tr><td data-th="Letter">D</td><td data-th="Looks like">8-4-4-4-12 with hyphens</td><td data-th="Same as">the canonical spelling</td></tr><tr><td data-th="Letter">B</td><td data-th="Looks like">hyphenated, in braces</td><td data-th="Same as">the braces spelling</td></tr><tr><td data-th="Letter">P</td><td data-th="Looks like">hyphenated, in parentheses</td><td data-th="Same as">a variant of braces this tool does not write</td></tr><tr><td data-th="Letter">X</td><td data-th="Looks like">a C struct literal: <code>{0x…,0x…,0x…,{0x…}}</code></td><td data-th="Same as">four fields, not a text form</td></tr></tbody></table></div>
+<p>The X format is the odd one: it is a C initialiser for the Windows <code>GUID</code> struct, and its first three fields are little-endian. That makes it a byte-order question rather than a spelling question.</p>
+<h2 id="urn-uuid-and-when-a-uuid-must-be-a-uri">urn:uuid, and when a UUID must be a URI<a class="doc-anchor" href="#urn-uuid-and-when-a-uuid-must-be-a-uri" aria-label="Link to this section">#</a></h2>
+<p>XML, RDF and other systems that identify things by URI need a scheme in front. <code>urn:uuid:</code> was registered for exactly that, so <code>urn:uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6</code> is a valid URN naming the same identifier. Strip the prefix and it is an ordinary UUID again.</p>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc4122.html#section-3" target="_blank" rel="noopener noreferrer">RFC 4122 § 3 · Namespace Registration Template</a><span class="rfc-note">Where the urn:uuid namespace was first registered; RFC 9562 section 7 points that registration at itself</span></p>
+<h2 id="case-and-the-comparison-bug">Case, and the comparison bug<a class="doc-anchor" href="#case-and-the-comparison-bug" aria-label="Link to this section">#</a></h2>
+<p>RFC 9562 writes UUIDs in lower case and requires readers to accept both cases. Windows writes capitals. Two spellings of one identifier are not equal as strings, so normalise on input, to lower case and without hyphens if you store bare hex, and compare the normalised form. A database that stores both forms in the same column will eventually return duplicate rows for one entity.</p>
+<h2 id="which-to-store">Which to store<a class="doc-anchor" href="#which-to-store" aria-label="Link to this section">#</a></h2>
+<div class="scroller"><table><thead><tr><th scope="col">Column</th><th scope="col">Bytes per row</th><th scope="col">Readable in a query result</th></tr></thead><tbody><tr><td data-th="Column">native <code>uuid</code> type</td><td data-th="Bytes per row">16</td><td data-th="Readable in a query result">yes, the driver formats it</td></tr><tr><td data-th="Column"><code>BINARY(16)</code></td><td data-th="Bytes per row">16</td><td data-th="Readable in a query result">no, unless you wrap it</td></tr><tr><td data-th="Column"><code>CHAR(32)</code> bare hex</td><td data-th="Bytes per row">32</td><td data-th="Readable in a query result">yes</td></tr><tr><td data-th="Column"><code>CHAR(36)</code> canonical</td><td data-th="Bytes per row">36</td><td data-th="Readable in a query result">yes</td></tr><tr><td data-th="Column">braced or urn form</td><td data-th="Bytes per row">38 or 45</td><td data-th="Readable in a query result">yes, and nobody thanks you</td></tr></tbody></table></div>
+</div>
+<section class="doc-faq"><h2 id="questions-people-actually-ask">Questions people actually ask<a class="doc-anchor" href="#questions-people-actually-ask" aria-label="Link to this section">#</a></h2><div class="doc-qa"><h3>Is a braced GUID a different value?</h3><p>No. Braces, hyphens, the urn: prefix and letter case are all punctuation. The identifier is the 32 hex digits.</p></div><div class="doc-qa"><h3>What is the .NET N format?</h3><p>32 hex digits with no hyphens, the same thing as the hex spelling in the table above.</p></div><div class="doc-qa"><h3>Should I store UUIDs upper or lower case?</h3><p>Lower case, and normalise on the way in. The standard writes lower case, and mixed case in one column produces duplicate rows for one entity.</p></div></section>
+<nav class="doc-related" aria-label="Related pages"><h2 id="related">Related<a class="doc-anchor" href="#related" aria-label="Link to this section">#</a></h2><ul><li><a href="../uuid-to-hex/">UUID without dashes, and the other spellings</a></li><li><a href="../uuid-validation/">Validating a UUID</a></li><li><a href="../uuid-byte-order/">UUID byte order: big-endian, and the Microsoft exception</a></li><li><a href="../uuid-to-bytes/">UUID to a 16-byte array</a></li></ul></nav>
+<details class="doc-rail-mobile"><summary>Browse the reference</summary><ul class="doc-rail-list"><li class="doc-rail-group"><p class="doc-rail-title">Start here</p><ul><li><a href="../what-is-a-uuid/">What is a UUID?</a></li><li><a href="../guid-vs-uuid/">GUID and UUID</a></li><li><a href="../uuid-versions/">All versions side by side</a></li><li><a href="../uuid-v4-vs-v7/">v4 or v7</a></li><li><a href="../uuid-primary-key/">UUID as a primary key</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Making and converting in bulk</p><ul><li><a href="../uuid-generator/">The generator</a></li><li><a href="../uuid-bulk-convert/">A whole column at once</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Converting a UUID</p><ul><li><a href="../uuid-to-bytes/">To a 16-byte array</a></li><li><a href="../uuid-to-hex/">Without dashes</a></li><li><a href="../uuid-formats/" class="is-here" aria-current="page">Every way to write one</a></li><li><a href="../uuid-to-base64/">To Base64, and the short forms</a></li><li><a href="../uuid-to-long/">To a high/low 64-bit pair</a></li><li><a href="../uuid-to-words/">To four 32-bit words</a></li><li><a href="../uuid-byte-order/">Byte order: RFC against mixed-endian GUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Reading one</p><ul><li><a href="../uuid-timestamp/">Decoding the timestamp</a></li><li><a href="../uuid-bit-layout/">The bit layout</a></li><li><a href="../uuid-validation/">Validating a UUID</a></li><li><a href="../uuid-collision-probability/">Collision probability</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">The versions, in order</p><ul><li><a href="../uuid-v1/">Version 1</a></li><li><a href="../uuid-v3/">Version 3</a></li><li><a href="../uuid-v4/">Version 4</a></li><li><a href="../uuid-v5/">Version 5</a></li><li><a href="../uuid-v6/">Version 6</a></li><li><a href="../uuid-v7/">Version 7</a></li><li><a href="../uuid-v8/">Version 8</a></li><li><a href="../nil-uuid/">The Nil UUID</a></li><li><a href="../max-uuid/">The Max UUID</a></li><li><a href="../uuid-namespaces/">Namespaces</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">In a database</p><ul><li><a href="../uuid-in-postgresql/">PostgreSQL</a></li><li><a href="../uuid-in-mysql/">MySQL</a></li><li><a href="../uuid-in-sql-server/">SQL Server</a></li><li><a href="../uuid-in-mongodb/">MongoDB</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">ULID and the alternatives</p><ul><li><a href="../ulid/">ULID</a></li><li><a href="../ulid-vs-uuid/">ULID or UUID v7</a></li><li><a href="../uuid-alternatives/">When not to use a UUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Running the tool</p><ul><li><a href="../uuid-code-examples/">Code examples</a></li><li><a href="../self-hosted-uuid-tool/">Self-hosted and offline</a></li></ul></li></ul></details>
+<nav class="doc-steps" aria-label="Reference order"><a class="doc-step is-prev" href="../uuid-to-hex/"><span class="doc-step-kind">Previous</span><span class="doc-step-title">UUID without dashes, and the other spellings</span></a><a class="doc-step is-next" href="../uuid-to-base64/"><span class="doc-step-kind">Next</span><span class="doc-step-title">UUID to Base64, and the short forms</span></a></nav>
+</article>
+</main>
+<aside class="doc-side"><nav class="doc-toc" aria-label="On this page"><p class="doc-side-title">On this page</p><ul class=""><li><a href="#worked-example">Worked example</a></li><li><a href="#the-five-spellings">The five spellings</a></li><li><a href="#the-net-format-letters">The .NET format letters</a></li><li><a href="#urn-uuid-and-when-a-uuid-must-be-a-uri">urn:uuid, and when a UUID must be a URI</a></li><li><a href="#case-and-the-comparison-bug">Case, and the comparison bug</a></li><li><a href="#which-to-store">Which to store</a></li><li><a href="#questions-people-actually-ask">Questions people actually ask</a></li><li><a href="#related">Related</a></li></ul></nav></aside>
+</div>
+<footer class="footer-main">
+    <div class="footer-container">
+        <div class="footer-content">
+            <span class="footer-brand">uuid-ui</span>
+            <span class="footer-text">by</span>
+            <a href="https://github.com/rez1dent3" class="footer-link" target="_blank" rel="noopener noreferrer">Babichev Maksim</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../" class="footer-link">Converter</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../reference/" class="footer-link">UUID reference</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../llms.txt" class="footer-link">llms.txt</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="https://github.com/bavix/uuid-ui" class="footer-link" target="_blank" rel="noopener noreferrer">Source Code</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="https://github.com/bavix/uuid-ui/blob/master/LICENSE" class="footer-link" target="_blank" rel="noopener noreferrer">MIT License</a>
+        </div>
+    </div>
+</footer>
+<script>(function(){
+var root=document.documentElement;
+var button=document.getElementById('doc-theme');
+var applied=[];
+
+function read(){
+var raw=localStorage.getItem('theme')||'';var parts=raw.split(':');
+if(parts.length===2){return{palette:parts[0],mode:parts[1]}}
+if(raw==='dark'||raw==='true'||raw==='"true"'){return{palette:'default',mode:'dark'}}
+if(raw==='light'||raw==='false'||raw==='"false"'){return{palette:'default',mode:'light'}}
+return{palette:'default',mode:'system'};
+}
+
+function resolve(mode){
+return mode==='system'
+?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')
+:mode;
+}
+
+function apply(palette,mode){
+var shown=resolve(mode);
+root.classList.toggle('dark',shown==='dark');
+root.classList.toggle('light',shown==='light');
+root.style.colorScheme=shown;
+if(palette&&palette!=='default'&&/^[a-z0-9][a-z0-9-]{0,31}$/.test(palette)){root.setAttribute('data-theme',palette)}
+else{root.removeAttribute('data-theme')}
+applied.forEach(function(name){root.style.removeProperty(name)});
+applied=[];
+if(palette==='custom'&&window.__docCustom){
+var before=root.getAttribute('style')||'';
+window.__docCustom(root,shown);
+var after=root.getAttribute('style')||'';
+if(after!==before){applied=(after.match(/--[a-z0-9-]+/g)||[])}
+}
+return shown;
+}
+
+function store(palette,mode){
+try{
+localStorage.setItem('theme',palette+':'+mode);
+var raw=localStorage.getItem('uuid.data');
+if(!raw){return}
+var held=JSON.parse(raw);
+if(!held||typeof held!=='object'){return}
+var at=Date.now();
+held.settings=held.settings||{};
+held.settings.palette={value:palette,at:at};
+held.settings.theme={value:mode,at:at};
+localStorage.setItem('uuid.data',JSON.stringify(held));
+}catch(e){}
+}
+
+var current=read();
+apply(current.palette,current.mode);
+
+if(button){
+button.addEventListener('click',function(){
+current.mode=resolve(current.mode)==='dark'?'light':'dark';
+apply(current.palette,current.mode);
+store(current.palette,current.mode);
+});
+}
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){
+if(current.mode==='system'){apply(current.palette,current.mode)}
+});
+
+window.addEventListener('storage',function(e){
+if(e.key!=='theme'&&e.key!=='uuid.data'){return}
+current=read();apply(current.palette,current.mode);
+});
+
+document.addEventListener('click',function(e){
+var b=e.target.closest?e.target.closest('.doc-copy'):null;
+if(!b){return}
+var box=b.closest('.doc-case')||b.closest('.code');
+var el=box&&(box.querySelector('.doc-case-out')||box.querySelector('pre code'));
+if(!el||!navigator.clipboard){return}
+navigator.clipboard.writeText(el.textContent).then(function(){
+b.classList.add('is-done');setTimeout(function(){b.classList.remove('is-done')},1400);});
+});
+
+var links=[].slice.call(document.querySelectorAll('.doc-toc a'));
+if(!links.length||!('IntersectionObserver' in window)){return}
+var byId={};links.forEach(function(a){byId[a.getAttribute('href').slice(1)]=a});
+var seen=[];
+var io=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+var id=e.target.id;var at=seen.indexOf(id);
+if(e.isIntersecting){if(at<0){seen.push(id)}}else if(at>=0){seen.splice(at,1)}
+});
+if(!seen.length){return}
+var first=links.map(function(a){return a.getAttribute('href').slice(1)}).filter(function(id){return seen.indexOf(id)>=0})[0];
+links.forEach(function(a){a.classList.toggle('is-here',a.getAttribute('href').slice(1)===first)});
+},{rootMargin:'-80px 0px -70% 0px'});
+Object.keys(byId).forEach(function(id){var el=document.getElementById(id);if(el){io.observe(el)}});
+})();</script>
+<script type="module" src="../docs.js"></script>
+</body>
+</html>

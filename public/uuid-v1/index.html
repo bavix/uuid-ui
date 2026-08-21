@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<!-- uuid-ui:generated-page -->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UUID v1: a clock, a MAC address, and what it leaks | UUIDConv</title>
+    <meta name="description" content="How a version 1 UUID stores time as 100-nanosecond ticks since 1582, why the node field is often a real MAC address, and why v1 identifiers do not sort by time.">
+    <link rel="canonical" href="https://bavix.github.io/uuid-ui/uuid-v1/">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="UUIDConv">
+    <meta property="og:title" content="UUID version 1">
+    <meta property="og:description" content="How a version 1 UUID stores time as 100-nanosecond ticks since 1582, why the node field is often a real MAC address, and why v1 identifiers do not sort by time.">
+    <meta property="og:url" content="https://bavix.github.io/uuid-ui/uuid-v1/">
+    <meta property="og:image" content="https://bavix.github.io/uuid-ui/og.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="UUID version 1">
+    <meta name="twitter:description" content="How a version 1 UUID stores time as 100-nanosecond ticks since 1582, why the node field is often a real MAC address, and why v1 identifiers do not sort by time.">
+    <meta name="twitter:image" content="https://bavix.github.io/uuid-ui/og.png">
+    <link rel="icon" href="../favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+    <link rel="stylesheet" href="../theme.css">
+    <link rel="stylesheet" href="../docs.css">
+    <script>window.__docCustom=function(root,mode){try{
+var raw=localStorage.getItem('uuid.data');if(!raw){return}
+var held=JSON.parse(raw);var text=held&&held.settings&&held.settings.customTheme&&held.settings.customTheme.value;
+if(typeof text!=='string'||text===''){return}
+var theme=JSON.parse(text);
+var tokens=(theme.variants&&(theme.variants[mode]||theme.variants[mode==='dark'?'light':'dark']))
+||(theme[mode]&&(theme[mode].tokens||theme[mode]))||theme.tokens;
+if(!tokens){return}
+Object.keys(tokens).forEach(function(name){
+var bare=String(name).replace(/^--/,'');var value=String(tokens[name]).trim();
+if(!/^[a-z0-9-]{1,40}$/.test(bare)||/[;{}]|url\(|expression|@import/i.test(value)){return}
+root.style.setProperty('--'+bare,value);});
+}catch(e){}};(function(){try{
+var s=localStorage.getItem('theme')||'';var p=s.split(':');
+var palette=p.length===2?p[0]:'default';var m=p.length===2?p[1]:s;
+if(m==='true'||m==='"true"'){m='dark'}if(m==='false'||m==='"false"'){m='light'}
+if(m!=='dark'&&m!=='light'){m=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+var r=document.documentElement;r.classList.add(m);r.style.colorScheme=m;
+if(/^[a-z0-9][a-z0-9-]{0,31}$/.test(palette)&&palette!=='default'){r.setAttribute('data-theme',palette)}
+if(palette==='custom'&&window.__docCustom){window.__docCustom(r,m)}
+}catch(e){}})();</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://bavix.github.io/uuid-ui/#website","url":"https://bavix.github.io/uuid-ui/","name":"UUIDConv","inLanguage":"en","publisher":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"}},{"@type":"TechArticle","@id":"https://bavix.github.io/uuid-ui/uuid-v1/#article","headline":"UUID version 1","name":"UUID version 1","description":"How a version 1 UUID stores time as 100-nanosecond ticks since 1582, why the node field is often a real MAC address, and why v1 identifiers do not sort by time.","abstract":"A v1 holds a 60-bit clock counting 100-nanosecond ticks since 1582-10-15, a clock sequence, and a 48-bit node that is frequently the machine's real MAC address. It does not sort by time, because the high bits of the clock come last.","url":"https://bavix.github.io/uuid-ui/uuid-v1/","mainEntityOfPage":"https://bavix.github.io/uuid-ui/uuid-v1/","inLanguage":"en","datePublished":"2026-08-21","dateModified":"2026-08-21","author":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"},"publisher":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"},"isPartOf":{"@id":"https://bavix.github.io/uuid-ui/#website"},"about":{"@id":"https://bavix.github.io/uuid-ui/#app"},"proficiencyLevel":"Beginner"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"UUIDConv","item":"https://bavix.github.io/uuid-ui/"},{"@type":"ListItem","position":2,"name":"UUID reference","item":"https://bavix.github.io/uuid-ui/reference/"},{"@type":"ListItem","position":3,"name":"UUID version 1","item":"https://bavix.github.io/uuid-ui/uuid-v1/"}]},{"@type":"FAQPage","@id":"https://bavix.github.io/uuid-ui/uuid-v1/#faq","mainEntity":[{"@type":"Question","name":"Does a UUID v1 contain a MAC address?","acceptedAnswer":{"@type":"Answer","text":"Often, yes: the 48-bit node field was originally the machine MAC. If the multicast bit is set, the node is random instead."}},{"@type":"Question","name":"What date does a v1 timestamp count from?","acceptedAnswer":{"@type":"Answer","text":"1582-10-15, in 100-nanosecond ticks. Divide by 10 000 and subtract 12 219 292 800 000 to get Unix milliseconds."}},{"@type":"Question","name":"Why do v1 identifiers not sort in creation order?","acceptedAnswer":{"@type":"Answer","text":"The clock is stored low bits first, so string and byte comparison see the fastest-changing part of it first. v6 stores the same clock in order."}}]}]}</script>
+</head>
+<body class="doc">
+<nav class="app-header backdrop-blur-sm shadow-md border-b sticky top-0 z-50" role="navigation" aria-label="main navigation">
+    <div class="container mx-auto max-w-7xl">
+        <div class="doc-bar">
+            <a class="doc-brand" href="../">
+                <img src="../android-chrome-192x192.png" class="h-9 w-9 rounded-lg brand-mark" alt="">
+                <span class="brand-text font-bold text-lg gradient-animate">UUIDConv UI</span>
+            </a>
+            <nav class="doc-crumbs" aria-label="Breadcrumb"><a href="../reference/">UUID reference</a><span class="doc-crumb-sep" aria-hidden="true">/</span><span aria-current="page">UUID version 1</span></nav>
+            <div class="doc-bar-actions">
+                <a class="doc-open is-bar" href="../">Converter<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+                <a href="https://github.com/bavix/uuid-ui" target="_blank" rel="noopener noreferrer" class="doc-icon" aria-label="Open project on GitHub" title="Open project on GitHub">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.07 3.29 9.37 7.86 10.88.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.38-3.88-1.38-.53-1.36-1.3-1.73-1.3-1.73-1.06-.73.08-.72.08-.72 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.75.41-1.27.75-1.56-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.18 1.19.92-.26 1.9-.39 2.88-.39.98 0 1.96.13 2.88.39 2.2-1.5 3.17-1.19 3.17-1.19.64 1.58.24 2.75.12 3.04.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.41-5.27 5.69.42.36.79 1.08.79 2.17 0 1.57-.01 2.84-.01 3.22 0 .31.21.68.8.56C20.71 21.37 24 17.07 24 12 24 5.73 18.27.5 12 .5z"/></svg>
+                </a>
+                <button type="button" id="doc-theme" class="doc-icon" aria-label="Toggle theme" title="Toggle theme">
+                    <svg class="doc-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.1 5.1l1.4 1.4M17.5 17.5l1.4 1.4M18.9 5.1l-1.4 1.4M6.5 17.5l-1.4 1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    <svg class="doc-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="doc-shell container mx-auto max-w-7xl">
+<nav class="doc-rail" aria-label="Reference"><a class="doc-rail-hub" href="../reference/">UUID reference</a><ul class="doc-rail-list"><li class="doc-rail-group"><p class="doc-rail-title">Start here</p><ul><li><a href="../what-is-a-uuid/">What is a UUID?</a></li><li><a href="../guid-vs-uuid/">GUID and UUID</a></li><li><a href="../uuid-versions/">All versions side by side</a></li><li><a href="../uuid-v4-vs-v7/">v4 or v7</a></li><li><a href="../uuid-primary-key/">UUID as a primary key</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Making and converting in bulk</p><ul><li><a href="../uuid-generator/">The generator</a></li><li><a href="../uuid-bulk-convert/">A whole column at once</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Converting a UUID</p><ul><li><a href="../uuid-to-bytes/">To a 16-byte array</a></li><li><a href="../uuid-to-hex/">Without dashes</a></li><li><a href="../uuid-formats/">Every way to write one</a></li><li><a href="../uuid-to-base64/">To Base64, and the short forms</a></li><li><a href="../uuid-to-long/">To a high/low 64-bit pair</a></li><li><a href="../uuid-to-words/">To four 32-bit words</a></li><li><a href="../uuid-byte-order/">Byte order: RFC against mixed-endian GUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Reading one</p><ul><li><a href="../uuid-timestamp/">Decoding the timestamp</a></li><li><a href="../uuid-bit-layout/">The bit layout</a></li><li><a href="../uuid-validation/">Validating a UUID</a></li><li><a href="../uuid-collision-probability/">Collision probability</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">The versions, in order</p><ul><li><a href="../uuid-v1/" class="is-here" aria-current="page">Version 1</a></li><li><a href="../uuid-v3/">Version 3</a></li><li><a href="../uuid-v4/">Version 4</a></li><li><a href="../uuid-v5/">Version 5</a></li><li><a href="../uuid-v6/">Version 6</a></li><li><a href="../uuid-v7/">Version 7</a></li><li><a href="../uuid-v8/">Version 8</a></li><li><a href="../nil-uuid/">The Nil UUID</a></li><li><a href="../max-uuid/">The Max UUID</a></li><li><a href="../uuid-namespaces/">Namespaces</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">In a database</p><ul><li><a href="../uuid-in-postgresql/">PostgreSQL</a></li><li><a href="../uuid-in-mysql/">MySQL</a></li><li><a href="../uuid-in-sql-server/">SQL Server</a></li><li><a href="../uuid-in-mongodb/">MongoDB</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">ULID and the alternatives</p><ul><li><a href="../ulid/">ULID</a></li><li><a href="../ulid-vs-uuid/">ULID or UUID v7</a></li><li><a href="../uuid-alternatives/">When not to use a UUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Running the tool</p><ul><li><a href="../uuid-code-examples/">Code examples</a></li><li><a href="../self-hosted-uuid-tool/">Self-hosted and offline</a></li></ul></li></ul></nav>
+<main class="doc-main">
+<article>
+<header class="doc-lead">
+<h1>UUID version 1</h1>
+<p class="doc-meta"><span>9 sections</span><span>Updated <time datetime="2026-08-21">2026-08-21</time></span></p>
+<p class="doc-tldr">A v1 holds a 60-bit clock counting 100-nanosecond ticks since 1582-10-15, a clock sequence, and a 48-bit node that is frequently the machine's real MAC address. It does not sort by time, because the high bits of the clock come last.</p>
+<p class="doc-lede">Version 1 is the oldest layout still in wide use, and the one that reveals the most. This page decodes what it carries, explains the two problems that pushed the standard to add v6 and v7, and shows how to read a v1 you have been handed.</p>
+</header>
+<section class="doc-try" id="worked-example" aria-label="Worked example"><div class="doc-try-head"><span class="doc-chip">Decoded time (UTC)</span><span class="doc-try-hint">computed by the converter itself</span></div><div class="doc-cases"><div class="doc-case"><span class="doc-case-tag">in</span><code class="doc-case-in">f81d4fae-7dec-11d0-a765-00a0c91e6bf6</code><span class="doc-case-tag is-out">out</span><code class="doc-case-out">1997-02-03T17:43:12.216Z</code><button type="button" class="doc-copy" aria-label="Copy this value"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="doc-case-note">The v1 from the original RFC examples</p></div><div class="doc-case"><span class="doc-case-tag">in</span><code class="doc-case-in">f95bc000-6369-11d0-8abc-00a0c91e6bf6</code><span class="doc-case-tag is-out">out</span><code class="doc-case-out">1997-01-01T00:00:00.000Z</code><button type="button" class="doc-copy" aria-label="Copy this value"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="doc-case-note">A v1 whose clock lands exactly on 1997-01-01</p></div></div><div class="doc-try-foot"><a class="doc-open" href="../">Open the converter<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a><span class="doc-try-note">Nothing you paste leaves the browser.</span></div></section>
+<details class="doc-toc-mobile"><summary>On this page (9)</summary><ul class="doc-toc-mobile-list"><li><a href="#worked-example">Worked example</a></li><li><a href="#what-a-v1-is-made-of">What a v1 is made of</a></li><li><a href="#the-1582-epoch">The 1582 epoch</a></li><li><a href="#why-a-v1-does-not-sort-by-time">Why a v1 does not sort by time</a></li><li><a href="#the-node-field-usually-is-a-mac-address">The node field usually is a MAC address</a></li><li><a href="#what-clock-seq-is-for">What clock_seq is for</a></li><li><a href="#moving-off-v1">Moving off v1</a></li><li><a href="#questions-people-actually-ask">Questions people actually ask</a></li><li><a href="#related">Related</a></li></ul></details>
+<div class="doc-prose">
+<h2 id="what-a-v1-is-made-of">What a v1 is made of<a class="doc-anchor" href="#what-a-v1-is-made-of" aria-label="Link to this section">#</a></h2>
+<figure class="doc-specimen report"><div class="report-specimen"><div class="report-chars" role="img" aria-label="f81d4fae-7dec-11d0-a765-00a0c91e6bf6, a version 1 identifier, field by field"><span class="report-char k-time" title="time_low">f</span><span class="report-char k-time" title="time_low">8</span><span class="report-char k-time" title="time_low">1</span><span class="report-char k-time" title="time_low">d</span><span class="report-char k-time" title="time_low">4</span><span class="report-char k-time" title="time_low">f</span><span class="report-char k-time" title="time_low">a</span><span class="report-char k-time" title="time_low">e</span><span class="report-char k-time is-group" title="time_mid">7</span><span class="report-char k-time" title="time_mid">d</span><span class="report-char k-time" title="time_mid">e</span><span class="report-char k-time" title="time_mid">c</span><span class="report-char k-version is-group" title="version">1</span><span class="report-char k-time" title="time_high">1</span><span class="report-char k-time" title="time_high">d</span><span class="report-char k-time" title="time_high">0</span><span class="report-char k-variant is-group" title="variant">a</span><span class="report-char k-clock" title="clock_seq">7</span><span class="report-char k-clock" title="clock_seq">6</span><span class="report-char k-clock" title="clock_seq">5</span><span class="report-char k-node is-group" title="node">0</span><span class="report-char k-node" title="node">0</span><span class="report-char k-node" title="node">a</span><span class="report-char k-node" title="node">0</span><span class="report-char k-node" title="node">c</span><span class="report-char k-node" title="node">9</span><span class="report-char k-node" title="node">1</span><span class="report-char k-node" title="node">e</span><span class="report-char k-node" title="node">6</span><span class="report-char k-node" title="node">b</span><span class="report-char k-node" title="node">f</span><span class="report-char k-node" title="node">6</span></div><div class="report-bits" aria-hidden="true"><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time"></span><span class="report-bit k-time"></span><span class="report-bit k-time"></span><span class="report-bit k-time"></span><span class="report-bit k-time"></span><span class="report-bit k-time"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time"></span><span class="report-bit k-time"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time"></span><span class="report-bit k-time is-group"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time"></span><span class="report-bit k-time"></span><span class="report-bit k-version is-group"></span><span class="report-bit k-version"></span><span class="report-bit k-version"></span><span class="report-bit k-version is-on"></span><span class="report-bit k-time"></span><span class="report-bit k-time"></span><span class="report-bit k-time"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time"></span><span class="report-bit k-time is-on"></span><span class="report-bit k-time"></span><span class="report-bit k-time"></span><span class="report-bit k-time"></span><span class="report-bit k-time"></span><span class="report-bit k-variant is-on is-group"></span><span class="report-bit k-variant"></span><span class="report-bit k-clock is-on"></span><span class="report-bit k-clock"></span><span class="report-bit k-clock"></span><span class="report-bit k-clock is-on"></span><span class="report-bit k-clock is-on"></span><span class="report-bit k-clock is-on"></span><span class="report-bit k-clock"></span><span class="report-bit k-clock is-on"></span><span class="report-bit k-clock is-on"></span><span class="report-bit k-clock"></span><span class="report-bit k-clock"></span><span class="report-bit k-clock is-on"></span><span class="report-bit k-clock"></span><span class="report-bit k-clock is-on"></span><span class="report-bit k-node is-group"></span><span class="report-bit k-node"></span><span class="report-bit k-node"></span><span class="report-bit k-node"></span><span class="report-bit k-node"></span><span class="report-bit k-node"></span><span class="report-bit k-node"></span><span class="report-bit k-node"></span><span class="report-bit k-node is-on"></span><span class="report-bit k-node"></span><span class="report-bit k-node is-on"></span><span class="report-bit k-node"></span><span class="report-bit k-node"></span><span class="report-bit k-node"></span><span class="report-bit k-node"></span><span class="report-bit k-node"></span><span class="report-bit k-node is-on"></span><span class="report-bit k-node is-on"></span><span class="report-bit k-node"></span><span class="report-bit k-node"></span><span class="report-bit k-node is-on"></span><span class="report-bit k-node"></span><span class="report-bit k-node"></span><span class="report-bit k-node is-on"></span><span class="report-bit k-node"></span><span class="report-bit k-node"></span><span class="report-bit k-node"></span><span class="report-bit k-node is-on"></span><span class="report-bit k-node is-on"></span><span class="report-bit k-node is-on"></span><span class="report-bit k-node is-on"></span><span class="report-bit k-node"></span><span class="report-bit k-node"></span><span class="report-bit k-node is-on"></span><span class="report-bit k-node is-on"></span><span class="report-bit k-node"></span><span class="report-bit k-node is-on"></span><span class="report-bit k-node"></span><span class="report-bit k-node is-on"></span><span class="report-bit k-node is-on"></span><span class="report-bit k-node is-on"></span><span class="report-bit k-node is-on"></span><span class="report-bit k-node is-on"></span><span class="report-bit k-node is-on"></span><span class="report-bit k-node"></span><span class="report-bit k-node is-on"></span><span class="report-bit k-node is-on"></span><span class="report-bit k-node"></span></div><div class="report-ruler" aria-hidden="true"><span class="report-run k-time" style="flex-grow:32">time_low</span><span class="report-run k-time" style="flex-grow:16">time_mid</span><span class="report-run k-version is-narrow" style="flex-grow:4">version</span><span class="report-run k-time" style="flex-grow:12">time_high</span><span class="report-run k-variant is-narrow" style="flex-grow:2">variant</span><span class="report-run k-clock" style="flex-grow:14">clock_seq</span><span class="report-run k-node" style="flex-grow:48">node</span></div><div class="report-octets" aria-hidden="true"><span class="report-octet">byte 0</span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet">byte 4</span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet">byte 8</span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet">byte 12</span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet"></span></div></div><div class="report-chips"><span class="report-chip k-time">time_low 0-31</span><span class="report-chip k-time">time_mid 32-47</span><span class="report-chip k-version">version 48-51</span><span class="report-chip k-time">time_high 52-63</span><span class="report-chip k-variant">variant 64-65</span><span class="report-chip k-clock">clock_seq 66-79</span><span class="report-chip k-node">node 80-127</span></div><p class="doc-reading" aria-live="polite"></p><figcaption>The clock is split into three pieces and the high part comes last, which is why a v1 does not sort.</figcaption></figure>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-5.1" target="_blank" rel="noopener noreferrer">RFC 9562 § 5.1 · UUID Version 1</a><span class="rfc-note">The v1 layout</span></p>
+<h2 id="the-1582-epoch">The 1582 epoch<a class="doc-anchor" href="#the-1582-epoch" aria-label="Link to this section">#</a></h2>
+<p>The clock counts 100-nanosecond intervals from 1582-10-15, the day the Gregorian calendar began. To reach Unix time, divide the ticks by 10 000 and subtract 12 219 292 800 000 milliseconds. The precision is theoretical: most implementations read a millisecond clock and pad, or keep a counter to avoid handing out the same tick twice.</p>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-6.1" target="_blank" rel="noopener noreferrer">RFC 9562 § 6.1 · Timestamp Considerations</a><span class="rfc-note">What the standard says a timestamp may be relied on for</span></p>
+<h2 id="why-a-v1-does-not-sort-by-time">Why a v1 does not sort by time<a class="doc-anchor" href="#why-a-v1-does-not-sort-by-time" aria-label="Link to this section">#</a></h2>
+<p>The clock is written low bits first: <code>time_low</code> occupies the first group, <code>time_mid</code> the second, and <code>time_high</code> sits at the end of the third. Comparing two v1 identifiers as text or as bytes therefore compares the fastest-moving part of the clock first, which is close to comparing noise. Version 6 fixes this by writing the same clock in reading order, and version 7 replaces it with plain Unix milliseconds.</p>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-6.11" target="_blank" rel="noopener noreferrer">RFC 9562 § 6.11 · Sorting</a><span class="rfc-note">Sorting, and why the field order is what matters</span></p>
+<h2 id="the-node-field-usually-is-a-mac-address">The node field usually is a MAC address<a class="doc-anchor" href="#the-node-field-usually-is-a-mac-address" aria-label="Link to this section">#</a></h2>
+<p>The last 48 bits are meant to identify the machine, and the original method was to use its MAC address. That means a v1 can identify the host that made it and, with the timestamp beside it, when. If the multicast bit is set (the low bit of the first node byte), the node is random rather than a real address; that is the standard's escape hatch.</p>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-6.10" target="_blank" rel="noopener noreferrer">RFC 9562 § 6.10 · UUIDs That Do Not Identify the Host</a><span class="rfc-note">Generating identifiers that do not identify the host</span></p>
+<h2 id="what-clock-seq-is-for">What clock_seq is for<a class="doc-anchor" href="#what-clock-seq-is-for" aria-label="Link to this section">#</a></h2>
+<p>If the machine clock jumps backwards, after an NTP correction or a restored snapshot, the same tick can be handed out twice. The clock sequence is bumped whenever that is detected, so identifiers made in the repeated window still differ. It is 14 bits, and it is why a v1 generator wants persistent state.</p>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-6.3" target="_blank" rel="noopener noreferrer">RFC 9562 § 6.3 · UUID Generator States</a><span class="rfc-note">The state a time-based generator is expected to keep</span></p>
+<h2 id="moving-off-v1">Moving off v1<a class="doc-anchor" href="#moving-off-v1" aria-label="Link to this section">#</a></h2>
+<p>Existing v1 identifiers can stay: they are valid and decodable. For new ones, v6 keeps the same clock while sorting correctly, and v7 drops the 1582 epoch and the node field entirely. Converting a v1 to a v6 is a field reordering rather than a new identifier, but the result is still a different value: a migration, not a cast.</p>
+</div>
+<section class="doc-faq"><h2 id="questions-people-actually-ask">Questions people actually ask<a class="doc-anchor" href="#questions-people-actually-ask" aria-label="Link to this section">#</a></h2><div class="doc-qa"><h3>Does a UUID v1 contain a MAC address?</h3><p>Often, yes: the 48-bit node field was originally the machine MAC. If the multicast bit is set, the node is random instead.</p></div><div class="doc-qa"><h3>What date does a v1 timestamp count from?</h3><p>1582-10-15, in 100-nanosecond ticks. Divide by 10 000 and subtract 12 219 292 800 000 to get Unix milliseconds.</p></div><div class="doc-qa"><h3>Why do v1 identifiers not sort in creation order?</h3><p>The clock is stored low bits first, so string and byte comparison see the fastest-changing part of it first. v6 stores the same clock in order.</p></div></section>
+<nav class="doc-related" aria-label="Related pages"><h2 id="related">Related<a class="doc-anchor" href="#related" aria-label="Link to this section">#</a></h2><ul><li><a href="../uuid-v6/">UUID version 6</a></li><li><a href="../uuid-timestamp/">Get the timestamp out of a UUID</a></li><li><a href="../uuid-versions/">UUID versions, side by side</a></li><li><a href="../uuid-bit-layout/">The bit layout of a UUID</a></li></ul></nav>
+<details class="doc-rail-mobile"><summary>Browse the reference</summary><ul class="doc-rail-list"><li class="doc-rail-group"><p class="doc-rail-title">Start here</p><ul><li><a href="../what-is-a-uuid/">What is a UUID?</a></li><li><a href="../guid-vs-uuid/">GUID and UUID</a></li><li><a href="../uuid-versions/">All versions side by side</a></li><li><a href="../uuid-v4-vs-v7/">v4 or v7</a></li><li><a href="../uuid-primary-key/">UUID as a primary key</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Making and converting in bulk</p><ul><li><a href="../uuid-generator/">The generator</a></li><li><a href="../uuid-bulk-convert/">A whole column at once</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Converting a UUID</p><ul><li><a href="../uuid-to-bytes/">To a 16-byte array</a></li><li><a href="../uuid-to-hex/">Without dashes</a></li><li><a href="../uuid-formats/">Every way to write one</a></li><li><a href="../uuid-to-base64/">To Base64, and the short forms</a></li><li><a href="../uuid-to-long/">To a high/low 64-bit pair</a></li><li><a href="../uuid-to-words/">To four 32-bit words</a></li><li><a href="../uuid-byte-order/">Byte order: RFC against mixed-endian GUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Reading one</p><ul><li><a href="../uuid-timestamp/">Decoding the timestamp</a></li><li><a href="../uuid-bit-layout/">The bit layout</a></li><li><a href="../uuid-validation/">Validating a UUID</a></li><li><a href="../uuid-collision-probability/">Collision probability</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">The versions, in order</p><ul><li><a href="../uuid-v1/" class="is-here" aria-current="page">Version 1</a></li><li><a href="../uuid-v3/">Version 3</a></li><li><a href="../uuid-v4/">Version 4</a></li><li><a href="../uuid-v5/">Version 5</a></li><li><a href="../uuid-v6/">Version 6</a></li><li><a href="../uuid-v7/">Version 7</a></li><li><a href="../uuid-v8/">Version 8</a></li><li><a href="../nil-uuid/">The Nil UUID</a></li><li><a href="../max-uuid/">The Max UUID</a></li><li><a href="../uuid-namespaces/">Namespaces</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">In a database</p><ul><li><a href="../uuid-in-postgresql/">PostgreSQL</a></li><li><a href="../uuid-in-mysql/">MySQL</a></li><li><a href="../uuid-in-sql-server/">SQL Server</a></li><li><a href="../uuid-in-mongodb/">MongoDB</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">ULID and the alternatives</p><ul><li><a href="../ulid/">ULID</a></li><li><a href="../ulid-vs-uuid/">ULID or UUID v7</a></li><li><a href="../uuid-alternatives/">When not to use a UUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Running the tool</p><ul><li><a href="../uuid-code-examples/">Code examples</a></li><li><a href="../self-hosted-uuid-tool/">Self-hosted and offline</a></li></ul></li></ul></details>
+<nav class="doc-steps" aria-label="Reference order"><a class="doc-step is-prev" href="../uuid-collision-probability/"><span class="doc-step-kind">Previous</span><span class="doc-step-title">How likely is a UUID collision?</span></a><a class="doc-step is-next" href="../uuid-v3/"><span class="doc-step-kind">Next</span><span class="doc-step-title">UUID version 3</span></a></nav>
+</article>
+</main>
+<aside class="doc-side"><nav class="doc-toc" aria-label="On this page"><p class="doc-side-title">On this page</p><ul class=""><li><a href="#worked-example">Worked example</a></li><li><a href="#what-a-v1-is-made-of">What a v1 is made of</a></li><li><a href="#the-1582-epoch">The 1582 epoch</a></li><li><a href="#why-a-v1-does-not-sort-by-time">Why a v1 does not sort by time</a></li><li><a href="#the-node-field-usually-is-a-mac-address">The node field usually is a MAC address</a></li><li><a href="#what-clock-seq-is-for">What clock_seq is for</a></li><li><a href="#moving-off-v1">Moving off v1</a></li><li><a href="#questions-people-actually-ask">Questions people actually ask</a></li><li><a href="#related">Related</a></li></ul></nav></aside>
+</div>
+<footer class="footer-main">
+    <div class="footer-container">
+        <div class="footer-content">
+            <span class="footer-brand">uuid-ui</span>
+            <span class="footer-text">by</span>
+            <a href="https://github.com/rez1dent3" class="footer-link" target="_blank" rel="noopener noreferrer">Babichev Maksim</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../" class="footer-link">Converter</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../reference/" class="footer-link">UUID reference</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../llms.txt" class="footer-link">llms.txt</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="https://github.com/bavix/uuid-ui" class="footer-link" target="_blank" rel="noopener noreferrer">Source Code</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="https://github.com/bavix/uuid-ui/blob/master/LICENSE" class="footer-link" target="_blank" rel="noopener noreferrer">MIT License</a>
+        </div>
+    </div>
+</footer>
+<script>(function(){
+var root=document.documentElement;
+var button=document.getElementById('doc-theme');
+var applied=[];
+
+function read(){
+var raw=localStorage.getItem('theme')||'';var parts=raw.split(':');
+if(parts.length===2){return{palette:parts[0],mode:parts[1]}}
+if(raw==='dark'||raw==='true'||raw==='"true"'){return{palette:'default',mode:'dark'}}
+if(raw==='light'||raw==='false'||raw==='"false"'){return{palette:'default',mode:'light'}}
+return{palette:'default',mode:'system'};
+}
+
+function resolve(mode){
+return mode==='system'
+?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')
+:mode;
+}
+
+function apply(palette,mode){
+var shown=resolve(mode);
+root.classList.toggle('dark',shown==='dark');
+root.classList.toggle('light',shown==='light');
+root.style.colorScheme=shown;
+if(palette&&palette!=='default'&&/^[a-z0-9][a-z0-9-]{0,31}$/.test(palette)){root.setAttribute('data-theme',palette)}
+else{root.removeAttribute('data-theme')}
+applied.forEach(function(name){root.style.removeProperty(name)});
+applied=[];
+if(palette==='custom'&&window.__docCustom){
+var before=root.getAttribute('style')||'';
+window.__docCustom(root,shown);
+var after=root.getAttribute('style')||'';
+if(after!==before){applied=(after.match(/--[a-z0-9-]+/g)||[])}
+}
+return shown;
+}
+
+function store(palette,mode){
+try{
+localStorage.setItem('theme',palette+':'+mode);
+var raw=localStorage.getItem('uuid.data');
+if(!raw){return}
+var held=JSON.parse(raw);
+if(!held||typeof held!=='object'){return}
+var at=Date.now();
+held.settings=held.settings||{};
+held.settings.palette={value:palette,at:at};
+held.settings.theme={value:mode,at:at};
+localStorage.setItem('uuid.data',JSON.stringify(held));
+}catch(e){}
+}
+
+var current=read();
+apply(current.palette,current.mode);
+
+if(button){
+button.addEventListener('click',function(){
+current.mode=resolve(current.mode)==='dark'?'light':'dark';
+apply(current.palette,current.mode);
+store(current.palette,current.mode);
+});
+}
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){
+if(current.mode==='system'){apply(current.palette,current.mode)}
+});
+
+window.addEventListener('storage',function(e){
+if(e.key!=='theme'&&e.key!=='uuid.data'){return}
+current=read();apply(current.palette,current.mode);
+});
+
+document.addEventListener('click',function(e){
+var b=e.target.closest?e.target.closest('.doc-copy'):null;
+if(!b){return}
+var box=b.closest('.doc-case')||b.closest('.code');
+var el=box&&(box.querySelector('.doc-case-out')||box.querySelector('pre code'));
+if(!el||!navigator.clipboard){return}
+navigator.clipboard.writeText(el.textContent).then(function(){
+b.classList.add('is-done');setTimeout(function(){b.classList.remove('is-done')},1400);});
+});
+
+var links=[].slice.call(document.querySelectorAll('.doc-toc a'));
+if(!links.length||!('IntersectionObserver' in window)){return}
+var byId={};links.forEach(function(a){byId[a.getAttribute('href').slice(1)]=a});
+var seen=[];
+var io=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+var id=e.target.id;var at=seen.indexOf(id);
+if(e.isIntersecting){if(at<0){seen.push(id)}}else if(at>=0){seen.splice(at,1)}
+});
+if(!seen.length){return}
+var first=links.map(function(a){return a.getAttribute('href').slice(1)}).filter(function(id){return seen.indexOf(id)>=0})[0];
+links.forEach(function(a){a.classList.toggle('is-here',a.getAttribute('href').slice(1)===first)});
+},{rootMargin:'-80px 0px -70% 0px'});
+Object.keys(byId).forEach(function(id){var el=document.getElementById(id);if(el){io.observe(el)}});
+})();</script>
+<script type="module" src="../docs.js"></script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 import React from 'preact/compat';
-import { SIGNED, intTypeList } from './int-type.js';
+import { intTypeList } from './int-type.js';
 
 const SPLIT_ICON = (
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -31,16 +31,13 @@ const HEIGHT_KEY = 'uuid.inputHeight';
 import { mergeItems } from './merge-items.js';
 import { toUuid } from './to-uuid.js';
 import { TYPE_BASE64, TYPE_UUID, TYPE_BYTES, TYPE_HIGH_LOW, TYPE_ULID, TYPE_WORDS, typeDetector, uuidTypeList } from "./type-detector.js";
-import { uuidToBytesString } from "./uuid-bytes.js";
-import { uuidToWords } from "./uuid-words.js";
-import { uuidToInts, uuidToUints } from "./uuid-high-low.js";
-import { uuidToBase64Std } from "./base64.js";
-import { STYLE_PLAIN, styleUuid } from './uuid-style.js';
+import { STYLE_PLAIN } from './uuid-style.js';
+import { fromUuid } from './from-uuid.js';
+import { docFor, docHref } from './doc-links.js';
 import { hasCase, spell, spellingsOf, usesInts } from './spellings.js';
 import { readingName } from './int-convention.js';
 import { createCycle } from './placeholder-cycle.js';
 import { makeExample } from './placeholder-examples.js';
-import { uuidToUlid } from './uuid-ulid.js';
 
 const FORMAT_CLASS = {
     [TYPE_UUID]: 'type-uuid',
@@ -534,27 +531,14 @@ export default class InputComponent extends React.Component {
     }
 
     castFromUuid = (uuid) => {
-        const { resultType, writeIntType, intType } = this.props
-        const outInt = writeIntType ?? intType
+        const { resultType, writeIntType, intType, uuidStyle, uuidUpper } = this.props
 
-        switch (resultType) {
-            case TYPE_BYTES:
-                return uuidToBytesString(uuid);
-            case TYPE_HIGH_LOW: {
-                const u = outInt === SIGNED ? uuidToInts(uuid) : uuidToUints(uuid)
-                return u === null ? null : JSON.stringify(u)
-            }
-            case TYPE_WORDS: {
-                const words = uuidToWords(uuid, outInt === SIGNED)
-                return words === null ? null : JSON.stringify(words)
-            }
-            case TYPE_BASE64:
-                return uuidToBase64Std(uuid)
-            case TYPE_ULID:
-                return uuidToUlid(uuid)
-        }
-
-        return styleUuid(uuid, this.props.uuidStyle, this.props.uuidUpper)
+        return fromUuid(uuid, {
+            resultType,
+            intType: writeIntType ?? intType,
+            uuidStyle,
+            uuidUpper,
+        })
     }
 
     conventionOf(input, output) {
@@ -1012,6 +996,9 @@ export default class InputComponent extends React.Component {
                             )}
                         </div>
                     )}
+                    <p className="int-hint">
+                        <a className="hint-link" href={docHref(docFor(resultType).slug)}>{docFor(resultType).label}</a>
+                    </p>
                 </fieldset>
 
                 <fieldset className="control-card rounded-xl shadow-md border px-5 pb-5 pt-3 hover:shadow-lg transition-shadow">
@@ -1065,7 +1052,11 @@ export default class InputComponent extends React.Component {
                         </button>
                     </div>
 
-                    <p className="int-hint">{this.intHint(intLinked, intType, writeIntType ?? intType, writes)}</p>
+                    <p className="int-hint">
+                        {this.intHint(intLinked, intType, writeIntType ?? intType, writes)}
+                        {' '}
+                        <a className="hint-link" href={docHref('uuid-to-long')}>Signed and unsigned, side by side</a>
+                    </p>
                 </fieldset>
             </div>
         );

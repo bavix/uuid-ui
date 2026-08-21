@@ -1,0 +1,2379 @@
+# UUIDConv — full reference
+
+Source: https://bavix.github.io/uuid-ui/
+
+# UUID reference
+
+URL: https://bavix.github.io/uuid-ui/reference/
+TL;DR: A UUID is 128 bits with 6 of them spoken for: 4 say which layout the rest follows, 2 say which standard it belongs to. Everything else on this site is a way of writing those 128 bits down.
+
+This is the reference behind the converter: what each format on the tool actually means, which bits a version spends where, and where RFC 9562 says so. Every example was produced by the same code the converter runs.
+
+f81d4fae-7dec-11d0-a765-00a0c91e6bf6, field by field:
+- time_low: bits 0-31 (timestamp)
+- time_mid: bits 32-47 (timestamp)
+- version: bits 48-51 (version)
+- time_high: bits 52-63 (timestamp)
+- variant: bits 64-65 (variant)
+- clock_seq: bits 66-79 (clock sequence)
+- node: bits 80-127 (node)
+
+## What the 128 bits are
+
+A UUID carries no meaning of its own beyond its layout. Four bits hold the version, two hold the variant, and the remaining 122 belong to whichever layout the version names: a clock and a node for v1, a hash for v3 and v5, milliseconds and randomness for v7, pure chance for v4.
+
+## GUID and UUID are the same thing
+
+GUID is the name Microsoft uses; UUID is the name the RFC uses. The 128 bits are identical. What differs is the byte order some Microsoft APIs use when they turn those bits into a byte array, and that difference is real enough to corrupt data if it is ignored.
+
+## The standard moved: RFC 4122 is obsolete
+
+RFC 9562 replaced RFC 4122 in May 2024. It kept versions 1 through 5 unchanged and added v6, v7 and v8, plus the Max UUID. Pages that still cite RFC 4122 for a v7 layout are citing a document that never described one.
+
+Q: Is a GUID the same as a UUID?
+A: Yes. Same 128 bits, same layouts, different vocabulary. Watch the byte order when a GUID is turned into bytes by a Microsoft API: the first three groups are written little-endian there, the last two big-endian.
+
+Q: Which UUID version should I use?
+A: v4 when you only need uniqueness, v7 when the identifier goes into a database index and you want it to sort by time, v5 when the identifier has to be derived from a name and be the same everywhere.
+
+# What is a UUID?
+
+URL: https://bavix.github.io/uuid-ui/what-is-a-uuid/
+TL;DR: A UUID is 128 bits, generated locally, unique in practice without a central authority. GUID is the same thing under a different name.
+
+The value of a UUID is not that it is long. It is that two machines with no connection between them can each make one and be safe assuming the two will never collide. Everything else about the format follows from that.
+
+## The definition
+
+A UUID is a 128-bit value with a defined internal layout: four bits say which layout, two say which standard family, and the remaining 122 are spent according to the layout. It is written as 32 hex digits in five hyphenated groups, and RFC 9562 has defined it since May 2024, replacing RFC 4122.
+
+## Why generate identifiers locally
+
+A database sequence needs a database. A UUID needs nothing: a mobile client offline on a plane can create a record, name it, and reconcile later without a coordinator handing out numbers. That property is what makes the format worth its 16 bytes: distributed systems, event sourcing, multi-region writes and offline-first clients all rest on it.
+
+## Is a collision actually impossible?
+
+Not impossible, just too unlikely to plan for. A v4 has 122 random bits: reaching even odds of one collision takes about 2.7 × 10^18 identifiers, and a one-in-a-billion chance still takes around 10^14 of them. The real risks are elsewhere: a broken random source, a virtual machine cloned with its state, or a library that seeded itself from the clock.
+
+## UUID and GUID
+
+GUID is Microsoft vocabulary for the same 128 bits. The only practical difference is in byte order: several Microsoft APIs store the first three fields little-endian, so the byte arrays differ even though the text forms match. The same identifier is also standardised as ITU-T X.667 and ISO/IEC 9834-8; RFC 9562 says of that pair that both sets of specifications have been aligned and are fully technically compatible.
+
+## Which version to reach for
+
+Version | Made from | Use it when
+v4 | randomness | You need an identifier and nothing more
+v7 | milliseconds plus randomness | The identifier is a database key and should sort by time
+v5 | SHA-1 of a namespace and a name | The same input must always produce the same identifier
+v1 / v6 | a clock and a node | You are reading identifiers made by older systems
+v8 | whatever you define | You need custom structure and still want a valid UUID
+Nil / Max | all zeros / all ones | You need a placeholder that is obviously not a real value
+
+## What a UUID is not
+
+It is not a secret: knowing one should never grant access to anything. It is not a checksum: it says nothing about the data it names. And it is not free: 16 bytes per row, per index entry and per foreign key adds up, which is exactly the trade you are making in exchange for not needing a coordinator.
+
+Q: Is a GUID the same as a UUID?
+A: Yes. Same 128 bits and the same layouts. Only the byte order used by some Microsoft APIs differs.
+
+Q: How likely is a UUID collision?
+A: For v4, negligible: 122 random bits put even odds of a collision at about 2.7 × 10^18 identifiers. Broken randomness is a far more realistic risk.
+
+Q: Which RFC defines UUIDs now?
+A: RFC 9562, published in May 2024. It replaced RFC 4122 and added versions 6, 7 and 8 along with the Max UUID.
+
+# GUID and UUID
+
+URL: https://bavix.github.io/uuid-ui/guid-vs-uuid/
+TL;DR: They are the same 128 bits under two names. GUID is Microsoft vocabulary, UUID is the RFC's. The only difference that can bite you is the byte order in which some Microsoft APIs write them.
+
+The two words are used interchangeably, and for the text form that is correct. The moment either becomes a byte array, the vocabulary stops being the interesting part.
+
+## Worked example (UUID text)
+
+The braced spelling Windows writes, and the same identifier the RFC would print without braces.
+
+f81d4fae-7dec-11d0-a765-00a0c91e6bf6 -> {f81d4fae-7dec-11d0-a765-00a0c91e6bf6}
+01890a5d-ac96-774b-bcce-b302099a8057 -> {01890a5d-ac96-774b-bcce-b302099a8057}
+
+## Where the two names come from
+
+The IETF standardised the identifier and called it a UUID; RFC 9562 is the current text. Microsoft shipped the same thing in COM and called it a GUID, a Globally Unique Identifier, and the name stuck across Windows, .NET and SQL Server. ITU-T X.667 and ISO/IEC 9834-8 describe it again for their own audiences, and RFC 9562 notes that both sets of specifications have been aligned and are fully technically compatible.
+
+## Where they differ
+
+ | RFC 9562 world | Microsoft world
+Text form | f81d4fae-7dec-11d0-… | identical, often in capitals
+Punctuation habits | plain, or urn:uuid: | braces, and the N/D/B/P/X format letters
+Byte order of the first three groups | big-endian | little-endian in memory and in ToByteArray()
+Database column | uuid | uniqueidentifier
+Generator | v4, v7 and the rest | NEWID, NEWSEQUENTIALID, Guid.NewGuid
+
+The byte order is the only row that can corrupt data. Everything else is spelling.
+
+## The one that bites
+
+Guid.ToByteArray() reverses the bytes of the first three groups. Java, Go, Python's uuid.bytes and every RFC-conforming implementation do not. Feed one to the other and you get a valid-looking identifier that belongs to a different row, with no error anywhere. .NET 8 added ToByteArray(bigEndian: true) and a matching constructor, which is the fix when you control both ends.
+
+Half of all mixed-endian identifiers still decode as a plausible version, so a single value cannot be diagnosed by eye. The byte order page has the detail and the way to check a batch.
+
+## So which word should I use?
+
+Say GUID inside a Microsoft codebase, UUID everywhere else, and neither in a schema comment: write down the version and the byte order instead. Those are the two facts the next person actually needs.
+
+Q: Is a GUID the same as a UUID?
+A: Yes. The same 128 bits and the same layouts. Only the byte order used by some Microsoft APIs differs, and only when the value becomes bytes.
+
+Q: Can I store a GUID in a PostgreSQL uuid column?
+A: Yes, as long as you move it as text or in RFC byte order. The mixed-endian byte array is a different value.
+
+Q: Does Microsoft follow RFC 9562?
+A: Modern .NET does: it generates v4 and, since .NET 9, v7, and it can read and write big-endian bytes. The older APIs keep the mixed-endian habit.
+
+# UUID versions, side by side
+
+URL: https://bavix.github.io/uuid-ui/uuid-versions/
+TL;DR: Eight layouts share one shape. v4 is chance, v7 is a clock plus chance, v3 and v5 are hashes of a name, v1 and v6 are a clock plus a machine, v8 is whatever you define, and Nil and Max are constants with no version at all.
+
+The version nibble picks a layout, and the layouts have almost nothing in common beyond the six bits that name them. This page puts all of them in one table so the choice takes a minute rather than an afternoon.
+
+## Worked example (What the converter reads)
+
+The decoder reads the version and variant off any identifier, including the two that have neither.
+
+0c5b2444-70a0-4932-980c-b4dc0d3f02b5 -> uuid · RFC 9562 (10xx) · version 4
+01890a5d-ac96-774b-bcce-b302099a8057 -> uuid · RFC 9562 (10xx) · version 7
+cfbff0d1-9375-5685-968c-48ce8b15ae17 -> uuid · RFC 9562 (10xx) · version 5
+00000000-0000-0000-0000-000000000000 -> uuid · NCS (0xxx) — reserved, backward compatibility · no version · nil, palindrome
+
+## The whole table
+
+Version | Made from | Sorts by time | Reveals | Reach for it when
+v1 | 60-bit clock since 1582 + node | no | creation time, often the MAC | you are reading identifiers from an older system
+v2 | DCE Security: clock, local domain and id | no | a POSIX UID or GID | never, unless DCE asks
+v3 | MD5 of a namespace and a name | no | nothing, but the name is guessable | you need determinism and MD5 is already the convention
+v4 | 122 random bits | no | nothing | you need an identifier and nothing more
+v5 | SHA-1 of a namespace and a name | no | nothing, but the name is guessable | the same input must always give the same identifier
+v6 | the v1 clock, reordered | yes | creation time, often the MAC | you already generate v1 and want ordering
+v7 | 48-bit Unix ms + 74 random bits | yes | creation time to the millisecond | it is a database key, which is the usual case
+v8 | whatever you define | if you design it that way | whatever you put in it | you need custom structure in a valid UUID
+Nil | all zeros | — | nothing | you need an obvious placeholder
+Max | all ones | — | nothing | you need an upper bound for a range query
+
+## Where the version actually lives
+
+Bits 48 to 51 hold the version: the 13th hex digit, first character of the third group. Bits 64 and 65 hold the variant at the top of the 17th digit. An identifier whose 17th digit is 8, 9, a or b belongs to RFC 9562; anything else is NCS, Microsoft or reserved, and its version nibble means nothing.
+
+## Version 2 is real, and you will not use it
+
+DCE Security identifiers give time_low to a local id, a POSIX UID or GID, and half the clock sequence to a local domain. What remains is a coarse, partial timestamp. RFC 9562 documents the layout for completeness; almost no library generates it, and most decoders report it as unknown.
+
+e66d0000-08e9-21ef-9234-00a0c91e6bf6, field by field:
+- local_id: bits 0-31 (clock sequence)
+- time_mid: bits 32-47 (timestamp)
+- version: bits 48-51 (version)
+- time_high: bits 52-63 (timestamp)
+- variant: bits 64-65 (variant)
+- clock_seq_hi: bits 66-71 (clock sequence)
+- local_domain: bits 72-79 (clock sequence)
+- node: bits 80-127 (node)
+
+## The standard moved in 2024
+
+RFC 9562 replaced RFC 4122 in May 2024. Versions 1 to 5 are unchanged; v6, v7, v8 and the Max UUID are new. A page that describes UUID versions and cites RFC 4122 is describing a document that never mentioned a time-ordered layout. Worth remembering when comparing sources.
+
+- RFC 9562 — the current standard: https://www.rfc-editor.org/rfc/rfc9562.html
+- ITU-T X.667 / ISO-IEC 9834-8: https://www.itu.int/rec/T-REC-X.667
+
+Q: Which UUID version should I use?
+A: v7 for database keys, v4 when you only need uniqueness, v5 when the identifier must be derived from a name. Everything else is for compatibility with an existing system.
+
+Q: Why is there no version 2 in most libraries?
+A: v2 is DCE Security. It spends fields on a POSIX UID and a local domain, is rarely useful outside DCE, and most implementations skipped it.
+
+Q: Do Nil and Max UUIDs have a version?
+A: No. All zeros and all ones set neither a valid version nor the RFC variant, which is exactly what makes them unmistakable as placeholders.
+
+# UUID v4 or v7
+
+URL: https://bavix.github.io/uuid-ui/uuid-v4-vs-v7/
+TL;DR: Same uniqueness, different behaviour in an index. v4 scatters writes and reveals nothing; v7 keeps writes together and reveals the creation time to the millisecond. Pick by which of those you can afford.
+
+Two versions cover almost every new project, and the choice comes down to one question: does anything break if the identifier admits when it was made? This page puts both sides of that trade in front of you, and lets you watch the sorting difference happen.
+
+## Worked example (What the converter reads)
+
+One of each, read back by the decoder: the v7 admits its moment, the v4 has nothing to admit.
+
+01890a5d-ac96-774b-bcce-b302099a8057 -> uuid · RFC 9562 (10xx) · version 7
+0c5b2444-70a0-4932-980c-b4dc0d3f02b5 -> uuid · RFC 9562 (10xx) · version 4
+
+## Side by side
+
+ | v4 | v7
+Random bits | 122 | 74
+Carries a timestamp | no | 48 bits of Unix milliseconds
+Sorts by creation time | no | yes
+Index writes land | anywhere in the tree | in the rightmost leaf
+Reveals | nothing | when the row was made
+Text length | 36 | 36
+Library support | universal | wide, and in PostgreSQL 18 and .NET 9
+
+## What the index actually does
+
+A B-tree keeps its entries in order. With v4 keys, each insert lands at a random point, so the pages being written are spread across the whole index: more pages dirtied, more of them evicted before they are read again, and more write amplification in the log. With v7 keys, consecutive inserts share a page, and that page stays in memory while it fills.
+
+The effect scales with the size of the index rather than the number of rows inserted, which is why it is invisible in a test database and unpleasant in a large one.
+
+## What v7 gives away
+
+The first 48 bits are the millisecond the identifier was made. Anyone holding one can read it, and anyone holding two can measure the gap between them. For an order or an event that is usually fine, and often useful. For an invitation, a password reset, a share link or anything a competitor could count, it is a leak, and v4 is the right answer.
+
+Neither version is a secret. v4 hides the time; it does not make the value unguessable in any sense you should rely on. A capability still needs an issued, revocable token.
+
+## The rule
+
+Use v7 when the identifier is a database key. Use v4 when the value is exposed to people who should not learn its timing, or when you have no way to generate v7 in every service that writes rows.
+
+Mixed tables are fine, by the way: both are valid UUIDs, and a column holding some of each still works. What you lose is the ordering property for the v4 rows, which is exactly the thing you switched for.
+
+Q: Is v7 faster than v4?
+A: Generation costs the same. Inserts into an indexed column are faster with v7, because the writes are local instead of scattered.
+
+Q: Should I migrate existing v4 keys to v7?
+A: Rarely. New rows can be v7 while old ones stay v4; the column type does not change and both remain valid.
+
+Q: Does v7 reduce uniqueness?
+A: It has 74 random bits instead of 122, which is still far more than any service exhausts inside one millisecond.
+
+# UUID as a primary key
+
+URL: https://bavix.github.io/uuid-ui/uuid-primary-key/
+TL;DR: The cost is 16 bytes in the column, again in every foreign key, and again in every secondary index if the engine is InnoDB. With v4 you also pay in scattered index writes; v7 removes that part. If one sequence would do, an integer is still smaller and simpler.
+
+The argument about UUID keys usually mixes three separate questions: the size of the column, the behaviour of the index, and whether you need identifiers without a coordinator at all. This page keeps them apart.
+
+## Worked example (byte array)
+
+What lands in the column: sixteen bytes, and with a v7 the first six of them are a clock.
+
+01890a5d-ac96-774b-bcce-b302099a8057 -> 01 89 0a 5d ac 96 77 4b bc ce b3 02 09 9a 80 57
+0c5b2444-70a0-4932-980c-b4dc0d3f02b5 -> 0c 5b 24 44 70 a0 49 32 98 0c b4 dc 0d 3f 02 b5
+
+## The three questions
+
+**Do you need identifiers without a coordinator?** If every row is written by one database, a bigint sequence is smaller, faster to compare, and readable in a log. UUIDs earn their size when rows are created offline, in another service, or in another region.
+
+**What does the column cost?** Sixteen bytes against eight in the table, and then it depends on the engine. InnoDB puts the primary key into every secondary index record, so each secondary index pays the extra eight bytes per row as well: four of them turn 8 extra bytes into 40. SQL Server does the same for a clustered table. PostgreSQL does not: its indexes carry only their own columns and a pointer into the heap, so the extra cost lands on the primary key index itself and on every foreign key column that references it.
+
+- MySQL: InnoDB index types: https://dev.mysql.com/doc/refman/8.4/en/innodb-index-types.html
+- PostgreSQL: index-only scans: https://www.postgresql.org/docs/current/indexes-index-only-scans.html
+
+**How does the index behave?** That depends entirely on the version, and it is the part people get wrong.
+
+## What to store
+
+Database | Column | Notes
+PostgreSQL | uuid | 16 bytes, native, compares as two integers
+MySQL | BINARY(16) | with UUID_TO_BIN and BIN_TO_UUID
+SQL Server | uniqueidentifier | 16 bytes, but sorted from the last group first
+MongoDB | BSON binary subtype 4 | the standard subtype, not the legacy 3
+SQLite | BLOB of 16 bytes | text also works and doubles the size
+
+Never varchar(36). It more than doubles the storage, compares character by character, and lets two spellings of one identifier sit in the same column.
+
+## Keep the sortable one at the front
+
+With v7 the leading bits are a millisecond clock, so a range over the key is a range over time: the rows for a day sit together on disk, and a partitioned table can partition on the key itself. With v4 none of that is true, and a clustered index on it fragments.
+
+SQL Server is the exception worth remembering: it compares uniqueidentifier starting from the last group, so a v7 stored there does not stay time-ordered in the index. Keep the clustered key on an identity column there and make the UUID a non-clustered unique key.
+
+## What you get back
+
+- Rows can be created anywhere, including offline, and merged later without renumbering.
+- An identifier can be handed out before the row exists, which makes idempotent writes straightforward.
+- Nothing in the key tells an outsider how many rows you have, which a sequence does.
+
+Q: Is a UUID a bad primary key?
+A: Not by itself. A v4 is bad for an index because the writes scatter; a v7 behaves like a sequence while keeping the properties you chose a UUID for.
+
+Q: UUID or bigint?
+A: bigint when one database writes every row. UUID when rows are created in more than one place, or before they reach the database.
+
+Q: How much space does a UUID key really cost?
+A: Sixteen bytes in the table, plus sixteen in every foreign key that references it. In InnoDB and in a clustered SQL Server table, every secondary index carries the key as well; in PostgreSQL it does not.
+
+# Generating identifiers
+
+URL: https://bavix.github.io/uuid-ui/uuid-generator/
+TL;DR: The tool generates every layout anyone makes in practice (v1, v3, v4, v5, v6, v7 and v8), plus a ULID and the two constants. For the ones that carry a clock you can pick the moment; for the name-based ones you pick a namespace and a name.
+
+Converting is only half of what the tool does. This page covers the other half: which generator to reach for, what each one puts in the bits, and the two options that only some of them take.
+
+## Worked example (What the converter reads back)
+
+Four identifiers this page can make, read back by the decoder. The name-based two are the same on every machine; the constants are the same everywhere and always.
+
+cfbff0d1-9375-5685-968c-48ce8b15ae17 -> uuid · RFC 9562 (10xx) · version 5
+9073926b-929f-31c2-abc9-fad77ae3e8eb -> uuid · RFC 9562 (10xx) · version 3
+00000000-0000-0000-0000-000000000000 -> uuid · NCS (0xxx) — reserved, backward compatibility · no version · nil, palindrome
+ffffffff-ffff-ffff-ffff-ffffffffffff -> uuid · reserved for the future (111x) · no version · max, palindrome
+
+## What each generator gives you
+
+Type | Made of | Takes a moment | Takes a name
+v4 | 122 random bits | no | no
+v7 | 48 bits of Unix ms, then randomness | yes | no
+v1 | a 1582 clock and a node | yes | no
+v6 | the v1 clock, reordered to sort | yes | no
+v3 | MD5 of a namespace and a name | no | yes
+v5 | SHA-1 of a namespace and a name | no | yes
+v8 | free bits, filled at random here | no | no
+ULID | the v7 clock in Crockford base32 | yes | no
+Nil, Max | all zeros, all ones | no | no
+
+Version 2 is missing from that list on purpose: DCE Security identifiers need a POSIX user or group id, almost no library makes them, and the layout page covers what they contain if you have been handed one.
+
+## Aiming the clock
+
+v1, v6, v7 and ULID carry a timestamp, so the generator lets you set it. Leave the field empty and it uses now; type a date and you get an identifier that claims that moment. The field has no timezone, so the browser reads it as local time, which is what somebody typing 2024-05-03 01:09 into it means.
+
+That is useful for fixtures, for reproducing a bug that only shows up around a boundary, and for testing a range query without waiting for the clock. It is not a way to backdate anything real: the identifier says what it was told to say.
+
+## Name-based generation, in one line
+
+Pick a namespace, type a name, and the identifier appears. The same pair always gives the same value, on any machine and in any language, which is what makes v5 the tool for identifiers that have to be derived rather than issued.
+
+## The three that are jokes with a point
+
+deadbeef, cafebabe and palindrome are in the list because a recognisable identifier is genuinely useful in a fixture: nobody mistakes deadbeef-dead-beef-dead-beefdeadbeef for production data, and a palindrome makes a byte-order bug visible at a glance, since reversing it changes nothing.
+
+None of these are RFC 9562 identifiers. deadbeef and cafebabe fail on both counts: the 13th digit is a b, so there is no version, and the variant nibble reads as Microsoft's. A palindrome lands wherever chance puts it and only sometimes has a valid version. That is the point: they are obviously fake.
+
+## Which to pick
+
+- A database key: v7.
+- An identifier and nothing else: v4.
+- The same input must always give the same identifier: v5.
+- You are matching an older system: v1, v6 or v3, whichever it already writes.
+- A placeholder or a range bound: Nil and Max.
+
+Q: Can I generate a UUID for a specific date?
+A: Yes, for the versions that carry a clock: v1, v6, v7 and ULID. Set the moment and the timestamp field is filled from it.
+
+Q: Which version does the generator make by default?
+A: v4, the random one, which is what most systems expect when nothing else is specified.
+
+Q: Are the generated identifiers sent anywhere?
+A: No. They are made in this page by the same code the converter runs, and nothing leaves the tab.
+
+# Converting a column of identifiers
+
+URL: https://bavix.github.io/uuid-ui/uuid-bulk-convert/
+TL;DR: The tool works line by line. Paste a hundred identifiers in whatever formats they happen to be in, pick one target, and every line is converted at once; anything unreadable is reported rather than dropped.
+
+A single conversion is the demo. The reason to keep the tab open is the column you copied out of a query result, a log or a spreadsheet, where half the lines are one format and half are another.
+
+## Worked example (UUID text)
+
+Four lines in four different formats, all read as the same kind of thing and written out as canonical UUIDs.
+
+f81d4fae7dec11d0a76500a0c91e6bf6 -> f81d4fae-7dec-11d0-a765-00a0c91e6bf6
+{01890a5d-ac96-774b-bcce-b302099a8057} -> 01890a5d-ac96-774b-bcce-b302099a8057
+AYkKXayWd0u8zrMCCZqAVw== -> 01890a5d-ac96-774b-bcce-b302099a8057
+7R3N7TWZFC278AES80M34HWTZP -> f81d4fae-7dec-11d0-a765-00a0c91e6bf6
+
+## Mixed input is the normal case
+
+Every line is read on its own, so a list can hold canonical UUIDs, bare hex, braced Windows values, base64, byte arrays, ULIDs and high/low pairs at the same time. The reader recognises each and converts it to the one format you chose. That is what makes the tool useful on the output of a query somebody else wrote.
+
+## Comments survive the trip
+
+A # opens a comment, and so does // at the start of a line or after whitespace. The text after it is kept next to the result instead of being thrown away, which means a list can carry its own labels:
+
+f81d4fae-7dec-11d0-a765-00a0c91e6bf6   # the row that broke
+01890a5d-ac96-774b-bcce-b302099a8057   // fixture, do not delete
+
+// only opens a comment at a line start or after whitespace, because standard base64 uses / as a payload character: roughly one identifier in 250 encodes to something containing //.
+
+## Nothing disappears quietly
+
+A line the reader cannot make sense of is reported, not skipped, and a line that is already in the target format says so instead of pretending to convert. That matters when the list is long enough that you would not notice two missing rows.
+
+## Where the results go
+
+Converted lines land in a history you can search, tag and keep across reloads, because it lives in the browser's own storage. Nothing is uploaded: the whole pipeline runs in the tab, which is the same reason the pages of this reference can compute their examples in front of you.
+
+Q: Can I convert many UUIDs at once?
+A: Yes. One identifier per line, any mix of formats, one target format for the batch.
+
+Q: What happens to lines that are not identifiers?
+A: They are reported as unread rather than dropped, so a long list does not lose rows silently.
+
+Q: Are my pasted identifiers uploaded anywhere?
+A: No. Every line is parsed and converted in the browser, and the history stays in the browser's own storage.
+
+# UUID to a 16-byte array
+
+URL: https://bavix.github.io/uuid-ui/uuid-to-bytes/
+TL;DR: A UUID is 16 bytes. Written out big-endian, byte 0 is the first pair of hex digits in the printed form, and byte 6 carries the version in its high nibble.
+
+Text is 36 characters; the identifier itself is 16 bytes. Anything that stores identifiers in bulk wants the bytes: a binary column, a cache key, a wire format. This page converts in both directions and prints them the three ways code actually needs them.
+
+## Worked example (byte array)
+
+The same identifier as decimal bytes, the shape a JSON payload or a Java array literal takes.
+
+f81d4fae-7dec-11d0-a765-00a0c91e6bf6 -> [248,29,79,174,125,236,17,208,167,101,0,160,201,30,107,246]
+018f3c00-7c00-7000-8000-00a0c91e6bf6 -> [1,143,60,0,124,0,112,0,128,0,0,160,201,30,107,246]
+00000000-0000-0000-0000-000000000000 -> [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+
+## Three ways to write the same sixteen bytes
+
+Spelling | Looks like | Where it fits
+decimal | [248,29,79,…] | JSON, Java and Kotlin array literals, JavaScript
+hex | f8 1d 4f ae … | hex dumps, protocol traces, documentation
+chex | [0xf8, 0x1d, …] | C, C++, Rust and Go source
+
+The converter reads all three back, so a byte array pasted out of a log becomes an identifier again without editing it into shape first.
+
+## Which byte holds what
+
+Byte | Content
+0-3 | The first group of the printed form: time_low, or the top of a v7 millisecond clock
+4-5 | The second group
+6 | High nibble is the version; low nibble belongs to the layout
+7 | The rest of the third group
+8 | The top two bits are the variant; 0x80 to 0xbf means RFC 9562
+9-15 | The tail: clock sequence and node, or randomness
+
+## Getting the bytes in each language
+
+Language | Bytes out | Bytes in
+Python | u.bytes (big-endian), u.bytes_le (mixed) | uuid.UUID(bytes=b)
+Java | ByteBuffer.allocate(16).putLong(msb).putLong(lsb) | new UUID(buf.getLong(), buf.getLong())
+Go | u[:] with github.com/google/uuid | uuid.FromBytes(b)
+Rust | uuid.as_bytes() | Uuid::from_bytes(b)
+C# | id.ToByteArray(bigEndian: true) | new Guid(span, bigEndian: true)
+JavaScript | uuid.parse(str) returns a Uint8Array | uuid.stringify(bytes)
+
+Both C# entries are the .NET 8 overloads: ToByteArray(bool) and Guid(ReadOnlySpan<byte>, bool). Before them, ToByteArray() gives the mixed-endian layout, which is a different byte array for the same identifier. CreateVersion7 came one version later, in .NET 9.
+
+## Storing bytes instead of text
+
+Sixteen bytes against 36 characters is the obvious win, but the real one is comparison: a fixed-width binary key compares in one pass, and an index over it is smaller at every level. The cost is that nobody can read a row by eye any more, and that the byte order becomes a contract you have to keep. If the identifiers are v7 and the index matters, keep them big-endian so the byte order and the time order agree.
+
+Q: How many bytes is a UUID?
+A: Sixteen. The 36-character text form is a way of printing them: 32 hex digits and four hyphens.
+
+Q: Which byte holds the version?
+A: Byte 6, in its high nibble, in the RFC byte order. A v4 shows 0x4x there and a v7 shows 0x7x.
+
+Q: Why do the bytes differ between C# and Python?
+A: Python uuid.bytes is big-endian; the classic Guid.ToByteArray in .NET reverses the first three fields. Python spells that variant bytes_le.
+
+# UUID without dashes, and the other spellings
+
+URL: https://bavix.github.io/uuid-ui/uuid-to-hex/
+TL;DR: The dashes carry no information. A UUID is 32 hex digits; the 8-4-4-4-12 grouping, the braces and the urn:uuid prefix are all ways of printing the same 128 bits.
+
+Half the identifier formats in the wild differ only in punctuation, and every one of them has an ecosystem that insists on it: 32 bare hex digits in a database column, braces in the Windows registry, and urn:uuid in anything built on XML. This page converts between them without touching the bits.
+
+## Worked example (UUID text)
+
+The hex spelling: the same identifier with the four hyphens removed.
+
+f81d4fae-7dec-11d0-a765-00a0c91e6bf6 -> f81d4fae7dec11d0a76500a0c91e6bf6
+018f3c00-7c00-7000-8000-00a0c91e6bf6 -> 018f3c007c007000800000a0c91e6bf6
+
+## The four spellings
+
+Spelling | Example | Where it is expected
+plain | f81d4fae-7dec-11d0-a765-00a0c91e6bf6 | The default everywhere
+hex | f81d4fae7dec11d0a76500a0c91e6bf6 | Database columns, cache keys, .NET format N
+braces | {f81d4fae-7dec-11d0-a765-00a0c91e6bf6} | Windows registry, COM, .NET format B
+urn | urn:uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6 | XML, RDF, anything that wants a URN
+
+## Upper or lower case
+
+RFC 9562 writes UUIDs in lower case and requires readers to accept both. Windows writes them in capitals, so registry exports, COM identifiers and plenty of Microsoft documentation come back shouting. Compare identifiers case-insensitively, or normalise on the way in; comparing two spellings of the same identifier as strings is a bug that waits for the worst possible day.
+
+## Removing the dashes for a database
+
+A CHAR(32) column holding bare hex saves the four hyphens, which is a ninth of the width and nothing to celebrate. The real saving is BINARY(16), less than half of either, and MySQL has UUID_TO_BIN and BIN_TO_UUID to move between the two without application code. Bare hex is the middle ground people actually keep: readable in a query result, and cheap enough in an index that nobody profiles it twice.
+
+-- MySQL: text to 16 bytes and back
+SELECT UUID_TO_BIN('f81d4fae-7dec-11d0-a765-00a0c91e6bf6');
+SELECT BIN_TO_UUID(id) FROM orders;
+
+-- bare hex, no dashes
+SELECT REPLACE('f81d4fae-7dec-11d0-a765-00a0c91e6bf6', '-', '');
+
+## Putting the dashes back
+
+The grouping is fixed at 8-4-4-4-12, so restoring it is a slice, not a parse. Paste bare hex into the converter and it comes back grouped; paste a braced or urn form and the punctuation is stripped. Whatever the spelling, the version and variant stay where they are: nothing here moves a single bit.
+
+Q: Does removing the dashes change the UUID?
+A: No. The hyphens are punctuation. The identifier is the 32 hex digits, and every spelling on this page carries the same 128 bits.
+
+Q: Is an uppercase GUID a different value?
+A: No. Case is not significant. Normalise to lower case on input if you compare identifiers as strings.
+
+Q: What is the urn:uuid form for?
+A: It makes a UUID a valid URN, which XML and RDF documents need when an identifier has to be a URI rather than a bare string.
+
+# Every way to write the same UUID
+
+URL: https://bavix.github.io/uuid-ui/uuid-formats/
+TL;DR: The 128 bits never change; the punctuation does. Canonical, bare hex, braces, urn:uuid and upper case are five spellings of one identifier, and comparing two of them as strings is a bug.
+
+Half the identifier bugs that reach production are spelling mismatches: a braced GUID from a registry export compared with a canonical one from an API. This page lists every form the tool reads and writes, and says who expects each.
+
+## Worked example (UUID text)
+
+The braced form, the one the Windows registry and COM write.
+
+f81d4fae-7dec-11d0-a765-00a0c91e6bf6 -> {f81d4fae-7dec-11d0-a765-00a0c91e6bf6}
+01890a5d-ac96-774b-bcce-b302099a8057 -> {01890a5d-ac96-774b-bcce-b302099a8057}
+
+## The five spellings
+
+Spelling | The same identifier | Where it is expected
+plain | f81d4fae-7dec-11d0-a765-00a0c91e6bf6 | The canonical form. What RFC 9562 writes and what every parser accepts.
+hex | f81d4fae7dec11d0a76500a0c91e6bf6 | .NET format N. What a CHAR(32) column and most cache keys hold.
+braces | {f81d4fae-7dec-11d0-a765-00a0c91e6bf6} | .NET format B. The Windows registry and COM write this.
+urn | urn:uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6 | A valid URN, for XML, RDF and anything that needs a URI.
+upper case | F81D4FAE-7DEC-11D0-A765-00A0C91E6BF6 | Case is not significant; Windows tools write capitals.
+
+The converter reads all of them, in any case, and writes whichever you pick. Nothing in this table changes a single bit.
+
+## The .NET format letters
+
+Letter | Looks like | Same as
+N | 32 digits, no punctuation | the hex spelling above
+D | 8-4-4-4-12 with hyphens | the canonical spelling
+B | hyphenated, in braces | the braces spelling
+P | hyphenated, in parentheses | a variant of braces this tool does not write
+X | a C struct literal: {0x…,0x…,0x…,{0x…}} | four fields, not a text form
+
+The X format is the odd one: it is a C initialiser for the Windows GUID struct, and its first three fields are little-endian. That makes it a byte-order question rather than a spelling question.
+
+## urn:uuid, and when a UUID must be a URI
+
+XML, RDF and other systems that identify things by URI need a scheme in front. urn:uuid: was registered for exactly that, so urn:uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6 is a valid URN naming the same identifier. Strip the prefix and it is an ordinary UUID again.
+
+## Case, and the comparison bug
+
+RFC 9562 writes UUIDs in lower case and requires readers to accept both cases. Windows writes capitals. Two spellings of one identifier are not equal as strings, so normalise on input, to lower case and without hyphens if you store bare hex, and compare the normalised form. A database that stores both forms in the same column will eventually return duplicate rows for one entity.
+
+## Which to store
+
+Column | Bytes per row | Readable in a query result
+native uuid type | 16 | yes, the driver formats it
+BINARY(16) | 16 | no, unless you wrap it
+CHAR(32) bare hex | 32 | yes
+CHAR(36) canonical | 36 | yes
+braced or urn form | 38 or 45 | yes, and nobody thanks you
+
+Q: Is a braced GUID a different value?
+A: No. Braces, hyphens, the urn: prefix and letter case are all punctuation. The identifier is the 32 hex digits.
+
+Q: What is the .NET N format?
+A: 32 hex digits with no hyphens, the same thing as the hex spelling in the table above.
+
+Q: Should I store UUIDs upper or lower case?
+A: Lower case, and normalise on the way in. The standard writes lower case, and mixed case in one column produces duplicate rows for one entity.
+
+# UUID to Base64, and the short forms
+
+URL: https://bavix.github.io/uuid-ui/uuid-to-base64/
+TL;DR: Base64 of the 16 bytes is 24 characters with padding and 22 without. The URL-safe alphabet swaps + and / for - and _, which is what makes the short form usable in a path or a query string.
+
+Base64 is the cheapest way to make a UUID shorter without inventing a scheme: the same 128 bits, 22 characters instead of 36. This page converts both ways, in both alphabets, and covers the two things that bite: padding and sort order.
+
+## Worked example (Base64)
+
+The URL-safe spelling with the padding dropped: 22 characters, safe in a path, a query string or a filename.
+
+f81d4fae-7dec-11d0-a765-00a0c91e6bf6 -> -B1Prn3sEdCnZQCgyR5r9g
+018f3c00-7c00-7000-8000-00a0c91e6bf6 -> AY88AHwAcACAAACgyR5r9g
+00000000-0000-0000-0000-000000000000 -> AAAAAAAAAAAAAAAAAAAAAA
+
+## Why 22 characters and not 24
+
+Base64 encodes three bytes into four characters. Sixteen bytes is five whole groups plus one byte left over, so the encoder emits 22 characters and then pads with == to reach a multiple of four. The padding carries no information for a fixed-length input: everyone knows a UUID is 16 bytes, so the two equals signs can be dropped and re-added by the decoder.
+
+## Which alphabet to use
+
+Alphabet | Characters 62 and 63 | Safe in a URL?
+standard | + and / | No: both need percent-encoding, and / splits a path
+url-safe | - and _ | Yes, and it survives filenames too
+
+Pick one and write it into the schema. A value that round-trips through the wrong alphabet decodes into different bytes, and 22 characters of anything looks equally plausible in a log.
+
+## Base64 does not preserve sort order
+
+The Base64 alphabet runs A-Z, a-z, 0-9, which is not the order the underlying bytes compare in. Two v7 identifiers made a second apart sort correctly as bytes and as text, but not as Base64. If a time-ordered key is the point, keep the bytes or the hex form; if all you want is a short opaque handle, Base64 is fine.
+
+import { parse, stringify } from "uuid";
+
+const bytes = parse("f81d4fae-7dec-11d0-a765-00a0c91e6bf6");
+
+const short = btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+
+const back = stringify(Uint8Array.from(
+    atob(short.replace(/-/g, "+").replace(/_/g, "/")),
+    c => c.charCodeAt(0),
+));
+
+## Every alphabet, and what it costs
+
+Base64 is one row in a table people usually meet one row at a time.
+
+Encoding | Length | Case sensitive | Sorts like the bytes | Safe in a URL
+canonical UUID | 36 | no | yes | yes
+hex, no hyphens | 32 | no | yes | yes
+Crockford base32, as a ULID prints | 26 | no | yes | yes
+base64url | 22 | yes | no | yes
+base64 standard | 24 with padding | yes | no | no, + and / need escaping
+base58 | 22, shorter when the value starts with zero bytes | yes | no | yes
+
+Base58 lands at the same 22 characters and drops 0, O, I and l, which makes a value survivable when it is read aloud or copied by hand. The cost is an encoder that needs big-integer arithmetic rather than bit shifting, and thinner support in standard libraries. Crockford base32 is the usual compromise when people have to handle the value: four characters longer than base64url, case-insensitive, and it keeps byte order.
+
+## What not to do
+
+- Truncating. Dropping bits does not shorten an identifier, it creates a different one with a real collision probability.
+- A private alphabet nobody documents. Six months later nobody can decode the values in the logs.
+- Storing the short form as the key. Store the bytes; render the short form.
+
+Q: Why is my Base64 UUID 24 characters?
+A: It still carries the == padding. Sixteen bytes encode to 22 significant characters; the padding only exists to reach a multiple of four and can be dropped for a fixed-length value.
+
+Q: Is Base64 of a UUID safe in a URL?
+A: Only in the URL-safe alphabet. The standard one uses + and /, which have to be percent-encoded and which break paths.
+
+Q: Can I sort by the Base64 form?
+A: No. The alphabet ordering does not match byte ordering, so time-ordered v7 identifiers stop sorting by time once encoded.
+
+Q: What is a 22 character UUID?
+A: The same 16 bytes in base64url without padding. Nothing is lost; it is a shorter spelling of the same value.
+
+Q: Can I shorten a UUID by cutting characters off?
+A: No. Truncation discards bits and creates a new, shorter identifier with a real chance of collision. Re-encode instead.
+
+# UUID to a high/low 64-bit pair
+
+URL: https://bavix.github.io/uuid-ui/uuid-to-long/
+TL;DR: A UUID is two 64-bit halves. Java prints them signed, which is why getMostSignificantBits often returns a negative number. The bits are unchanged; only the sign convention differs.
+
+A 128-bit identifier does not fit in a 64-bit integer, so every language that stores one as integers stores two: the high half and the low half. This page converts between the two representations and spells out the two things that break most often: the sign and the byte order.
+
+## Worked example (high/low 64-bit pair)
+
+The unsigned reading is the plain big-endian value of each half: the high word is the first eight bytes of the identifier, read left to right.
+
+f81d4fae-7dec-11d0-a765-00a0c91e6bf6 -> {"high":17878533706586264016,"low":12062047867550723062}
+0c5b2444-70a0-4932-980c-b4dc0d3f02b5 -> {"high":890345227701733682,"low":10956330850693612213}
+00000000-0000-0000-0000-000000000000 -> {"high":0,"low":0}
+ffffffff-ffff-ffff-ffff-ffffffffffff -> {"high":18446744073709551615,"low":18446744073709551615}
+
+## Why getMostSignificantBits returns a negative number
+
+Java has no unsigned 64-bit type. UUID#getMostSignificantBits hands back the same bits as the unsigned reading above, printed as a signed long, so any identifier whose first hex digit is 8 or higher prints negative. Nothing is lost: subtract 2^64 from the unsigned value when it is 2^63 or more, and you have Java's number.
+
+UUID | Unsigned high | Java getMostSignificantBits
+f81d4fae-7dec-11d0-a765-00a0c91e6bf6 | 17878533706586264016 | -568210367123287600
+0c5b2444-70a0-4932-980c-b4dc0d3f02b5 | 890345227701733682 | 890345227701733682
+
+The second row is below 2^63, so both readings agree. That is the whole of the mystery.
+
+## The two readings this tool offers
+
+The unsigned reading takes each half big-endian, exactly as the identifier is written: the high word of f81d4fae-7dec-11d0-… is 0xf81d4fae7dec11d0. The signed reading takes each half little-endian and prints it as a signed integer. That is the shape a little-endian machine gives when it reinterprets the bytes in place, as ByteBuffer in LITTLE_ENDIAN order or BitConverter.ToInt64 do.
+
+Reading | Byte order inside each half | Where you meet it
+unsigned | big-endian | Java and Kotlin bit patterns, Kafka, protobuf fixed64 pairs, Uuid::as_u64_pair in Rust
+signed | little-endian | byte buffers reinterpreted in place on a little-endian machine
+
+The reading is not a display setting. Write a pair with one reading and read it back with the other, and you get a different identifier rather than an error: the unsigned pair above comes back as d011ec7d-ae4f-1df8-f66b-1ec9a00065a7 when read as signed. Whichever you pick, write it down next to the schema.
+
+## The same pair in each language
+
+Language | Split | Rebuild
+Java | uuid.getMostSignificantBits() / getLeastSignificantBits() | new UUID(msb, lsb)
+Kotlin | uuid.toLongs { msb, lsb -> … } | Uuid.fromLongs(msb, lsb)
+Rust | uuid.as_u64_pair() | Uuid::from_u64_pair(hi, lo)
+Kafka | Uuid#getMostSignificantBits | new Uuid(msb, lsb)
+Go | binary.BigEndian.Uint64(u[:8]) | binary.BigEndian.PutUint64(u[:8], hi)
+C# | BitConverter.ToUInt64(bytes, 0) | new Guid(bytes)
+
+UUID id = UUID.fromString("f81d4fae-7dec-11d0-a765-00a0c91e6bf6");
+
+long msb = id.getMostSignificantBits();   // -568210367123287600
+long lsb = id.getLeastSignificantBits();  // -6384696206158828554
+
+// the unsigned reading of the same bits
+String hi = Long.toUnsignedString(msb);   // 17878533706586264016
+
+UUID back = new UUID(msb, lsb);           // f81d4fae-7dec-11d0-a765-00a0c91e6bf6
+
+## The pair as a protobuf message
+
+A 128-bit identifier has no home in protobuf: there is no uint128, and bytes costs a length prefix and loses fixed width. Two 64-bit fields fit exactly, which is what bavix/apis declares for the whole API surface.
+
+syntax = "proto3";
+
+package bavix.api.v1;
+
+option go_package = "github.com/bavix/apis/pkg/bavix/api/v1";
+
+// UUID is a message that represents a UUID.
+//
+// A UUID is composed of two 64-bit values, each representing a part of the UUID.
+// The high part is stored in the high field, and the low part is stored in the
+// low field.
+message UUID {
+    // The high part of the UUID.
+    int64 high = 1;
+    // The low part of the UUID.
+    int64 low = 2;
+}
+
+Note the type: int64, not uint64. Protobuf has both, and the choice here follows what Go hands you, which is the reading below.
+
+## The reading that message carries
+
+The reference implementation reinterprets the sixteen bytes in place, eight at a time:
+
+func UUID2DoubleInt(v uuid.UUID) (int64, int64) {
+	return *(*int64)(unsafe.Pointer(&v[0])), *(*int64)(unsafe.Pointer(&v[8]))
+}
+
+func DoubleInt2UUID(highValue int64, lowValue int64) uuid.UUID {
+	var uuidValue uuid.UUID
+
+	*(*int64)(unsafe.Pointer(&uuidValue[0])) = highValue
+	*(*int64)(unsafe.Pointer(&uuidValue[8])) = lowValue
+
+	return uuidValue
+}
+
+On a little-endian machine, which is every amd64 and arm64 server, that reinterpretation reads each half **least significant byte first**. It is the signed reading in the converter, so the numbers on this page and the numbers that message carries are the same numbers.
+
+UUID | high (signed) | low (signed)
+f81d4fae-7dec-11d0-a765-00a0c91e6bf6 | -3453719414676972040 | -690424266549598809
+01890a5d-ac96-774b-bcce-b302099a8057 | 5437980742112676097 | 6305208841809415868
+0c5b2444-70a0-4932-980c-b4dc0d3f02b5 | 3623603779236289292 | -5403687274121261928
+
+The one caveat is in the word unsafe: the layout follows the machine, not the standard. Run that code on a big-endian machine and the same identifier produces a different pair: the big-endian one, which is what this converter calls unsigned once the sign is accounted for. Everything in production today is little-endian, so this is a portability note, not a bug report.
+
+- bavix/apis — bavix/api/v1/uuid.proto: https://github.com/bavix/apis/blob/master/bavix/api/v1/uuid.proto
+- bavix/apis — pkg/uuidconv/uuid.go: https://github.com/bavix/apis/blob/master/pkg/uuidconv/uuid.go
+- bavix/apis: https://github.com/bavix/apis
+
+## Why store a UUID as two longs at all
+
+Two bigint columns beat a 36-character string on both storage and comparison, and a protobuf message with two fixed64 fields is 18 bytes on the wire against 36 for the text. The cost is that the identifier stops being readable, and that every service touching it has to agree on the byte order and on the sign convention. Write both down where the schema lives.
+
+Q: Why does getMostSignificantBits return a negative number?
+A: Java prints a 64-bit value as a signed long, and the high half of most UUIDs exceeds 2^63. The bits are correct; Long.toUnsignedString gives the same value without the sign.
+
+Q: Can I rebuild the UUID from the two numbers?
+A: Yes, with the same reading you wrote them in. Read the unsigned pair of f81d4fae-7dec-11d0-a765-00a0c91e6bf6 as signed and you get d011ec7d-ae4f-1df8-f66b-1ec9a00065a7: a different identifier, and nothing warns you. In code, new UUID(msb, lsb) in Java and Uuid.fromLongs in Kotlin round-trip their own halves.
+
+Q: Is the high half the first part of the printed UUID?
+A: In the unsigned reading, yes: the high word is the first eight bytes, which is everything up to and including the third group of hex digits.
+
+# UUID to four 32-bit words
+
+URL: https://bavix.github.io/uuid-ui/uuid-to-words/
+TL;DR: Four 32-bit words are the same 128 bits cut into quarters, most significant first: w1 is the first block of the printed UUID, w4 the last. Signed and unsigned differ only in how the same bits are printed.
+
+Formats that predate a 128-bit integer type tend to store a UUID as four 32-bit numbers. Minecraft writes them as an NBT int array, Unreal as the four fields of an FGuid, and protobuf schemas keep reinventing a message with four uint32 in it. This page converts both ways and says which of the four holds the version.
+
+## Worked example (four 32-bit words)
+
+Signed words are what a Minecraft NBT int array holds: the same bytes, printed as int32.
+
+f81d4fae-7dec-11d0-a765-00a0c91e6bf6 -> {"w1":-132296786,"w2":2112623056,"w3":-1486552928,"w4":-920753162}
+0c5b2444-70a0-4932-980c-b4dc0d3f02b5 -> {"w1":207299652,"w2":1889552690,"w3":-1743997732,"w4":222233269}
+ffffffff-ffff-ffff-ffff-ffffffffffff -> {"w1":-1,"w2":-1,"w3":-1,"w4":-1}
+
+## How the four words line up with the printed UUID
+
+The words are big-endian quarters of the identifier, in reading order. For 018f3c00-7c00-7000-8000-00a0c91e6bf6, w1 is 018f3c00, w2 is 7c007000, w3 is 800000a0 and w4 is c91e6bf6. Unlike the high/low pair, nothing is reordered, which is why the words survive a round trip through systems that disagree about byte order.
+
+Word | Bits | What lives there
+w1 | 0-31 | time_low in a v1, the top half of the millisecond clock in a v7
+w2 | 32-63 | time_mid, then the four version bits, then time_high or rand_a
+w3 | 64-95 | The two variant bits at the very top, then clock_seq or randomness
+w4 | 96-127 | The tail: the last 32 bits of the node or of the randomness
+
+## Signed or unsigned: the same bits either way
+
+A word above 2147483647 has its top bit set. Printed as uint32 it stays positive; printed as int32 it wraps to a negative number, and 4162670510 becomes -132296786. Minecraft and any Java-based format print signed, because Java has no unsigned int. Protobuf lets the schema choose between uint32 and int32, and picking the wrong one is the usual reason an identifier survives the trip but comes back wrong.
+
+## Where four words show up
+
+Format | Shape | Signed?
+Minecraft NBT (1.16+) | [I;w1,w2,w3,w4] | signed
+Unreal Engine | FGuid(A, B, C, D) | unsigned
+protobuf | message Id { uint32 w1 = 1; … } | schema decides
+C | uint32_t words[4] | unsigned
+Windows GUID struct | Data1 is a DWORD, then two WORDs and eight bytes | unsigned, and mixed-endian
+
+The Windows GUID struct is the one entry on this list that is not simply four big-endian words: its first three fields are stored little-endian. If you are reading raw memory rather than a text form, see the byte order page.
+
+import struct, uuid
+
+u = uuid.UUID("f81d4fae-7dec-11d0-a765-00a0c91e6bf6")
+
+words = struct.unpack(">4I", u.bytes)      # unsigned
+signed = struct.unpack(">4i", u.bytes)     # what an NBT int array holds
+
+back = uuid.UUID(bytes=struct.pack(">4I", *words))
+
+When the identifier has to cross a protobuf boundary, the two-field int64 message in bavix/apis is the usual choice: four uint32 fields buy nothing on the wire over two int64 ones and cost two more field tags.
+
+- bavix/apis — uuid.proto: https://github.com/bavix/apis/blob/master/bavix/api/v1/uuid.proto
+
+## Reading a Minecraft player UUID
+
+Since snapshot 20w12a, which shipped in 1.16, player and entity identifiers in NBT are stored as [I;…] int arrays. Before that they were a pair of longs called UUIDMost and UUIDLeast, and older tooling still expects those. The wiki's own example of the new form is [I;-132296786,2112623056,-1486552928,-920753162], which is the identifier at the top of this page read as four signed words.
+
+Paste those four numbers into the converter with the signed reading selected and it gives back the identifier a command or an API expects. The reverse works too: paste the UUID, take the four words, and write them straight into the tag.
+
+- Minecraft Wiki: UUID storage: https://minecraft.wiki/w/Universally_unique_identifier
+
+Q: Why are some of the four numbers negative?
+A: They are 32-bit values with the top bit set, printed as signed integers. Minecraft and other Java-based formats have no unsigned int type, so they print them that way. The bits are identical to the unsigned reading.
+
+Q: Which word holds the UUID version?
+A: The second one. The version is bits 48 to 51, which fall inside w2, right after time_mid.
+
+Q: Is the word order affected by endianness?
+A: No. The words are the printed identifier cut into four, left to right. Only the Windows GUID struct reorders bytes, and it does that inside its first three fields.
+
+# UUID byte order: big-endian, and the Microsoft exception
+
+URL: https://bavix.github.io/uuid-ui/uuid-byte-order/
+TL;DR: RFC 9562 stores a UUID big-endian: the printed order is the byte order. Microsoft APIs store the first three fields little-endian, so the same identifier turns into a different byte array, and reading one as the other silently produces a different UUID.
+
+Almost every UUID bug that survives code review is a byte order bug. The text form is unambiguous; the byte form is not, because one large ecosystem writes the first three fields in the opposite order. This page shows both byte arrays for the same identifier, and how to detect which one you have.
+
+## Worked example (byte array)
+
+This is the RFC order: the bytes read exactly as the identifier prints.
+
+f81d4fae-7dec-11d0-a765-00a0c91e6bf6 -> f8 1d 4f ae 7d ec 11 d0 a7 65 00 a0 c9 1e 6b f6
+0c5b2444-70a0-4932-980c-b4dc0d3f02b5 -> 0c 5b 24 44 70 a0 49 32 98 0c b4 dc 0d 3f 02 b5
+
+## What actually gets swapped
+
+A UUID prints as five groups: 8-4-4-4-12 hex digits. The mixed-endian layout reverses the bytes of the first three groups and leaves the last two alone. The fourth and fifth groups are byte arrays in both layouts, which is why an identifier can look half-familiar after the wrong conversion: the tail matches, the head does not.
+
+Group | RFC 9562 order | Microsoft in-memory order
+1 (4 bytes) | big-endian | little-endian
+2 (2 bytes) | big-endian | little-endian
+3 (2 bytes) | big-endian | little-endian
+4 (2 bytes) | as written | as written
+5 (6 bytes) | as written | as written
+
+## Which systems hand you which
+
+Source | Byte order | Note
+Guid.ToByteArray() in .NET | mixed-endian | Guid.ToByteArray(bigEndian: true) exists in .NET 8 and later
+SQL Server uniqueidentifier | mixed-endian in binary form | Its comparison starts from the last group, which is why GUID clustered keys sort strangely
+Java UUID, Go [16]byte, Python uuid.bytes | big-endian | Python also offers bytes_le for the mixed form
+MongoDB BSON subtype 4 | big-endian | The standard subtype; use this one
+MongoDB BSON subtype 3 | driver-dependent | Legacy. The C# driver wrote mixed-endian, others did not
+UUID_TO_BIN(u, 1) in MySQL | big-endian, reordered | Swaps time_low and time_high for index locality — a different operation, not endianness
+
+## How to tell which one you have
+
+Byte 6 carries the version in its high nibble in the RFC order, so a v4 shows 4x there and a v7 shows 7x. Swapping moves that nibble into byte 7 and pulls a different byte into its place, so the decoded version changes.
+
+What it changes into is the catch. Decoding twenty thousand swapped v4 identifiers spreads the version nibble evenly across all sixteen values, so a little over half of them still read as a version somebody could plausibly have generated. The variant nibble does not help either: groups four and five are untouched by the swap, so it stays exactly where it was.
+
+A single value therefore cannot be diagnosed by eye. What does work: decode a batch. A source that really produces v4 shows the digit 4 in every single one, and a swapped batch shows all sixteen digits in roughly equal numbers. For one value, round-trip it through the library that wrote the bytes and compare the text with what you expected.
+
+var id = new Guid("f81d4fae-7dec-11d0-a765-00a0c91e6bf6");
+
+byte[] mixed = id.ToByteArray();            // ae 4f 1d f8 …
+byte[] rfc   = id.ToByteArray(bigEndian: true);  // f8 1d 4f ae …  (.NET 8+)
+
+// before .NET 8: swap groups 1-3 by hand
+Array.Reverse(mixed, 0, 4);
+Array.Reverse(mixed, 4, 2);
+Array.Reverse(mixed, 6, 2);
+
+## The rule that prevents all of this
+
+Store and transport the text form, or store the RFC byte order and write down that you did. A binary column with no note attached is a trap for the next service that reads it, and the failure is silent: you get a valid-looking UUID that belongs to nobody.
+
+- Guid.ToByteArray in .NET: https://learn.microsoft.com/en-us/dotnet/api/system.guid.tobytearray
+- Python: uuid.UUID.bytes and bytes_le: https://docs.python.org/3/library/uuid.html
+
+Q: Why does the same GUID look different in C# and in Java?
+A: Guid.ToByteArray writes the first three fields little-endian; Java writes all sixteen bytes big-endian. The text form is identical, the byte arrays are not.
+
+Q: Is mixed-endian the same as little-endian?
+A: No. Only the first three fields are reversed; the last eight bytes keep their order. That is why the tail of the identifier still matches after a wrong conversion.
+
+Q: How do I detect a swapped UUID?
+A: Not from one value: half of all swapped v4s still decode as a plausible version. Decode a batch instead — a correct source shows one version digit for every identifier, a swapped one shows all sixteen.
+
+# Get the timestamp out of a UUID
+
+URL: https://bavix.github.io/uuid-ui/uuid-timestamp/
+TL;DR: v1, v6 and v7 carry a clock; v4 carries none, and no amount of decoding will produce a date from one. A v7 holds 48 bits of Unix milliseconds, a v1 holds 100-nanosecond ticks since 1582-10-15.
+
+Three of the eight layouts carry a clock you can read straight off, a fourth carries half of one, and a ULID carries the same millisecond clock as a v7. This page decodes all of them, and is equally clear about the case people arrive with most often: a v4 has no timestamp to find.
+
+## Worked example (Decoded time (UTC))
+
+Paste any of these into the converter and the decoded time appears next to the identifier.
+
+018f3c00-7c00-7000-8000-00a0c91e6bf6 -> 2024-05-03T01:10:15.808Z
+1ef08e9e-66d0-6000-b0ef-795dda65c5a6 -> 2024-05-03T01:10:15.808Z
+f81d4fae-7dec-11d0-a765-00a0c91e6bf6 -> 1997-02-03T17:43:12.216Z
+
+## Which versions carry a clock
+
+Version | Clock | Epoch | Sorts by time?
+v1 | 60 bits, 100-nanosecond ticks | 1582-10-15 | No: the high bits of the clock come last
+v6 | the same 60 bits, reordered | 1582-10-15 | Yes
+v7 | 48 bits, milliseconds | 1970-01-01 | Yes
+ULID | 48 bits, milliseconds | 1970-01-01 | Yes
+v2 | partial: time_low is given to a local id | 1582-10-15 | No
+v3, v4, v5, v8 | none | — | No
+
+## Why a v4 has no date
+
+A v4 is 122 random bits, plus the six the version and variant take. There is no clock in it, so a tool that offers to decode a date from one is decoding noise. If you need the creation time and only have v4 identifiers, the time has to come from a column next to it, or the identifiers have to become v7.
+
+## What the decoded time actually tells you
+
+It tells you what the clock on the generating machine said. That machine may have been wrong, may have been a container starting with a skewed clock, and in the case of v7 may have deliberately spent the sub-millisecond bits on a counter instead of on precision. Treat the value as strong evidence and weak proof: good for debugging and for ordering, unsuitable as an audit timestamp.
+
+## Doing it in code
+
+// v7: the first 48 bits are Unix milliseconds
+const ms = Number(BigInt("0x" + id.replace(/-/g, "").slice(0, 12)));
+const when = new Date(ms);
+
+// v1 and v6: 100-nanosecond ticks since 1582-10-15
+const GREGORIAN = 12219292800000n;   // milliseconds between the two epochs
+const unixMs = ticks / 10000n - GREGORIAN;
+
+The constant is the whole trick for v1: 12219292800 seconds separate 1582-10-15 from 1970-01-01, and the ticks are tenths of a microsecond rather than milliseconds.
+
+## ULID and v7 share a clock
+
+A ULID is the same 48-bit millisecond field followed by 80 random bits, printed in Crockford base32. That is why converting a v7 to a ULID keeps the timestamp intact: only the random tail and the alphabet change. The converter shows both, so a log full of ULIDs and a database full of v7 identifiers can be lined up on the same axis.
+
+Q: How do I get the date out of a UUID v4?
+A: You cannot. A v4 is randomness plus six fixed bits; it never carried a creation time. Any tool that shows one for a v4 is misreading random bits.
+
+Q: What epoch does a v1 timestamp count from?
+A: 1582-10-15, the start of the Gregorian calendar, in 100-nanosecond ticks. Subtract 12219292800 seconds to reach the Unix epoch.
+
+Q: Is the timestamp in a v7 in UTC?
+A: It is Unix milliseconds, which are timezone-free. The converter prints them as UTC.
+
+# The bit layout of a UUID
+
+URL: https://bavix.github.io/uuid-ui/uuid-bit-layout/
+TL;DR: Every UUID spends 4 bits on the version and 2 on the variant. The other 122 belong to the layout that the version names, and the tables below come straight out of the code this site runs.
+
+A UUID is 128 bits and only six of them mean the same thing in every version. This page maps the rest: which bit ranges belong to the clock, the node, the hash or the randomness, for every layout RFC 9562 defines.
+
+## The six bits every version shares
+
+Bits 48 to 51 hold the version: that is the 13th hex digit of the printed form, the first character of the third group. Bits 64 and 65 hold the variant, at the top of the 17th hex digit, which is the first character of the fourth group. A 10xx pattern there means RFC 9562, which is why so many identifiers show 8, 9, a or b in that position.
+
+## Version 4: randomness with two holes in it
+
+0c5b2444-70a0-4932-980c-b4dc0d3f02b5, field by field:
+- random: bits 0-47 (random)
+- version: bits 48-51 (version)
+- random: bits 52-63 (random)
+- variant: bits 64-65 (variant)
+- random: bits 66-127 (random)
+
+Field | Bits | Width | Kind
+random | 0-47 | 48 | random
+version | 48-51 | 4 | version
+random | 52-63 | 12 | random
+variant | 64-65 | 2 | variant
+random | 66-127 | 62 | random
+
+The two fixed fields split the random space into three runs. That is why a v4 has 122 bits of entropy rather than 128, and why the 13th and 17th characters of a v4 never look random.
+
+## Version 7: milliseconds first
+
+01890a5d-ac96-774b-bcce-b302099a8057, field by field:
+- unix_ts_ms: bits 0-47 (timestamp)
+- version: bits 48-51 (version)
+- rand_a: bits 52-63 (random)
+- variant: bits 64-65 (variant)
+- rand_b: bits 66-127 (random)
+
+Field | Bits | Width | Kind
+unix_ts_ms | 0-47 | 48 | timestamp
+version | 48-51 | 4 | version
+rand_a | 52-63 | 12 | random
+variant | 64-65 | 2 | variant
+rand_b | 66-127 | 62 | random
+
+The 48-bit millisecond field sits at the front, so byte order and time order agree and the identifiers sort. rand_a is nominally random, but a generator is allowed to spend it on sub-millisecond precision or on a counter that keeps identifiers made in the same millisecond in order.
+
+## Version 1: the clock that does not sort
+
+f81d4fae-7dec-11d0-a765-00a0c91e6bf6, field by field:
+- time_low: bits 0-31 (timestamp)
+- time_mid: bits 32-47 (timestamp)
+- version: bits 48-51 (version)
+- time_high: bits 52-63 (timestamp)
+- variant: bits 64-65 (variant)
+- clock_seq: bits 66-79 (clock sequence)
+- node: bits 80-127 (node)
+
+Field | Bits | Width | Kind
+time_low | 0-31 | 32 | timestamp
+time_mid | 32-47 | 16 | timestamp
+version | 48-51 | 4 | version
+time_high | 52-63 | 12 | timestamp
+variant | 64-65 | 2 | variant
+clock_seq | 66-79 | 14 | clock sequence
+node | 80-127 | 48 | node
+
+The clock is split into low, mid and high, and the high part comes last. Sorting v1 identifiers as strings therefore sorts by the low bits of the clock, which is close to sorting by nothing. Version 6 fixes exactly this by putting the pieces back in order.
+
+## Version 6: the same clock, reordered
+
+1ef08e9e-66d0-6000-b0ef-795dda65c5a6, field by field:
+- time_high: bits 0-31 (timestamp)
+- time_mid: bits 32-47 (timestamp)
+- version: bits 48-51 (version)
+- time_low: bits 52-63 (timestamp)
+- variant: bits 64-65 (variant)
+- clock_seq: bits 66-79 (clock sequence)
+- node: bits 80-127 (node)
+
+Field | Bits | Width | Kind
+time_high | 0-31 | 32 | timestamp
+time_mid | 32-47 | 16 | timestamp
+version | 48-51 | 4 | version
+time_low | 52-63 | 12 | timestamp
+variant | 64-65 | 2 | variant
+clock_seq | 66-79 | 14 | clock sequence
+node | 80-127 | 48 | node
+
+## Versions 3 and 5: a hash with the middle cut out
+
+cfbff0d1-9375-5685-968c-48ce8b15ae17, field by field:
+- sha1_high: bits 0-47 (hash of the name)
+- version: bits 48-51 (version)
+- sha1_mid: bits 52-63 (hash of the name)
+- variant: bits 64-65 (variant)
+- sha1_low: bits 66-127 (hash of the name)
+
+Field | Bits | Width | Kind
+sha1_high | 0-47 | 48 | hash of the name
+version | 48-51 | 4 | version
+sha1_mid | 52-63 | 12 | hash of the name
+variant | 64-65 | 2 | variant
+sha1_low | 66-127 | 62 | hash of the name
+
+A v5 is a SHA-1 of the namespace and the name, truncated to 128 bits, with the version and variant bits overwritten. A v3 is the same with MD5. Six bits of the digest are lost, which is intentional and harmless: what remains is still a deterministic function of the input.
+
+## Version 8: nothing but the six bits
+
+018f3c00-0000-8000-8000-0000deadbeef, field by field:
+- custom_a: bits 0-47 (random)
+- version: bits 48-51 (version)
+- custom_b: bits 52-63 (random)
+- variant: bits 64-65 (variant)
+- custom_c: bits 66-127 (random)
+
+Field | Bits | Width | Kind
+custom_a | 0-47 | 48 | random
+version | 48-51 | 4 | version
+custom_b | 52-63 | 12 | random
+variant | 64-65 | 2 | variant
+custom_c | 66-127 | 62 | random
+
+Version 8 exists so that a custom layout can still be a valid UUID. The standard claims the version and variant bits and says nothing about the other 122, which makes v8 the right home for identifiers that embed a shard number, a tenant, or a different clock.
+
+Q: Which character of a UUID is the version?
+A: The 13th hex digit, which is the first character of the third group. A v4 shows a 4 there and a v7 shows a 7.
+
+Q: Why does the fourth group almost always start with 8, 9, a or b?
+A: Those are the values whose top two bits are 10, which is the variant that marks an RFC 9562 identifier.
+
+Q: How much entropy does a v4 actually have?
+A: 122 bits. The version and variant take six of the 128.
+
+# Validating a UUID
+
+URL: https://bavix.github.io/uuid-ui/uuid-validation/
+TL;DR: Matching 32 hex digits proves the shape, not the standard. A value is an RFC 9562 identifier only if its version nibble is 1 to 8 and its variant nibble is 8, 9, a or b.
+
+Most validation code stops at a regex, which accepts plenty of values no generator ever produced. This page separates the three questions people actually mean by "valid", and shows what the converter reads from each string.
+
+## Worked example (What the converter reads)
+
+The same decoder the tool runs, applied to the values people most often ask about.
+
+0c5b2444-70a0-4932-980c-b4dc0d3f02b5 -> uuid · RFC 9562 (10xx) · version 4
+01890a5d-ac96-774b-bcce-b302099a8057 -> uuid · RFC 9562 (10xx) · version 7
+00000000-0000-0000-0000-000000000000 -> uuid · NCS (0xxx) — reserved, backward compatibility · no version · nil, palindrome
+deadbeefdeadbeefdeadbeefdeadbeef -> uuid · Microsoft (110x) — reserved, backward compatibility · no version · deadbeef, non-rfc
+
+## Three different questions
+
+Question | What to check
+Is it shaped like a UUID? | 32 hex digits, optionally grouped 8-4-4-4-12
+Is it an RFC 9562 identifier? | version nibble 1-8 and variant nibble 8, 9, a or b
+Is it one of ours? | the version you generate, plus whatever your own layout requires
+
+Most code needs the first two. Rejecting a value because it is a v1 when you generate v7 is the third question, and it belongs in the domain layer, not in a parser.
+
+0c5b2444-70a0-4932-980c-b4dc0d3f02b5, field by field:
+- random: bits 0-47 (random)
+- version: bits 48-51 (version)
+- random: bits 52-63 (random)
+- variant: bits 64-65 (variant)
+- random: bits 66-127 (random)
+
+## The regex, and its limits
+
+// shape only
+const SHAPE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// RFC 9562: version 1-8, variant 10xx
+const RFC = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+RFC.test("00000000-0000-0000-0000-000000000000");   // false: Nil has no version
+RFC.test("ffffffff-ffff-ffff-ffff-ffffffffffff");   // false: Max has none either
+
+Note what the stricter pattern rejects: the Nil and Max UUIDs are defined by the standard and match neither. If your input may legitimately be a placeholder, accept those two explicitly rather than loosening the pattern.
+
+## Strings that look like UUIDs and are not
+
+- A ULID: 26 characters of Crockford base32, no hyphens — a different alphabet entirely.
+- A hex digest cut to 32 characters: right length, arbitrary version nibble.
+- A GUID read from a mixed-endian byte array: valid shape, wrong bytes, usually an impossible version.
+- A base64 UUID at 22 characters: the same 16 bytes, a form no UUID regex will match.
+
+## Be strict on the way out, generous on the way in
+
+The converter accepts braces, the urn prefix, bare hex, capitals, quotes and surrounding whitespace, because that is what people paste out of logs and spreadsheets. Do the same at your edges: normalise first, validate the normalised form, store one spelling. Rejecting {F81D4FAE-…} because of its braces is a support ticket, not a security control.
+
+Q: What regex validates a UUID?
+A: For the shape, 8-4-4-4-12 hex. For an RFC 9562 identifier, additionally require version 1-8 and a variant nibble of 8, 9, a or b. Remember that Nil and Max match neither.
+
+Q: Is 00000000-0000-0000-0000-000000000000 a valid UUID?
+A: It is the Nil UUID, defined by the standard, but it carries no version and no variant, so a strict RFC pattern rejects it. Accept it explicitly if placeholders are allowed.
+
+Q: Should validation reject a v1 if we only generate v7?
+A: That is a domain rule, not a format rule. Parse the identifier, then decide separately whether that version is acceptable in that field.
+
+# How likely is a UUID collision?
+
+URL: https://bavix.github.io/uuid-ui/uuid-collision-probability/
+TL;DR: A v4 has 122 random bits. Even odds of a single collision need about 2.7 × 10^18 identifiers; a one-in-a-billion chance still needs around 10^14. The realistic risk is not arithmetic, it is a bad random source.
+
+The answer people quote is usually the 50% figure, which is not the number anyone should plan around. Both numbers are below, and the calculator recomputes either from the other.
+
+## The arithmetic
+
+With N possible values and n identifiers drawn at random, the chance that any two match is about 1 − e^(−n(n−1)/2N). For a v4, N is 2^122, because the version and variant take six of the 128 bits.
+
+Chance of one collision | Identifiers needed
+one in a billion | ≈ 1.0 × 10^14
+one in a million | ≈ 3.3 × 10^15
+even odds | ≈ 2.7 × 10^18
+
+A service minting a million identifiers a second reaches the first row in a little over three years and the last in about eighty-six thousand.
+
+## Why the 50% number misleads
+
+It answers a question nobody asks. Nobody is willing to accept a coin flip on their primary key, so the figure that matters is the one where the risk is negligible, and that is the row at the top. Quoting the bottom row makes UUIDs sound about ten thousand times safer than the number you would actually design against.
+
+## The risk that is real
+
+Every collision anyone has reported in practice came from the generator, not from the arithmetic:
+
+- A container image that seeds a userspace PRNG from the clock, so two containers started in the same second produce the same stream.
+- A virtual machine restored from a snapshot, carrying its random state with it.
+- A library that falls back to Math.random when the crypto API is missing, which in a browser means any page not served over HTTPS.
+- An embedded device with no entropy source at first boot.
+
+If you need to be sure, do not check the odds; check the source. On a browser that means crypto.randomUUID or crypto.getRandomValues, and on a server the platform's own random device.
+
+## Fewer random bits, different arithmetic
+
+A v7 keeps 74 random bits, so within one millisecond the space is 2^74 rather than 2^122. That sounds alarming and is not: the collision would have to happen inside the same millisecond, and 74 bits is still an enormous space to fill in a thousandth of a second. Generators that spend rand_a on a counter remove even that.
+
+Q: How many UUIDs before a collision?
+A: For even odds, about 2.7 × 10^18. For a one-in-a-billion chance, about 10^14. Both assume a sound random source.
+
+Q: Do UUID collisions happen in practice?
+A: They do, and almost always because of a broken generator: a cloned VM, a clock-seeded PRNG, or a non-crypto fallback.
+
+Q: Is v7 more likely to collide than v4?
+A: Only within a single millisecond, where it has 74 random bits instead of 122. In practice that is still a space no service fills.
+
+# UUID version 1
+
+URL: https://bavix.github.io/uuid-ui/uuid-v1/
+TL;DR: A v1 holds a 60-bit clock counting 100-nanosecond ticks since 1582-10-15, a clock sequence, and a 48-bit node that is frequently the machine's real MAC address. It does not sort by time, because the high bits of the clock come last.
+
+Version 1 is the oldest layout still in wide use, and the one that reveals the most. This page decodes what it carries, explains the two problems that pushed the standard to add v6 and v7, and shows how to read a v1 you have been handed.
+
+## Worked example (Decoded time (UTC))
+
+The clock is split across three fields, so decoding it means reassembling them before subtracting the epoch offset.
+
+f81d4fae-7dec-11d0-a765-00a0c91e6bf6 -> 1997-02-03T17:43:12.216Z
+f95bc000-6369-11d0-8abc-00a0c91e6bf6 -> 1997-01-01T00:00:00.000Z
+
+## What a v1 is made of
+
+f81d4fae-7dec-11d0-a765-00a0c91e6bf6, field by field:
+- time_low: bits 0-31 (timestamp)
+- time_mid: bits 32-47 (timestamp)
+- version: bits 48-51 (version)
+- time_high: bits 52-63 (timestamp)
+- variant: bits 64-65 (variant)
+- clock_seq: bits 66-79 (clock sequence)
+- node: bits 80-127 (node)
+
+## The 1582 epoch
+
+The clock counts 100-nanosecond intervals from 1582-10-15, the day the Gregorian calendar began. To reach Unix time, divide the ticks by 10 000 and subtract 12 219 292 800 000 milliseconds. The precision is theoretical: most implementations read a millisecond clock and pad, or keep a counter to avoid handing out the same tick twice.
+
+## Why a v1 does not sort by time
+
+The clock is written low bits first: time_low occupies the first group, time_mid the second, and time_high sits at the end of the third. Comparing two v1 identifiers as text or as bytes therefore compares the fastest-moving part of the clock first, which is close to comparing noise. Version 6 fixes this by writing the same clock in reading order, and version 7 replaces it with plain Unix milliseconds.
+
+## The node field usually is a MAC address
+
+The last 48 bits are meant to identify the machine, and the original method was to use its MAC address. That means a v1 can identify the host that made it and, with the timestamp beside it, when. If the multicast bit is set (the low bit of the first node byte), the node is random rather than a real address; that is the standard's escape hatch.
+
+## What clock_seq is for
+
+If the machine clock jumps backwards, after an NTP correction or a restored snapshot, the same tick can be handed out twice. The clock sequence is bumped whenever that is detected, so identifiers made in the repeated window still differ. It is 14 bits, and it is why a v1 generator wants persistent state.
+
+## Moving off v1
+
+Existing v1 identifiers can stay: they are valid and decodable. For new ones, v6 keeps the same clock while sorting correctly, and v7 drops the 1582 epoch and the node field entirely. Converting a v1 to a v6 is a field reordering rather than a new identifier, but the result is still a different value: a migration, not a cast.
+
+Q: Does a UUID v1 contain a MAC address?
+A: Often, yes: the 48-bit node field was originally the machine MAC. If the multicast bit is set, the node is random instead.
+
+Q: What date does a v1 timestamp count from?
+A: 1582-10-15, in 100-nanosecond ticks. Divide by 10 000 and subtract 12 219 292 800 000 to get Unix milliseconds.
+
+Q: Why do v1 identifiers not sort in creation order?
+A: The clock is stored low bits first, so string and byte comparison see the fastest-changing part of it first. v6 stores the same clock in order.
+
+# UUID version 3
+
+URL: https://bavix.github.io/uuid-ui/uuid-v3/
+TL;DR: A v3 is the MD5 of a namespace UUID and a name, truncated to 128 bits with the version and variant bits overwritten. Same contract as v5, older hash.
+
+Version 3 is the MD5 sibling of version 5. The derivation, the guarantees and the caveats are identical; only the hash differs, and that difference matters less than people expect.
+
+## Worked example (What the converter reads)
+
+The v3 of the DNS namespace and a host name, recomputed by the generator rather than pasted in.
+
+9073926b-929f-31c2-abc9-fad77ae3e8eb -> uuid · RFC 9562 (10xx) · version 3
+dc7edcc8-7f17-3cd9-acb0-e2984e568005 -> uuid · RFC 9562 (10xx) · version 3
+
+## The derivation
+
+Namespace bytes, then the name bytes, hashed with MD5; keep the first 16 bytes, overwrite the version nibble with 3 and the variant bits with 10. The result is deterministic across languages and machines, exactly like a v5.
+
+9073926b-929f-31c2-abc9-fad77ae3e8eb, field by field:
+- md5_high: bits 0-47 (hash of the name)
+- version: bits 48-51 (version)
+- md5_mid: bits 52-63 (hash of the name)
+- variant: bits 64-65 (variant)
+- md5_low: bits 66-127 (hash of the name)
+
+## The same names as v5, for comparison
+
+Name (DNS namespace) | UUID v3
+example.com | 9073926b-929f-31c2-abc9-fad77ae3e8eb
+bavix.github.io | dc7edcc8-7f17-3cd9-acb0-e2984e568005
+uuid-ui | 39ae9472-8cc2-3921-b4fc-a1d71a3cfee1
+
+Compare these with the v5 table: same inputs, entirely different identifiers. Deriving an identifier is only reproducible if both sides agree on the version as well as the namespace and name.
+
+## Is MD5 a problem here?
+
+MD5 is broken for collision resistance, and a v3 does not depend on collision resistance: the identifier is truncated to 128 bits and six of those bits are overwritten, so neither v3 nor v5 offers cryptographic guarantees. What MD5 costs you is reputation, since a scanner will flag it on sight. What it buys you is compatibility with systems that already compute v3.
+
+## When to pick which
+
+Situation | Version
+New code, no constraints | v5
+Matching identifiers an existing system already produced with MD5 | v3
+A policy that forbids MD5 outright | v5
+The identifier must be unguessable | neither; use a random token
+
+Q: What is the difference between UUID v3 and v5?
+A: Only the hash: v3 uses MD5, v5 uses SHA-1. The derivation, the determinism and the guarantees are the same.
+
+Q: Is UUID v3 insecure because MD5 is broken?
+A: It was never a security primitive. The digest is truncated to 128 bits with six bits overwritten, so no version of a name-based UUID is unguessable.
+
+# UUID version 4
+
+URL: https://bavix.github.io/uuid-ui/uuid-v4/
+TL;DR: A v4 is 122 bits of randomness plus 4 version bits and 2 variant bits. It carries no time, no machine and no meaning, which is why it is the safe default when an identifier only has to be unique.
+
+Version 4 is the UUID most systems generate, and the one most people picture when they hear the word. This page covers what is inside it, the collision arithmetic that people quote wrongly, and the one job it is genuinely bad at.
+
+## Worked example (What the converter reads)
+
+Two fields are fixed in every RFC 9562 identifier, and the decoder reads them straight off the text.
+
+0c5b2444-70a0-4932-980c-b4dc0d3f02b5 -> uuid · RFC 9562 (10xx) · version 4
+06b01cbc-8d90-46ca-bdb4-e030d28dfd3a -> uuid · RFC 9562 (10xx) · version 4
+
+## Which bits are random and which are not
+
+0c5b2444-70a0-4932-980c-b4dc0d3f02b5, field by field:
+- random: bits 0-47 (random)
+- version: bits 48-51 (version)
+- random: bits 52-63 (random)
+- variant: bits 64-65 (variant)
+- random: bits 66-127 (random)
+
+The version nibble is the 13th hex digit and the variant sits at the top of the 17th, so a v4 always reads xxxxxxxx-xxxx-4xxx-[89ab]xxx-xxxxxxxxxxxx. Everything else comes from the random source, which is why the entropy is 122 bits rather than 128.
+
+## How likely is a collision, really
+
+Two numbers are worth keeping apart. A one-in-a-billion chance that any two of your identifiers collide arrives at about 10^14 of them: a hundred trillion, which a service minting a million a second reaches in a little over three years. Even odds of a single collision need about 2.7 × 10^18, which the same service reaches in roughly eighty-six thousand years. Both numbers say the same thing for ordinary systems, and the second one is the figure people usually quote.
+
+What is your risk is the generator. A container image that seeds a userspace PRNG from the clock, a virtual machine restored from a snapshot, a library that falls back to Math.random when the crypto API is missing: each of these has produced duplicate identifiers in production, and none of them is a property of the format.
+
+## The one job a v4 is bad at
+
+As a primary key in a B-tree index, a v4 is the worst-behaved identifier you can pick. Each insert lands at a random point in the index, so writes touch pages all over the tree, the cache fills with pages that will not be read again, and the index fragments. Replace the same key with a v7 and the inserts land next to each other, because the leading 48 bits are a clock.
+
+Need | Reach for
+An identifier and nothing else | v4
+A primary key that also sorts by time | v7
+The same input always giving the same identifier | v5
+A token nobody may guess | not a UUID — use a random token of your own length
+
+## A v4 is not a secret
+
+122 bits is plenty of entropy for a capability URL in principle, and the standard still says not to treat an identifier as one. Identifiers end up in logs, in referrer headers, in analytics and in support tickets; a value that grants access should be issued, scoped and revocable, and a UUID is none of those things.
+
+Q: Why does every v4 have the same character in two places?
+A: Those are the version and variant fields: the 13th hex digit is always 4, and the 17th is 8, 9, a or b. Only the other 122 bits are random.
+
+Q: Are UUID v4 collisions possible?
+A: Mathematically yes, practically no: even odds need about 2.7 × 10^18 identifiers. Broken randomness, cloned VMs and non-crypto fallbacks are the realistic causes of duplicates.
+
+Q: Should I use v4 or v7 for a database primary key?
+A: v7. It keeps the uniqueness properties of v4 while inserting in time order, which is what a B-tree index wants.
+
+# UUID version 5
+
+URL: https://bavix.github.io/uuid-ui/uuid-v5/
+TL;DR: A v5 is the SHA-1 of a namespace UUID and a name, truncated to 128 bits with the version and variant bits overwritten. The same namespace and name always produce the same identifier, on any machine, forever.
+
+Version 5 is the one UUID you can recompute. That makes it the right tool when two systems must agree on an identifier without talking to each other, and the wrong tool when the identifier has to be unguessable.
+
+## Worked example (What the converter reads)
+
+Each of these is the v5 of the DNS namespace and a host name, recomputed here by the same code the generator runs.
+
+cfbff0d1-9375-5685-968c-48ce8b15ae17 -> uuid · RFC 9562 (10xx) · version 5
+5cb4f8c0-aecd-590e-b4ac-82b9ab7f1529 -> uuid · RFC 9562 (10xx) · version 5
+
+## How it is derived
+
+Take the 16 bytes of the namespace UUID, append the name as bytes, hash with SHA-1, keep the first 16 bytes of the digest, then overwrite four bits with the version and two with the variant. Nothing is random and nothing depends on the machine, so the result is a pure function of two inputs.
+
+cfbff0d1-9375-5685-968c-48ce8b15ae17, field by field:
+- sha1_high: bits 0-47 (hash of the name)
+- version: bits 48-51 (version)
+- sha1_mid: bits 52-63 (hash of the name)
+- variant: bits 64-65 (variant)
+- sha1_low: bits 66-127 (hash of the name)
+
+## The same name, computed here
+
+Name (DNS namespace) | UUID v5
+example.com | cfbff0d1-9375-5685-968c-48ce8b15ae17
+bavix.github.io | 5cb4f8c0-aecd-590e-b4ac-82b9ab7f1529
+uuid-ui | ef2cfb92-8335-5f49-8919-b20b627019ea
+
+Run the same pair through any library in any language and you get the same row. That is the whole promise of the layout.
+
+## What it is good for
+
+- Idempotent imports: the identifier of a row derived from its natural key, so re-running the import updates instead of duplicating.
+- Cross-system agreement: two services that both know the tenant and the resource name compute the same identifier without a lookup.
+- Stable test fixtures: no random values in snapshots.
+- Content addressing where a real hash would be too long to fit a UUID column.
+
+## What it is not good for
+
+A v5 is guessable by construction. If the name is an email address, a username or a sequential number, anyone who can guess the name can compute the identifier, and if that identifier grants access, you have built a lookup table for attackers. The SHA-1 here is a mapping function, not a security boundary, and the standard says so plainly.
+
+## v5 or v3
+
+Identical contract, different hash: v5 uses SHA-1, v3 uses MD5. Neither is being used for its collision resistance, and both truncate to 128 bits anyway. Pick v5 for anything new, and v3 only when an existing system already computes MD5-based identifiers you have to match.
+
+Q: Will the same name always give the same UUID v5?
+A: Yes, in every language and on every machine. It is SHA-1 over the namespace bytes and the name, with six bits overwritten.
+
+Q: Is UUID v5 secure because it uses SHA-1?
+A: No. The hash makes it deterministic, not secret. Anyone who can guess the name can compute the identifier.
+
+Q: Can I use my own namespace UUID?
+A: Yes. Any UUID works as a namespace; the four registered ones are conveniences, not a requirement.
+
+# UUID version 6
+
+URL: https://bavix.github.io/uuid-ui/uuid-v6/
+TL;DR: A v6 is a v1 with the clock fields written in order, so sorting the identifiers sorts them by time. The 1582 epoch, the clock sequence and the node field are unchanged.
+
+Version 6 exists for systems that already speak v1 and need ordering without changing what the identifier means. It is the migration path, not the new default: for a green field, v7 is simpler and carries a Unix clock.
+
+## Worked example (Decoded time (UTC))
+
+The same clock as a v1, read from the front of the identifier instead of out of three scattered fields.
+
+1ef08e9e-66d0-6000-b0ef-795dda65c5a6 -> 2024-05-03T01:10:15.808Z
+e66d0000-08e9-11ef-9234-00a0c91e6bf6 -> 2024-05-03T01:10:15.808Z
+
+## What changed from v1
+
+1ef08e9e-66d0-6000-b0ef-795dda65c5a6, field by field:
+- time_high: bits 0-31 (timestamp)
+- time_mid: bits 32-47 (timestamp)
+- version: bits 48-51 (version)
+- time_low: bits 52-63 (timestamp)
+- variant: bits 64-65 (variant)
+- clock_seq: bits 66-79 (clock sequence)
+- node: bits 80-127 (node)
+
+Compare that with the v1 layout: the same three clock pieces, in the opposite arrangement. time_high now leads and time_low follows the version nibble, so the most significant bit of the clock is also the most significant bit of the identifier.
+
+## Why anyone would choose v6 over v7
+
+ | v6 | v7
+Epoch | 1582-10-15, 100 ns ticks | 1970-01-01, milliseconds
+Clock width | 60 bits | 48 bits
+Node field | yes — MAC or random | no
+Sub-millisecond ordering | from the clock itself | only if the generator spends rand_a on it
+Best for | systems already generating v1 | anything new
+
+The honest summary: choose v6 when you already have v1 identifiers and a code path that understands them, and you want new ones to sort. Choose v7 otherwise: fewer moving parts, a clock everyone can read without a constant, and no node field to leak.
+
+## It still carries a node
+
+v6 inherits the node field, so the same caution applies: unless the generator sets the multicast bit and fills it randomly, the identifier can name the machine that made it. If that matters, either randomise the node or move to v7, which has no such field at all.
+
+## Converting between v1 and v6
+
+The conversion is a field permutation: the same 128 bits with the clock pieces moved and the version nibble changed. It is deterministic and reversible, but the result is a different value: rows keyed by the v1 form do not match the v6 form. Treat it as a data migration with a mapping table, never as a display transformation.
+
+Q: Is a v6 just a rearranged v1?
+A: Yes. Same clock, same clock sequence, same node; the timestamp fields are written most significant first so the identifiers sort by time.
+
+Q: Should I use v6 or v7?
+A: v7 for anything new: a Unix millisecond clock, no node field, no 1582 constant. v6 when you already generate v1 and want ordering without changing the model.
+
+# UUID version 7
+
+URL: https://bavix.github.io/uuid-ui/uuid-v7/
+TL;DR: A v7 is 48 bits of Unix milliseconds followed by 74 bits of randomness, with 6 bits spent on the version and variant. Because the clock comes first, sorting the identifiers sorts them by creation time.
+
+Version 7 is the layout RFC 9562 added for exactly one job: an identifier that is unique like a v4 but behaves like a sequence in a database index. This page covers what it contains, what it costs, and where it beats v4 and ULID.
+
+## Worked example (Decoded time (UTC))
+
+The first twelve hex digits of a v7 are the milliseconds; everything after them is noise by design.
+
+018f3c00-7c00-7000-8000-00a0c91e6bf6 -> 2024-05-03T01:10:15.808Z
+01900000-0000-7000-8000-000000000000 -> 2024-06-10T02:35:18.400Z
+
+## What a v7 is made of
+
+01890a5d-ac96-774b-bcce-b302099a8057, field by field:
+- unix_ts_ms: bits 0-47 (timestamp)
+- version: bits 48-51 (version)
+- rand_a: bits 52-63 (random)
+- variant: bits 64-65 (variant)
+- rand_b: bits 66-127 (random)
+
+Field | Bits | What it holds
+unix_ts_ms | 0-47 | Milliseconds since 1970-01-01, most significant first
+version | 48-51 | Always 0111
+rand_a | 52-63 | Randomness, sub-millisecond precision, or a counter
+variant | 64-65 | Always 10
+rand_b | 66-127 | 62 bits of randomness
+
+## Why it sorts and v4 does not
+
+A B-tree index writes new rows next to the keys they sort near. Random keys therefore scatter writes across the whole index, dirtying pages everywhere and pushing the working set out of memory. A v7 puts the clock in the high bits, so consecutive inserts land on the same page, and the index behaves like one built on an auto-increment column while keeping the properties that made you choose a UUID in the first place.
+
+## v7 against v4 and ULID
+
+ | v4 | v7 | ULID
+Random bits | 122 | 74 | 80
+Carries a timestamp | no | 48 bits, milliseconds | 48 bits, milliseconds
+Sorts by time | no | yes | yes
+Text length | 36 | 36 | 26
+Fits a UUID column | yes | yes | yes, after conversion
+
+A ULID and a v7 hold the same clock and differ mainly in how they print. If the identifiers have to live in a uuid column or travel through a library that validates the version nibble, v7 is the one that fits without conversion.
+
+## What you give up
+
+A v7 tells anyone holding it roughly when it was created. For an order ID that is usually harmless; for a password reset token, an invitation link or anything a competitor might count, it leaks. It also has 48 fewer random bits than a v4, which is irrelevant for collisions and relevant for guessability: a v7 is not a secret and should never be used as one.
+
+## Two v7s in the same millisecond
+
+Within a single millisecond the clock field is identical, so ordering falls to whatever the generator put in rand_a. Implementations that care spend those twelve bits on a counter that increments while the millisecond lasts; implementations that do not fill them with randomness, and identifiers from the same millisecond come back in arbitrary order. If per-millisecond ordering matters to you, check which one your library does.
+
+-- PostgreSQL 18 ships a generator
+CREATE TABLE orders (
+    id uuid PRIMARY KEY DEFAULT uuidv7(),
+    created_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- keep the column anyway: the identifier is an ordering hint, not an audit trail
+
+Q: Is UUID v7 safe as a primary key?
+A: Yes, and it is the reason the layout exists: the leading millisecond field keeps index writes local instead of scattering them the way v4 does.
+
+Q: Does a v7 leak when a record was created?
+A: Yes, to the millisecond. That is by design. Do not use v7 for tokens, invitations or anything whose creation time is sensitive.
+
+Q: Should I use v7 or a ULID?
+A: Same clock, same idea. Choose v7 when the value has to be a UUID for a column type or a library, and a ULID when the shorter 26-character text form matters more.
+
+# UUID version 8
+
+URL: https://bavix.github.io/uuid-ui/uuid-v8/
+TL;DR: Version 8 is deliberately unspecified: six bits are the version and variant, the other 122 are yours. It is the standard's way of saying "put your structure here instead of inventing a new format".
+
+Every team eventually wants a shard number, a tenant, or a different clock inside the identifier. Version 8 is where that goes: a custom layout that still validates as a UUID, fits a `uuid` column, and survives every library on the way.
+
+## Worked example (What the converter reads)
+
+A hand-built v8: a millisecond clock in front, a marker in the tail, and the six bits the standard claims.
+
+018f3c00-0000-8000-8000-0000deadbeef -> uuid · RFC 9562 (10xx) · version 8
+018f3c00-0000-8000-0000-0000deadbeef -> uuid · NCS (0xxx) — reserved, backward compatibility · version 8 · non-rfc
+
+## What the standard claims, and what it leaves
+
+018f3c00-0000-8000-8000-0000deadbeef, field by field:
+- custom_a: bits 0-47 (random)
+- version: bits 48-51 (version)
+- custom_b: bits 52-63 (random)
+- variant: bits 64-65 (variant)
+- custom_c: bits 66-127 (random)
+
+Bits 48-51 must read 1000 and bits 64-65 must read 10. Everything else is yours: three runs of 48, 12 and 62 bits, split by the two fixed fields. That awkward split is the main design constraint, because a field cannot straddle the version or variant without being reassembled on read.
+
+## What people put in one
+
+- A clock with a different epoch or resolution than v7 offers — microseconds, or a domain epoch that buys extra years.
+- A shard or partition number, so routing needs no lookup.
+- A tenant identifier, so a leaked row cannot be re-keyed into another tenant.
+- A short type tag, so an identifier in a log says what it names.
+- A checksum over the rest, to catch transcription errors before a database round trip.
+
+## What you give up
+
+Opacity, mostly. The standard's advice is that an identifier should not carry meaning others can parse, because everything encoded in it becomes a contract you cannot change and information you cannot un-leak. A tenant id in the key means the key tells an outsider how many tenants you have and which one a row belongs to.
+
+You also give up interoperability of meaning: another system sees a valid v8 and can read nothing from it. Write the layout down next to the schema, with bit offsets, or the next engineer will reverse-engineer it from examples.
+
+## Staying sortable
+
+If ordering matters, the time field has to lead, as in v7: the first 48 bits, most significant first. Put a shard number in front instead and you have grouped by shard, not ordered by time, and the index will behave accordingly.
+
+Q: What is a UUID v8 for?
+A: Custom layouts. The standard fixes only the version and variant bits so that application-specific structure can live in a value that is still a valid UUID.
+
+Q: Can I put a timestamp in a v8?
+A: Yes, and put it first if you want the identifiers to sort. v8 is the right home for a clock that v7 cannot express, such as microseconds or a different epoch.
+
+Q: Will libraries accept a v8?
+A: Parsing and storage yes, because it is a well-formed UUID. Decoding the meaning is on you; nothing else knows your layout.
+
+# The Nil UUID
+
+URL: https://bavix.github.io/uuid-ui/nil-uuid/
+TL;DR: The Nil UUID is 128 zero bits: 00000000-0000-0000-0000-000000000000. RFC 9562 defines it as the identifier that names nothing, and it deliberately carries neither a version nor a variant.
+
+Every codebase eventually needs a value that means "no identifier yet". The standard supplies one, and using it well is mostly about deciding where it may appear and where it must not.
+
+## Worked example (What the converter reads)
+
+The decoder reports what is and is not there: no version, no variant, and a note that the value is special.
+
+00000000-0000-0000-0000-000000000000 -> uuid · NCS (0xxx) — reserved, backward compatibility · no version · nil, palindrome
+ffffffff-ffff-ffff-ffff-ffffffffffff -> uuid · reserved for the future (111x) · no version · max, palindrome
+
+## The definition
+
+All 128 bits are zero. Because the version and variant fields are part of those bits, the Nil UUID matches no version and no standard variant, which is precisely what makes it unmistakable. No generator can produce it by accident, and no strict RFC regex accepts it.
+
+00000000-0000-0000-0000-000000000000, field by field:
+- no fields: bits 0-127 (random)
+
+## Every spelling of it
+
+Spelling | Nil | Where it is expected
+plain | 00000000-0000-0000-0000-000000000000 | The canonical form. What RFC 9562 writes and what every parser accepts.
+hex | 00000000000000000000000000000000 | .NET format N. What a CHAR(32) column and most cache keys hold.
+braces | {00000000-0000-0000-0000-000000000000} | .NET format B. The Windows registry and COM write this.
+urn | urn:uuid:00000000-0000-0000-0000-000000000000 | A valid URN, for XML, RDF and anything that needs a URI.
+upper case | 00000000-0000-0000-0000-000000000000 | Case is not significant; Windows tools write capitals.
+
+## Nil or NULL
+
+ | Nil UUID | NULL
+Fits a NOT NULL column | yes | no
+Survives a protobuf field with no presence | yes | no
+Distinguishes "unset" from "unknown" | no | yes, if you keep the discipline
+Indexed like any other value | yes | depends on the engine
+Joins accidentally to other Nil rows | **yes** — the trap | no, NULL never equals NULL
+
+That last row is the reason to be careful. Two unrelated rows both holding Nil in a foreign key will join to each other and to any Nil parent, silently. NULL refuses to join, which is usually what you actually wanted.
+
+## Where Nil earns its place
+
+- Wire formats without null: gRPC and protobuf scalar fields, where an absent value is indistinguishable from a zero one.
+- A sentinel root in a self-referencing tree, so the root row needs no special case.
+- The lower bound of a range scan over identifiers — Max is the matching upper bound.
+- Test fixtures where an obviously fake identifier is clearer than a random one.
+
+## Validating it
+
+Because Nil fails a strict version-and-variant check, any parser that enforces RFC 9562 has to accept it as an explicit special case. Decide once, at the edge: either the field admits placeholders, in which case Nil is allowed by name, or it does not, in which case Nil is rejected like any other malformed value.
+
+Q: What is 00000000-0000-0000-0000-000000000000?
+A: The Nil UUID from RFC 9562 section 5.9: 128 zero bits, an identifier that names nothing.
+
+Q: Is the Nil UUID valid?
+A: It is defined by the standard, but it has neither a version nor an RFC variant, so a strict validation pattern rejects it unless you allow it by name.
+
+Q: Should I use Nil instead of NULL?
+A: Only where NULL is unavailable, such as a protobuf scalar. In SQL, remember that two Nil foreign keys will happily join to each other while two NULLs never do.
+
+# The Max UUID
+
+URL: https://bavix.github.io/uuid-ui/max-uuid/
+TL;DR: The Max UUID is 128 one bits: ffffffff-ffff-ffff-ffff-ffffffffffff. RFC 9562 added it in 2024 as the counterpart to Nil: the largest possible value, with no version and no variant.
+
+Max is the newest thing in the standard and the least known. It exists so that code needing an upper bound stops inventing one, and it pairs with Nil to bracket the whole 128-bit space.
+
+## Worked example (What the converter reads)
+
+Every bit set: the variant reads as reserved, and there is no version to report.
+
+ffffffff-ffff-ffff-ffff-ffffffffffff -> uuid · reserved for the future (111x) · no version · max, palindrome
+00000000-0000-0000-0000-000000000000 -> uuid · NCS (0xxx) — reserved, backward compatibility · no version · nil, palindrome
+
+## What it is
+
+All 128 bits set. Like Nil, it satisfies neither the version nor the variant rules, so no generator will ever produce it and no strict validator will accept it without an explicit exception. Unlike Nil, it is new: RFC 4122 had no such value, so older libraries and older articles do not mention it.
+
+ffffffff-ffff-ffff-ffff-ffffffffffff, field by field:
+- no fields: bits 0-127 (random)
+
+## Every spelling of it
+
+Spelling | Max | Where it is expected
+plain | ffffffff-ffff-ffff-ffff-ffffffffffff | The canonical form. What RFC 9562 writes and what every parser accepts.
+hex | ffffffffffffffffffffffffffffffff | .NET format N. What a CHAR(32) column and most cache keys hold.
+braces | {ffffffff-ffff-ffff-ffff-ffffffffffff} | .NET format B. The Windows registry and COM write this.
+urn | urn:uuid:ffffffff-ffff-ffff-ffff-ffffffffffff | A valid URN, for XML, RDF and anything that needs a URI.
+upper case | FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF | Case is not significant; Windows tools write capitals.
+
+## The obvious use: bounding a range
+
+With time-ordered identifiers, a range scan over a UUID key replaces a scan over a timestamp column. Nil is the lower bound and Max the upper, so "everything in this partition" needs no special case and no synthetic sentinel of your own invention.
+
+-- everything, expressed as a range over the key itself
+SELECT * FROM events
+WHERE id BETWEEN '00000000-0000-0000-0000-000000000000'
+             AND 'ffffffff-ffff-ffff-ffff-ffffffffffff';
+
+-- one millisecond of a v7 stream: pad the tail with zeros and with f
+
+The second idea is the useful one in practice: to select every v7 made during one millisecond, build the lower bound from that millisecond followed by zeros and the upper bound from the same millisecond followed by ones. The Max UUID is that trick taken to its limit.
+
+## What it is not
+
+Max is not "invalid" and not an error marker. Using it to mean failure creates the same problem as any in-band signal: the day a real value legitimately equals your sentinel, the meaning collapses. Here that day never comes, since nothing generates Max, but the habit spreads to fields where it does.
+
+## Support in the wild
+
+Libraries that predate RFC 9562 may not export a Max constant, and some validators reject it outright. Writing the literal by hand is safe: it is sixteen ff bytes and cannot drift. Check that your storage layer round-trips it before relying on it as a bound.
+
+Q: What is ffffffff-ffff-ffff-ffff-ffffffffffff?
+A: The Max UUID, defined in RFC 9562 section 5.10: all 128 bits set, the largest possible UUID value.
+
+Q: What is the Max UUID used for?
+A: As an upper bound. With Nil as the lower bound it brackets the whole space, which makes range scans over time-ordered identifiers straightforward.
+
+Q: Why do some tools say the Max UUID is invalid?
+A: It has no version and no RFC variant, and it was only added in 2024. Older libraries and strict validators reject it unless it is allowed by name.
+
+# Namespaces for name-based UUIDs
+
+URL: https://bavix.github.io/uuid-ui/uuid-namespaces/
+TL;DR: A name-based UUID needs a namespace: a UUID that says which kind of name you are hashing. Four are registered (DNS, URL, OID and X.500), and any UUID of your own works just as well.
+
+The namespace is what keeps the host name example.com and the URL https://example.com from colliding into one identifier. This page lists the registered four, explains what belongs in each, and covers rolling your own.
+
+## Worked example (What the converter reads)
+
+The namespace IDs are themselves version 1 UUIDs, and the converter still reads the clock in them.
+
+6ba7b810-9dad-11d1-80b4-00c04fd430c8 -> uuid · RFC 9562 (10xx) · version 1
+6ba7b814-9dad-11d1-80b4-00c04fd430c8 -> uuid · RFC 9562 (10xx) · version 1
+
+## The four registered namespaces
+
+Namespace | ID | What the name should be
+DNS | 6ba7b810-9dad-11d1-80b4-00c04fd430c8 | A host name: example.com
+URL | 6ba7b811-9dad-11d1-80b4-00c04fd430c8 | A URL: https://example.com/a
+OID | 6ba7b812-9dad-11d1-80b4-00c04fd430c8 | An ISO OID: 1.3.6.1
+X500 | 6ba7b814-9dad-11d1-80b4-00c04fd430c8 | An X.500 distinguished name
+
+They differ by a single hex digit, which is a common source of copy-paste bugs: DNS ends 810, URL 811, OID 812 and X.500 814. There is no 813.
+
+All four are version 1 identifiers, and their clocks carry the same instant: 1998-02-04T22:13:53.151Z. They were generated in one sitting a quarter of a century ago and have not moved since, which is exactly what a namespace constant should do.
+
+## Why a namespace exists at all
+
+Without it, every name-based identifier would live in one flat space, and two systems hashing unrelated strings would eventually agree by accident. The namespace prefixes the hash input, so example.com as a host and example.com as a tenant slug in your own namespace derive to different identifiers.
+
+## Defining your own
+
+Generate one v4, write it into a constant, and never change it. That constant is now the root of a private identifier space: v5 of it and a tenant slug is stable forever, and nobody else can land in your space by accident. Changing it later invalidates every identifier derived beneath it, so treat it like a schema, not like configuration.
+
+import { v5 } from "uuid";
+
+// generated once, then frozen
+const TENANTS = "3f2b7e9a-9a2f-4a1a-9f37-1c4a2ee1f5b3";
+
+const id = v5("acme", TENANTS);   // the same every time, everywhere
+
+## Nesting namespaces
+
+A derived UUID is a perfectly good namespace for the next level: v5 of your root and a tenant gives a tenant namespace, and v5 of that and a resource name gives a resource identifier. The chain stays deterministic all the way down, which is how content-addressed hierarchies get built without a registry.
+
+Q: What are the four standard UUID namespaces?
+A: DNS 6ba7b810-9dad-11d1-80b4-00c04fd430c8, URL …811…, OID …812… and X.500 …814…. They differ by one hex digit and there is no …813….
+
+Q: Can I invent my own namespace UUID?
+A: Yes, any UUID works. Generate a v4 once, freeze it as a constant, and treat changing it as a breaking schema change.
+
+Q: Does the namespace need to be secret?
+A: It cannot be. Namespaces are published constants, and a name-based UUID is guessable whenever the name is.
+
+# UUIDs in PostgreSQL
+
+URL: https://bavix.github.io/uuid-ui/uuid-in-postgresql/
+TL;DR: PostgreSQL has a native 16-byte `uuid` type, so storing identifiers as text wastes both space and comparison speed. The version you generate matters more than the column: v4 scatters index writes, v7 does not.
+
+PostgreSQL is the easiest database to get UUIDs right in and still the one where the classic mistake, `varchar(36)` plus v4, shows up most. This page covers the column, the generator, and what the index actually does.
+
+## Worked example (byte array)
+
+What the 16 bytes of a v7 key look like: the clock leads, so consecutive inserts are neighbours.
+
+01890a5d-ac96-774b-bcce-b302099a8057 -> 01 89 0a 5d ac 96 77 4b bc ce b3 02 09 9a 80 57
+0c5b2444-70a0-4932-980c-b4dc0d3f02b5 -> 0c 5b 24 44 70 a0 49 32 98 0c b4 dc 0d 3f 02 b5
+
+## The column
+
+CREATE TABLE orders (
+    id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- PostgreSQL 18 and later
+CREATE TABLE events (
+    id uuid PRIMARY KEY DEFAULT uuidv7()
+);
+
+gen_random_uuid() is built in since PostgreSQL 13 and returns a v4. PostgreSQL 18 added uuidv7(), which is the one you want for a primary key. On older versions, generate v7 in the application; the column type is the same either way.
+
+## Why the version matters to the index
+
+A B-tree writes a new row next to the keys it sorts near. With v4 keys, every insert lands somewhere else, so the write set is the whole index: pages are read, dirtied, and written back all over the tree, WAL grows with full-page images, and the buffer cache fills with pages nothing will read again. With v7 keys, inserts land in the rightmost leaf, which stays hot.
+
+ | v4 key | v7 key
+Insert location | random leaf | rightmost leaf
+Working set for writes | the whole index | a few pages
+Index fragmentation | high | low
+Range scan by time | needs the timestamp column | possible on the key itself
+
+## Never store a UUID as text
+
+A uuid column is 16 bytes and compares as two 64-bit words. varchar(36) is 36 bytes plus the length header, compares character by character, and lets two spellings of one identifier live in the same column. The type also validates on write, which is a free correctness check the text column does not give you.
+
+## Practical notes
+
+- uuid_generate_v4() comes from the uuid-ossp extension and predates gen_random_uuid(); new code needs neither the extension nor that function.
+- PostgreSQL indexes carry only their own columns plus a pointer into the heap, so a UUID primary key does not widen the secondary indexes the way it does in InnoDB. What it does widen is the primary key index itself and every foreign key column pointing at it.
+- For partitioned tables, a v7 key partitions by time without a separate column.
+- The output format is canonical lower case; input accepts braces, the urn prefix and bare hex.
+
+- PostgreSQL: the uuid data type: https://www.postgresql.org/docs/current/datatype-uuid.html
+- PostgreSQL: UUID functions: https://www.postgresql.org/docs/current/functions-uuid.html
+
+Q: Should a PostgreSQL primary key be a UUID?
+A: It can be, and it should be a v7 rather than a v4: same uniqueness, but inserts land together instead of scattering across the index.
+
+Q: How much space does a uuid column take?
+A: 16 bytes, against 36 or more for the text form, and it compares as two integers rather than character by character.
+
+Q: Does PostgreSQL generate v7 UUIDs?
+A: From version 18, yes: uuidv7(). Before that, gen_random_uuid() returns a v4 and v7 has to come from the application.
+
+# UUIDs in MySQL
+
+URL: https://bavix.github.io/uuid-ui/uuid-in-mysql/
+TL;DR: MySQL has no UUID type. Store 16 bytes in BINARY(16) with UUID_TO_BIN, read them back with BIN_TO_UUID, and use the swap flag only for v1 identifiers.
+
+MySQL leaves the storage decision to you, and the default choice, `CHAR(36)`, costs more than twice the space and turns every key comparison into string work. Here is the version that behaves.
+
+## Worked example (UUID text)
+
+What ends up in the column: 32 hex digits, no punctuation.
+
+01890a5d-ac96-774b-bcce-b302099a8057 -> 01890a5dac96774bbcceb302099a8057
+f81d4fae-7dec-11d0-a765-00a0c91e6bf6 -> f81d4fae7dec11d0a76500a0c91e6bf6
+
+## The column
+
+CREATE TABLE orders (
+    id BINARY(16) PRIMARY KEY,
+    created_at DATETIME(3) NOT NULL
+);
+
+INSERT INTO orders (id, created_at)
+VALUES (UUID_TO_BIN('01890a5d-ac96-774b-bcce-b302099a8057'), NOW(3));
+
+SELECT BIN_TO_UUID(id) AS id FROM orders;
+
+Column type | Bytes per row | Comparison
+BINARY(16) | 16 | memcmp — one pass
+CHAR(32) bare hex | 32 | string, case rules apply
+CHAR(36) canonical | 36 | string, and stores four hyphens per row
+VARCHAR(36) | 37+ | string, plus a length byte
+
+## The swap flag, and when it helps
+
+UUID_TO_BIN(u, 1) moves the first group past the third before storing: the row starts with time-high, then time-mid where it already was, then time-low. For a **v1** identifier that puts the slow-moving bits of the clock first, so consecutive inserts land near each other. MySQL's own example is 6ccd780c-baba-1026-… stored as 1026baba6ccd780c…. It is a fix for the v1 field order, not a general optimisation.
+
+Identifier | Stored with flag 0 | Stored with flag 1
+01890a5d-ac96-774b-bcce-b302099a8057 | 01890a5dac96774bbcceb302099a8057 | 774bac9601890a5dbcceb302099a8057
+f81d4fae-7dec-11d0-a765-00a0c91e6bf6 | f81d4fae7dec11d0a76500a0c91e6bf6 | 11d07decf81d4faea76500a0c91e6bf6
+
+Apply the flag to a v7 and you destroy the property you wanted: the clock stops leading and the key scatters. Flag 1 is for v1 only, and whichever flag you choose has to be used identically on write and on read.
+
+## Reading rows by hand
+
+A BINARY(16) column prints as unreadable bytes in a console, which is the real cost of the compact form. Either wrap it in BIN_TO_UUID(id) on the way out, or keep a generated column alongside it for humans, at the price of the space you just saved.
+
+ALTER TABLE orders
+    ADD COLUMN id_text CHAR(36)
+    GENERATED ALWAYS AS (BIN_TO_UUID(id)) VIRTUAL;
+
+## MySQL UUID() is a v1
+
+The built-in UUID() function returns a version 1 identifier with the node taken from the server, so it embeds a MAC address and does not sort. Generate v7 in the application and pass it in; the database function is only convenient, not correct for a key.
+
+- MySQL: UUID_TO_BIN and BIN_TO_UUID: https://dev.mysql.com/doc/refman/8.4/en/miscellaneous-functions.html#function_uuid-to-bin
+
+Q: How should I store a UUID in MySQL?
+A: BINARY(16) with UUID_TO_BIN on write and BIN_TO_UUID on read. CHAR(36) more than doubles the storage and makes every comparison a string comparison.
+
+Q: What does the second argument of UUID_TO_BIN do?
+A: It reorders the timestamp fields so that the slow-moving half of a v1 clock leads. Use it for v1 only: applying it to a v7 removes the time ordering.
+
+Q: Is MySQL UUID() good enough for a primary key?
+A: No. It returns a v1 that embeds the server MAC and does not sort. Generate a v7 in the application.
+
+# UUIDs in SQL Server
+
+URL: https://bavix.github.io/uuid-ui/uuid-in-sql-server/
+TL;DR: SQL Server stores a GUID mixed-endian and sorts it by the last group first, so neither the text order nor the RFC byte order predicts the index order. NEWSEQUENTIALID exists to work around exactly that.
+
+SQL Server is the database where UUID intuition fails hardest: the same identifier has a different byte layout, a different sort order, and a generator whose guarantees are narrower than the name suggests.
+
+## Worked example (byte array)
+
+The RFC byte order, which is the order the identifier reads in. SQL Server stores the first three groups reversed.
+
+f81d4fae-7dec-11d0-a765-00a0c91e6bf6 -> f8 1d 4f ae 7d ec 11 d0 a7 65 00 a0 c9 1e 6b f6
+01890a5d-ac96-774b-bcce-b302099a8057 -> 01 89 0a 5d ac 96 77 4b bc ce b3 02 09 9a 80 57
+
+## Two things that are both true
+
+Aspect | SQL Server | RFC 9562
+Byte order of groups 1-3 | little-endian | big-endian
+Byte order of groups 4-5 | as written | as written
+Sort order | last group first, then 4th, then 3rd, 2nd, 1st | plain byte order
+Text form | identical | identical
+
+The text you see is the same in both worlds, which is why the difference stays hidden until a byte array crosses a boundary: an ETL job, a checksum, a cache key built from raw bytes.
+
+## The sort order nobody expects
+
+The documentation is blunt about it: ordering is not implemented by comparing the bit patterns of the two values. What the comparison does instead is start from the last group and work backwards, so a clustered index on a GUID column orders rows in a way that matches neither the printed value nor the creation time — and a time-ordered v7 stored there does not stay time-ordered in the index.
+
+## NEWID and NEWSEQUENTIALID
+
+Function | Produces | Good for
+NEWID() | a random GUID | uniqueness only, and the worst case for a clustered index
+NEWSEQUENTIALID() | values increasing in SQL Server sort order until Windows restarts | clustered keys, at the cost of predictability
+
+NEWSEQUENTIALID can only appear in a DEFAULT constraint, never in a query. After Windows restarts, the sequence can begin again from a lower range. And the documentation is unusually direct about the rest: if privacy is a concern, do not use this function, because the next value it generates can be guessed. That rules it out anywhere the identifier is exposed.
+
+Underneath, it wraps the Windows UuidCreateSequential call and shuffles the bytes. That call is the old MAC-based generator, which is why the same page adds that its values are unique across machines only when the source computer has a network card.
+
+## If you generate identifiers in the application
+
+Generating v7 in the application and storing it in uniqueidentifier gives you a stable, standard identifier, but the clustered index will not benefit, because SQL Server sorts from the other end. Either keep the clustered key on an identity column and make the GUID a non-clustered unique key, or accept the fragmentation deliberately.
+
+- SQL Server: uniqueidentifier: https://learn.microsoft.com/sql/t-sql/data-types/uniqueidentifier-transact-sql
+- SQL Server: NEWSEQUENTIALID: https://learn.microsoft.com/sql/t-sql/functions/newsequentialid-transact-sql
+
+Q: Why do GUIDs sort strangely in SQL Server?
+A: uniqueidentifier compares the last group first and the first group last, so index order matches neither the printed value nor creation time.
+
+Q: Is a SQL Server GUID stored in RFC byte order?
+A: No. The first three groups are stored little-endian, the last two as written: the mixed-endian layout shared with .NET.
+
+Q: Should I use NEWSEQUENTIALID?
+A: Only for internal clustered keys. The documentation says outright that the next value can be guessed, and the sequence can restart from a lower range after Windows restarts.
+
+# UUIDs in MongoDB
+
+URL: https://bavix.github.io/uuid-ui/uuid-in-mongodb/
+TL;DR: MongoDB stores a UUID as BSON binary. Subtype 4 is the standard, big-endian layout; the legacy subtype 3 has a byte order that depends on which driver wrote it.
+
+A UUID in MongoDB is one of the few places where the same value, written by two clients, produces two different documents. The cause is the legacy binary subtype, and the fix is mechanical once you know what to look for.
+
+## Worked example (Base64)
+
+BSON binary prints as base64, which is how a UUID appears in an extended JSON dump.
+
+01890a5d-ac96-774b-bcce-b302099a8057 -> AYkKXayWd0u8zrMCCZqAVw==
+f81d4fae-7dec-11d0-a765-00a0c91e6bf6 -> +B1Prn3sEdCnZQCgyR5r9g==
+
+## The two subtypes
+
+Subtype | Name | Byte order | Use it?
+4 | UUID | big-endian, as RFC 9562 defines | yes
+3 | UUID (legacy) | depends on the driver that wrote it | only to read old data
+
+The legacy subtype predates any agreement on layout, and the drivers still name the conventions after themselves. CSHARP_LEGACY writes the mixed-endian form, JAVA_LEGACY reverses each of the two 8-byte halves, and PYTHON_LEGACY writes the bytes straight through. All three produce subtype 3, and nothing in the stored value says which of them wrote it.
+
+## How the mismatch shows up
+
+- A query by UUID returns nothing, although the document is visibly there.
+- The same logical identifier appears as two distinct binary values in one collection.
+- An aggregation groups by UUID and produces double the expected number of buckets.
+- An export to JSON shows base64 that does not match the identifier the application prints.
+
+## Moving to subtype 4
+
+Set the driver to the standard representation, then rewrite the affected documents: read each legacy value with the convention that wrote it, decode it to a UUID, and store it back as subtype 4. Do it once, verify the counts, and add a check that no subtype 3 values remain. A mixed collection is worse than either convention alone.
+
+// mongosh: find documents still holding a legacy binary UUID
+db.orders.find({ id: { $type: "binData" } })
+    .toArray()
+    .filter(doc => doc.id.sub_type === 3)
+    .length;
+
+## UUID or ObjectId
+
+MongoDB's own ObjectId is 12 bytes: a 4-byte timestamp in seconds, a 5-byte value random per process, and a 3-byte counter. The timestamp leads, so ObjectIds sort by creation time. If identifiers never leave MongoDB, it is smaller and simpler. Use a UUID when the same identifier has to exist in other systems too: that is the one property ObjectId cannot give you.
+
+- The BSON specification: https://bsonspec.org/spec.html
+- MongoDB: BSON types: https://www.mongodb.com/docs/manual/reference/bson-types/
+
+Q: What is the difference between BSON subtype 3 and 4?
+A: Subtype 4 is the standard big-endian UUID. Subtype 3 is legacy and its byte order depends on which driver wrote the value.
+
+Q: Why does my UUID query return no documents in MongoDB?
+A: Almost always a subtype mismatch: the document holds a legacy subtype 3 value written with a different byte order than your driver uses to query.
+
+Q: Should I use UUID or ObjectId in MongoDB?
+A: ObjectId if the identifier never leaves MongoDB: 12 bytes, and it sorts. UUID when other systems must name the same entity.
+
+# ULID, and how it maps onto a UUID
+
+URL: https://bavix.github.io/uuid-ui/ulid/
+TL;DR: A ULID is 128 bits printed as 26 Crockford base32 characters: 48 bits of Unix milliseconds followed by 80 random bits. The bits fit a UUID exactly, so converting between the two is a change of alphabet, not of value.
+
+ULID appeared before RFC 9562 had a time-ordered layout, and it solved the same problem in a shorter, case-insensitive text form. This page covers what is inside one and how it lines up with a UUID v7.
+
+## Worked example (ULID)
+
+The same 128 bits, printed in Crockford base32 instead of hex.
+
+01890a5d-ac96-774b-bcce-b302099a8057 -> 01H455VB4PEX5VSKNK084SN02Q
+00000000-0000-0000-0000-000000000000 -> 00000000000000000000000000
+ffffffff-ffff-ffff-ffff-ffffffffffff -> 7ZZZZZZZZZZZZZZZZZZZZZZZZZ
+
+## What a ULID is made of
+
+Part | Bits | Characters | What it holds
+timestamp | 48 | 10 | Unix milliseconds, most significant first
+randomness | 80 | 16 | Random, or a counter incremented within the millisecond
+
+Ten characters of base32 encode 50 bits, two more than the timestamp has, so the first character of a ULID never exceeds 7 and only reaches 7 once the 48-bit millisecond clock runs out in the year 10889. That is why every ULID you have seen starts with a digit, and why the largest one that exists is 7ZZZZZZZZZZZZZZZZZZZZZZZZZ.
+
+## The alphabet
+
+Crockford base32 drops I, L, O and U: I and L look like 1, O looks like 0, and U was removed to avoid accidental words. Decoding is case-insensitive, so a ULID read aloud, typed from a screenshot or shouted across a room survives the trip better than hex does.
+
+## ULID against UUID v7
+
+ | ULID | UUID v7
+Text length | 26 | 36
+Alphabet | Crockford base32, case-insensitive | hex with hyphens
+Timestamp | 48 bits of Unix ms | 48 bits of Unix ms
+Random bits | 80 | 74
+Fixed bits | none | 6: version and variant
+Fits a native uuid column | after conversion | directly
+
+The six fixed bits are the whole difference in content. A ULID converted to a UUID keeps its bits, so the result usually reports an arbitrary version: a valid 128-bit value, but not a valid v7. Converting the other way is lossless in both directions as long as you accept that.
+
+## Monotonicity inside one millisecond
+
+The ULID specification suggests incrementing the random component when several identifiers are made in the same millisecond, so that they still sort in creation order. Not every implementation does it, and two ULIDs from the same millisecond may otherwise come back in arbitrary order, the same caveat as rand_a in a v7.
+
+- The ULID specification: https://github.com/ulid/spec
+
+Q: Can I convert a ULID to a UUID?
+A: Yes, both ways. Both are 128 bits; only the text encoding differs. A converted ULID will not usually be a valid v7, because a ULID has no version bits.
+
+Q: Why does every ULID start with a digit?
+A: Ten base32 characters carry 50 bits but the timestamp is only 48, so the two extra bits are always zero and the leading character stays between 0 and 7.
+
+Q: Is a ULID case sensitive?
+A: No. Crockford base32 decodes case-insensitively and omits I, L, O and U to avoid confusion with 1 and 0.
+
+# ULID or UUID v7
+
+URL: https://bavix.github.io/uuid-ui/ulid-vs-uuid/
+TL;DR: Same 48-bit millisecond clock, same sorting behaviour. Choose v7 when the value must be a UUID for a column type or a library; choose ULID when the shorter, case-insensitive text form is what people handle.
+
+The two formats solve one problem and differ mostly in presentation. This page lays the differences out so the decision takes a minute, and says what happens if you later change your mind.
+
+## Worked example (ULID)
+
+One identifier, both spellings: 36 characters against 26.
+
+01890a5d-ac96-774b-bcce-b302099a8057 -> 01H455VB4PEX5VSKNK084SN02Q
+018f3c00-7c00-7000-8000-00a0c91e6bf6 -> 01HWY00Z00E0080000M34HWTZP
+
+## The comparison
+
+ | UUID v7 | ULID
+Standard | RFC 9562 | a community specification
+Bits | 128 | 128
+Text length | 36 | 26
+Random bits | 74 | 80
+Case sensitivity | insensitive by convention | insensitive by design
+Native database type | yes, uuid in PostgreSQL and others | no, store as UUID or as text
+Library support | everywhere | good, but not built in
+Monotonic within a millisecond | if the generator spends rand_a on a counter | if the implementation follows the monotonic variant
+Copy-paste and reading aloud | hex, easy to confuse 0 and O in some fonts | the alphabet was designed for it
+
+## The rule
+
+If the identifier lives in a database column, travels through gRPC, or passes through code that validates a version nibble, use v7: everything already understands it. If the identifier is mostly handled by people, in support tickets, URLs read over the phone or log lines scanned by eye, ULID is ten characters shorter and forgiving about case.
+
+## Storing a ULID in a UUID column
+
+It works, and it is a common pattern: convert on the way in, convert back on the way out. The one honest caveat is that the stored value will not validate as any UUID version, because a ULID has no version bits. Tools that check the nibble will call it non-standard, and they are right: the storage is fine, the label is not.
+
+## Changing your mind later
+
+Both directions are lossless at the bit level, so a migration is a re-encoding rather than a re-issue: the same identifier, printed differently. What is not lossless is meaning: a v7 converted to ULID text loses its version nibble to the eye, and a ULID converted to UUID gains a version it never had. Pick the canonical form once, and convert only at the edges.
+
+- The ULID specification: https://github.com/ulid/spec
+
+Q: Is ULID better than UUID v7?
+A: Neither is better. They carry the same clock; ULID is shorter and case-insensitive, v7 is standardised and fits native UUID types and libraries.
+
+Q: Can I store a ULID in a PostgreSQL uuid column?
+A: Yes, by converting the 128 bits. The stored value will not report a valid UUID version, because a ULID has no version bits.
+
+# When not to use a UUID
+
+URL: https://bavix.github.io/uuid-ui/uuid-alternatives/
+TL;DR: A UUID buys you identifiers without coordination, for 16 bytes. If you have coordination anyway, or you need a shorter or unguessable value, one of five other formats fits better.
+
+The interesting question is not which UUID version, but whether an identifier that nobody has to hand out is worth its size at all. Here is the honest comparison, including the boring answer that often wins.
+
+## Worked example (What the converter reads)
+
+Everything on this page is 128 bits or fewer; only the UUID forms decode into fields.
+
+01890a5d-ac96-774b-bcce-b302099a8057 -> uuid · RFC 9562 (10xx) · version 7
+0c5b2444-70a0-4932-980c-b4dc0d3f02b5 -> uuid · RFC 9562 (10xx) · version 4
+
+## The field
+
+Format | Bits | Text | Sorts by time | Needs coordination | Good at
+UUID v4 | 128 | 36 | no | no | being available everywhere
+UUID v7 | 128 | 36 | yes | no | database keys
+ULID | 128 | 26 | yes | no | short text, human handling
+Snowflake | 64 | 19 digits | yes | yes, a worker id per node | fitting a bigint column
+KSUID | 160 | 27 | yes | no | a second-resolution prefix plus 128 random bits
+NanoID | configurable | 21 by default | no | no | short, URL-safe, tunable entropy
+CUID2 | configurable | 24 by default | no | no | collision resistance without leaking time
+auto-increment | 64 | short | yes | yes, one sequence | small, fast, obvious
+
+## Snowflake, when 64 bits matter
+
+A Snowflake packs a 41-bit millisecond timestamp, a 10-bit machine id and a 12-bit per-millisecond counter into 64 bits, with the top bit left at zero so the value stays a positive bigint. That halves the index size against a UUID and prints as about nineteen digits. The price is coordination: every node needs a distinct worker id, and handing those out reliably is its own small system. Choose it when the storage saving is measured and the operational cost is acceptable.
+
+## KSUID and the second-resolution middle ground
+
+KSUID is 20 bytes: a 32-bit second counter, offset from its own epoch in 2014 rather than from 1970, and a 128-bit random payload, printed as 27 base62 characters that sort lexicographically by time. It predates v7 and remains reasonable, but v7 does the same job in fewer bits with a standard behind it.
+
+## NanoID and CUID2, when the value faces users
+
+Both aim at short, URL-safe identifiers rather than at structure. NanoID is 21 characters of a 64-symbol alphabet by default, chosen to land near a v4 for collision probability, and the length is a parameter. CUID2 defaults to 24 characters and hashes every entropy source into the result, so neither the time nor the host can be read back out. Neither sorts, and neither fits a native UUID column: they are text identifiers, and that is the point.
+
+## The boring answer
+
+If there is exactly one database, one writer, and no plan to merge data from elsewhere, an auto-increment integer is smaller, faster, and easier to read in a log than anything on this list. UUIDs buy independence from coordination; when there is no coordination problem, you are paying for insurance you do not need.
+
+- KSUID: https://github.com/segmentio/ksuid
+- NanoID: https://github.com/ai/nanoid
+- CUID2: https://github.com/paralleldrive/cuid2
+
+Q: Is Snowflake better than UUID v7?
+A: It is half the size and fits a bigint, but every node needs a coordinated worker id. v7 needs no coordination at all.
+
+Q: What should I use if the identifier must not reveal creation time?
+A: v4, NanoID or CUID2. Anything time-ordered (v1, v6, v7, ULID, KSUID, Snowflake) reveals when it was made.
+
+Q: Are UUIDs overkill for a single database?
+A: Often, yes. With one writer and no data merging, an auto-increment key is smaller and simpler; UUIDs pay for independence you are not using.
+
+# UUIDs in eight languages
+
+URL: https://bavix.github.io/uuid-ui/uuid-code-examples/
+TL;DR: Every language generates and parses UUIDs the same way; they differ in what they hand you for the bytes. Python offers two byte orders, .NET defaults to the mixed-endian one, and Java gives you two longs instead.
+
+Reference snippets for the four things people actually do with a UUID: make one, parse one, get its bytes, get its time. The platform-specific traps are marked.
+
+## Worked example (byte array)
+
+The byte array these snippets should all produce for the same identifier.
+
+01890a5d-ac96-774b-bcce-b302099a8057 -> [0x01, 0x89, 0x0a, 0x5d, 0xac, 0x96, 0x77, 0x4b, 0xbc, 0xce, 0xb3, 0x02, 0x09, 0x9a, 0x80, 0x57]
+
+## JavaScript and TypeScript
+
+// built in, v4, no dependency
+const id = crypto.randomUUID();
+
+// the uuid package, for v7 and for bytes
+import { v7, parse, stringify } from "uuid";
+
+const ordered = v7();
+const bytes = parse(ordered);        // Uint8Array(16), RFC order
+const back = stringify(bytes);
+
+crypto.randomUUID() exists in browsers and in Node, and only makes v4. It requires a secure context in the browser, which is why it is missing on plain HTTP pages.
+
+## Python
+
+import uuid
+
+id = uuid.uuid4()
+parsed = uuid.UUID("01890a5d-ac96-774b-bcce-b302099a8057")
+
+parsed.bytes      # RFC order, use this
+parsed.bytes_le   # mixed-endian, for Windows APIs
+parsed.int        # the whole 128 bits as one integer
+parsed.hex        # 32 digits, no hyphens
+
+bytes and bytes_le are different byte arrays for the same identifier. Passing bytes_le to something expecting RFC order silently produces a different UUID.
+
+## Go
+
+import "github.com/google/uuid"
+
+id, _ := uuid.NewV7()
+parsed, err := uuid.Parse("01890a5d-ac96-774b-bcce-b302099a8057")
+
+b := parsed[:]                  // []byte over the 16, RFC order
+back, _ := uuid.FromBytes(b)
+
+parsed.Version()                // 7
+parsed.Time()                   // defined for v1, v2, v6 and v7
+
+## Java and Kotlin
+
+UUID id = UUID.randomUUID();                 // v4
+UUID parsed = UUID.fromString("01890a5d-ac96-774b-bcce-b302099a8057");
+
+long msb = parsed.getMostSignificantBits();  // signed, often negative
+long lsb = parsed.getLeastSignificantBits();
+
+ByteBuffer buf = ByteBuffer.allocate(16);
+buf.putLong(msb).putLong(lsb);               // RFC order
+byte[] bytes = buf.array();
+
+Kotlin has its own kotlin.uuid.Uuid, and reaches the halves through toLongs { msb, lsb -> … } and Uuid.fromLongs(msb, lsb), documented since Kotlin 2.4. The JDK still has no v7 generator, so that comes from a library either way.
+
+## Rust
+
+use uuid::Uuid;
+
+let id = Uuid::now_v7();
+let parsed = Uuid::parse_str("01890a5d-ac96-774b-bcce-b302099a8057")?;
+
+let bytes = parsed.as_bytes();        // &[u8; 16], RFC order
+let (hi, lo) = parsed.as_u64_pair();  // unsigned halves
+
+## C# and .NET
+
+var id = Guid.NewGuid();                       // v4
+var v7 = Guid.CreateVersion7();                // .NET 9+
+var parsed = Guid.Parse("01890a5d-ac96-774b-bcce-b302099a8057");
+
+byte[] mixed = parsed.ToByteArray();           // mixed-endian!
+byte[] rfc = parsed.ToByteArray(bigEndian: true);   // .NET 8+
+
+parsed.ToString("N");   // 32 digits
+parsed.ToString("B");   // braces
+
+## PHP and SQL
+
+use Ramsey\Uuid\Uuid;
+
+$id = Uuid::uuid7();
+$parsed = Uuid::fromString("01890a5d-ac96-774b-bcce-b302099a8057");
+
+$parsed->getBytes();   // 16 bytes, RFC order
+$parsed->toString();
+
+-- PostgreSQL 18+
+SELECT uuidv7();
+
+-- MySQL: text to 16 bytes and back
+SELECT UUID_TO_BIN('01890a5d-ac96-774b-bcce-b302099a8057');
+SELECT BIN_TO_UUID(id) FROM orders;
+
+## Protobuf, and the wire shape of an identifier
+
+Protobuf has no 128-bit integer, so an identifier travels as two 64-bit fields. bavix/apis declares it once and every service in that family speaks it:
+
+message UUID {
+    int64 high = 1;
+    int64 low = 2;
+}
+
+import "github.com/bavix/apis/pkg/uuidconv"
+
+high, low := uuidconv.UUID2DoubleInt(id)   // int64, int64
+back := uuidconv.DoubleInt2UUID(high, low)
+
+Those two numbers are the signed reading in this converter: the halves reinterpreted least significant byte first, which is what an unsafe.Pointer cast gives on any little-endian machine. Eighteen bytes on the wire against thirty-six for the text form, and no parsing on the way in.
+
+- bavix/apis — uuid.proto: https://github.com/bavix/apis/blob/master/bavix/api/v1/uuid.proto
+- bavix/apis — pkg/uuidconv: https://github.com/bavix/apis/blob/master/pkg/uuidconv/uuid.go
+- bavix/apis: https://github.com/bavix/apis
+
+## The three traps, in one place
+
+Platform | Trap
+Python | bytes_le is mixed-endian; bytes is the RFC order
+.NET before 8 | ToByteArray() is mixed-endian and has no big-endian overload
+Java | getMostSignificantBits is signed, so the high half is usually negative
+
+Q: How do I generate a UUID v7?
+A: uuid.v7() in JavaScript, uuid.NewV7() in Go, Uuid::now_v7() in Rust, Guid.CreateVersion7() in .NET 9, Uuid::uuid7() with ramsey/uuid, and uuidv7() in PostgreSQL 18.
+
+Q: What is the difference between bytes and bytes_le in Python?
+A: bytes is the RFC big-endian order; bytes_le reverses the first three fields for Windows APIs. They are different arrays for the same identifier.
+
+Q: Does crypto.randomUUID work everywhere?
+A: In Node, and in browsers only on a secure context; an HTTP page does not have it. It produces a v4 and nothing else.
+
+# A UUID tool you can host yourself
+
+URL: https://bavix.github.io/uuid-ui/self-hosted-uuid-tool/
+TL;DR: Every conversion on this site happens in the browser, and the whole site is a static bundle you can run yourself with one docker command. Identifiers never reach a server, because there is no server to reach.
+
+Production identifiers are production data. Pasting them into a site that converts them server-side means shipping them to somebody else, and most online UUID tools do exactly that. This one does not, and you do not have to take that on trust: the source is public and the whole thing runs on your own machine.
+
+## Run it
+
+docker run --rm -p 8080:8080 bavix/uuid-ui
+
+# or from the GitHub registry
+docker run --rm -p 8080:8080 ghcr.io/bavix/uuid-ui
+
+The image is a Go binary with the static site embedded in it: no database, no cache, no outbound connections, nothing to configure but the port. It serves the same files this site is built from, so the self-hosted copy and the public one are the same tool.
+
+## What "client-side" means here
+
+Step | Where it happens
+Parsing what you paste | your browser
+Converting between formats | your browser
+Generating v1, v4, v6, v7 and name-based identifiers | your browser
+History of what you converted | your browser storage, until you clear it
+Anything sent to a server | nothing
+
+Be precise about what "no outbound connections" covers. The Go server makes none. The converter page itself carries two analytics scripts for page views, and the image serves that same page, so a self-hosted copy will try to load them unless the machine cannot reach those hosts. They count visits; they never see an identifier, because nothing you paste leaves the tab. The reference pages you are reading now carry no analytics at all.
+
+## Working offline
+
+Because the conversion is local, the tool keeps working when the network does not: an air-gapped workstation, a VPN-only network, a plane. Load it once, or run the image on the machine itself, and it behaves identically. The reference pages behave the same way, with one extra file for the playground and nothing else.
+
+## What it does that a one-off page does not
+
+Conversion between UUID text, Base64, hex, byte arrays, a high/low 64-bit pair, four 32-bit words and ULIDs, in both directions and in bulk: paste a whole column of identifiers and every line is converted at once. Alongside that, generation of v1, v4, v6, v7, name-based v3 and v5, and the Nil and Max constants, plus a decoder that reads the version, the variant, the timestamp and the bit layout.
+
+## The source
+
+The repository is public under the MIT licence, the site is a static bundle, and the server is 104 lines of Go whose only job is to serve embedded files with a few cache headers. There is not much room in it for a surprise, and you are welcome to check.
+
+Q: Do the UUIDs I paste get sent anywhere?
+A: No. Parsing, conversion and generation all run in the browser. The self-hosted image has no backend to send them to.
+
+Q: Can I run this inside a private network?
+A: Yes. docker run -p 8080:8080 bavix/uuid-ui serves the whole tool from a single static image with no outbound dependencies.
+
+Q: Does it work without an internet connection?
+A: Yes. Once the page is loaded, or once the image is running locally, every feature works offline.

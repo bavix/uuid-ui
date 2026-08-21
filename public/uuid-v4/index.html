@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<!-- uuid-ui:generated-page -->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UUID v4: 122 random bits, and when that is enough | UUIDConv</title>
+    <meta name="description" content="What a random UUID actually contains, how likely a collision really is, why six of its bits are never random, and when v7 is the better default for a database key.">
+    <link rel="canonical" href="https://bavix.github.io/uuid-ui/uuid-v4/">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="UUIDConv">
+    <meta property="og:title" content="UUID version 4">
+    <meta property="og:description" content="What a random UUID actually contains, how likely a collision really is, why six of its bits are never random, and when v7 is the better default for a database key.">
+    <meta property="og:url" content="https://bavix.github.io/uuid-ui/uuid-v4/">
+    <meta property="og:image" content="https://bavix.github.io/uuid-ui/og.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="UUID version 4">
+    <meta name="twitter:description" content="What a random UUID actually contains, how likely a collision really is, why six of its bits are never random, and when v7 is the better default for a database key.">
+    <meta name="twitter:image" content="https://bavix.github.io/uuid-ui/og.png">
+    <link rel="icon" href="../favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+    <link rel="stylesheet" href="../theme.css">
+    <link rel="stylesheet" href="../docs.css">
+    <script>window.__docCustom=function(root,mode){try{
+var raw=localStorage.getItem('uuid.data');if(!raw){return}
+var held=JSON.parse(raw);var text=held&&held.settings&&held.settings.customTheme&&held.settings.customTheme.value;
+if(typeof text!=='string'||text===''){return}
+var theme=JSON.parse(text);
+var tokens=(theme.variants&&(theme.variants[mode]||theme.variants[mode==='dark'?'light':'dark']))
+||(theme[mode]&&(theme[mode].tokens||theme[mode]))||theme.tokens;
+if(!tokens){return}
+Object.keys(tokens).forEach(function(name){
+var bare=String(name).replace(/^--/,'');var value=String(tokens[name]).trim();
+if(!/^[a-z0-9-]{1,40}$/.test(bare)||/[;{}]|url\(|expression|@import/i.test(value)){return}
+root.style.setProperty('--'+bare,value);});
+}catch(e){}};(function(){try{
+var s=localStorage.getItem('theme')||'';var p=s.split(':');
+var palette=p.length===2?p[0]:'default';var m=p.length===2?p[1]:s;
+if(m==='true'||m==='"true"'){m='dark'}if(m==='false'||m==='"false"'){m='light'}
+if(m!=='dark'&&m!=='light'){m=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+var r=document.documentElement;r.classList.add(m);r.style.colorScheme=m;
+if(/^[a-z0-9][a-z0-9-]{0,31}$/.test(palette)&&palette!=='default'){r.setAttribute('data-theme',palette)}
+if(palette==='custom'&&window.__docCustom){window.__docCustom(r,m)}
+}catch(e){}})();</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://bavix.github.io/uuid-ui/#website","url":"https://bavix.github.io/uuid-ui/","name":"UUIDConv","inLanguage":"en","publisher":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"}},{"@type":"TechArticle","@id":"https://bavix.github.io/uuid-ui/uuid-v4/#article","headline":"UUID version 4","name":"UUID version 4","description":"What a random UUID actually contains, how likely a collision really is, why six of its bits are never random, and when v7 is the better default for a database key.","abstract":"A v4 is 122 bits of randomness plus 4 version bits and 2 variant bits. It carries no time, no machine and no meaning, which is why it is the safe default when an identifier only has to be unique.","url":"https://bavix.github.io/uuid-ui/uuid-v4/","mainEntityOfPage":"https://bavix.github.io/uuid-ui/uuid-v4/","inLanguage":"en","datePublished":"2026-08-21","dateModified":"2026-08-21","author":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"},"publisher":{"@type":"Person","name":"Babichev Maksim","url":"https://github.com/rez1dent3"},"isPartOf":{"@id":"https://bavix.github.io/uuid-ui/#website"},"about":{"@id":"https://bavix.github.io/uuid-ui/#app"},"proficiencyLevel":"Beginner"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"UUIDConv","item":"https://bavix.github.io/uuid-ui/"},{"@type":"ListItem","position":2,"name":"UUID reference","item":"https://bavix.github.io/uuid-ui/reference/"},{"@type":"ListItem","position":3,"name":"UUID version 4","item":"https://bavix.github.io/uuid-ui/uuid-v4/"}]},{"@type":"FAQPage","@id":"https://bavix.github.io/uuid-ui/uuid-v4/#faq","mainEntity":[{"@type":"Question","name":"Why does every v4 have the same character in two places?","acceptedAnswer":{"@type":"Answer","text":"Those are the version and variant fields: the 13th hex digit is always 4, and the 17th is 8, 9, a or b. Only the other 122 bits are random."}},{"@type":"Question","name":"Are UUID v4 collisions possible?","acceptedAnswer":{"@type":"Answer","text":"Mathematically yes, practically no: even odds need about 2.7 × 10^18 identifiers. Broken randomness, cloned VMs and non-crypto fallbacks are the realistic causes of duplicates."}},{"@type":"Question","name":"Should I use v4 or v7 for a database primary key?","acceptedAnswer":{"@type":"Answer","text":"v7. It keeps the uniqueness properties of v4 while inserting in time order, which is what a B-tree index wants."}}]}]}</script>
+</head>
+<body class="doc type-bytes">
+<nav class="app-header backdrop-blur-sm shadow-md border-b sticky top-0 z-50" role="navigation" aria-label="main navigation">
+    <div class="container mx-auto max-w-7xl">
+        <div class="doc-bar">
+            <a class="doc-brand" href="../">
+                <img src="../android-chrome-192x192.png" class="h-9 w-9 rounded-lg brand-mark" alt="">
+                <span class="brand-text font-bold text-lg gradient-animate">UUIDConv UI</span>
+            </a>
+            <nav class="doc-crumbs" aria-label="Breadcrumb"><a href="../reference/">UUID reference</a><span class="doc-crumb-sep" aria-hidden="true">/</span><span aria-current="page">UUID version 4</span></nav>
+            <div class="doc-bar-actions">
+                <a class="doc-open is-bar" href="../#to=bytes&amp;style=hex">Converter<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+                <a href="https://github.com/bavix/uuid-ui" target="_blank" rel="noopener noreferrer" class="doc-icon" aria-label="Open project on GitHub" title="Open project on GitHub">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.07 3.29 9.37 7.86 10.88.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.38-3.88-1.38-.53-1.36-1.3-1.73-1.3-1.73-1.06-.73.08-.72.08-.72 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.75.41-1.27.75-1.56-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.18 1.19.92-.26 1.9-.39 2.88-.39.98 0 1.96.13 2.88.39 2.2-1.5 3.17-1.19 3.17-1.19.64 1.58.24 2.75.12 3.04.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.41-5.27 5.69.42.36.79 1.08.79 2.17 0 1.57-.01 2.84-.01 3.22 0 .31.21.68.8.56C20.71 21.37 24 17.07 24 12 24 5.73 18.27.5 12 .5z"/></svg>
+                </a>
+                <button type="button" id="doc-theme" class="doc-icon" aria-label="Toggle theme" title="Toggle theme">
+                    <svg class="doc-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.1 5.1l1.4 1.4M17.5 17.5l1.4 1.4M18.9 5.1l-1.4 1.4M6.5 17.5l-1.4 1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    <svg class="doc-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="doc-shell container mx-auto max-w-7xl">
+<nav class="doc-rail" aria-label="Reference"><a class="doc-rail-hub" href="../reference/">UUID reference</a><ul class="doc-rail-list"><li class="doc-rail-group"><p class="doc-rail-title">Start here</p><ul><li><a href="../what-is-a-uuid/">What is a UUID?</a></li><li><a href="../guid-vs-uuid/">GUID and UUID</a></li><li><a href="../uuid-versions/">All versions side by side</a></li><li><a href="../uuid-v4-vs-v7/">v4 or v7</a></li><li><a href="../uuid-primary-key/">UUID as a primary key</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Making and converting in bulk</p><ul><li><a href="../uuid-generator/">The generator</a></li><li><a href="../uuid-bulk-convert/">A whole column at once</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Converting a UUID</p><ul><li><a href="../uuid-to-bytes/">To a 16-byte array</a></li><li><a href="../uuid-to-hex/">Without dashes</a></li><li><a href="../uuid-formats/">Every way to write one</a></li><li><a href="../uuid-to-base64/">To Base64, and the short forms</a></li><li><a href="../uuid-to-long/">To a high/low 64-bit pair</a></li><li><a href="../uuid-to-words/">To four 32-bit words</a></li><li><a href="../uuid-byte-order/">Byte order: RFC against mixed-endian GUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Reading one</p><ul><li><a href="../uuid-timestamp/">Decoding the timestamp</a></li><li><a href="../uuid-bit-layout/">The bit layout</a></li><li><a href="../uuid-validation/">Validating a UUID</a></li><li><a href="../uuid-collision-probability/">Collision probability</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">The versions, in order</p><ul><li><a href="../uuid-v1/">Version 1</a></li><li><a href="../uuid-v3/">Version 3</a></li><li><a href="../uuid-v4/" class="is-here" aria-current="page">Version 4</a></li><li><a href="../uuid-v5/">Version 5</a></li><li><a href="../uuid-v6/">Version 6</a></li><li><a href="../uuid-v7/">Version 7</a></li><li><a href="../uuid-v8/">Version 8</a></li><li><a href="../nil-uuid/">The Nil UUID</a></li><li><a href="../max-uuid/">The Max UUID</a></li><li><a href="../uuid-namespaces/">Namespaces</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">In a database</p><ul><li><a href="../uuid-in-postgresql/">PostgreSQL</a></li><li><a href="../uuid-in-mysql/">MySQL</a></li><li><a href="../uuid-in-sql-server/">SQL Server</a></li><li><a href="../uuid-in-mongodb/">MongoDB</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">ULID and the alternatives</p><ul><li><a href="../ulid/">ULID</a></li><li><a href="../ulid-vs-uuid/">ULID or UUID v7</a></li><li><a href="../uuid-alternatives/">When not to use a UUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Running the tool</p><ul><li><a href="../uuid-code-examples/">Code examples</a></li><li><a href="../self-hosted-uuid-tool/">Self-hosted and offline</a></li></ul></li></ul></nav>
+<main class="doc-main">
+<article>
+<header class="doc-lead">
+<h1>UUID version 4</h1>
+<p class="doc-meta"><span class="doc-chip">byte array</span><span>7 sections</span><span>Updated <time datetime="2026-08-21">2026-08-21</time></span></p>
+<p class="doc-tldr">A v4 is 122 bits of randomness plus 4 version bits and 2 variant bits. It carries no time, no machine and no meaning, which is why it is the safe default when an identifier only has to be unique.</p>
+<p class="doc-lede">Version 4 is the UUID most systems generate, and the one most people picture when they hear the word. This page covers what is inside it, the collision arithmetic that people quote wrongly, and the one job it is genuinely bad at.</p>
+</header>
+<section class="doc-try" id="worked-example" aria-label="Worked example"><div class="doc-try-head"><span class="doc-chip">What the converter reads</span><span class="doc-try-hint">computed by the converter itself</span></div><div class="doc-cases"><div class="doc-case"><span class="doc-case-tag">in</span><code class="doc-case-in">0c5b2444-70a0-4932-980c-b4dc0d3f02b5</code><span class="doc-case-tag is-out">out</span><code class="doc-case-out">uuid · RFC 9562 (10xx) · version 4</code><button type="button" class="doc-copy" aria-label="Copy this value"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="doc-case-note">The 4 opens the third group; the 9 opens the fourth</p></div><div class="doc-case"><span class="doc-case-tag">in</span><code class="doc-case-in">06b01cbc-8d90-46ca-bdb4-e030d28dfd3a</code><span class="doc-case-tag is-out">out</span><code class="doc-case-out">uuid · RFC 9562 (10xx) · version 4</code><button type="button" class="doc-copy" aria-label="Copy this value"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M15 5.5A2.5 2.5 0 0 0 12.5 3h-6A3.5 3.5 0 0 0 3 6.5v6A2.5 2.5 0 0 0 5.5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><svg class="doc-copy-done" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><p class="doc-case-note">Another v4 — same two fixed positions</p></div></div><div class="doc-try-foot"><a class="doc-open" href="../#to=bytes&amp;style=hex">Open the converter: byte array<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a><span class="doc-try-note">Nothing you paste leaves the browser.</span></div></section>
+<section class="doc-play" data-play data-to="bytes" hidden><div class="doc-play-head"><span class="doc-chip">Playground</span><span class="doc-play-hint">runs here in the page; nothing is sent anywhere</span></div><div class="doc-play-formats" role="group" aria-label="Format"><button type="button" class="doc-play-chip" data-format="uuid" aria-pressed="false">uuid</button><button type="button" class="doc-play-chip" data-format="high-low" aria-pressed="false">high-low</button><button type="button" class="doc-play-chip" data-format="base64" aria-pressed="false">base64</button><button type="button" class="doc-play-chip is-on" data-format="bytes" aria-pressed="true">bytes</button><button type="button" class="doc-play-chip" data-format="ulid" aria-pressed="false">ulid</button><button type="button" class="doc-play-chip" data-format="words" aria-pressed="false">words</button></div><label class="sr-only" for="doc-play-input">Identifier</label><input id="doc-play-input" class="doc-play-input" spellcheck="false" autocomplete="off" placeholder="paste a UUID, a ULID, a byte array, a pair of longs…"><div class="doc-play-row"><button type="button" class="doc-play-fill" data-fill="v4">Random v4</button><button type="button" class="doc-play-fill" data-fill="v7">Time-ordered v7</button></div><p class="doc-play-out"><code></code></p><p class="doc-play-note"></p></section>
+<details class="doc-toc-mobile"><summary>On this page (7)</summary><ul class="doc-toc-mobile-list"><li><a href="#worked-example">Worked example</a></li><li><a href="#which-bits-are-random-and-which-are-not">Which bits are random and which are not</a></li><li><a href="#how-likely-is-a-collision-really">How likely is a collision, really</a></li><li><a href="#the-one-job-a-v4-is-bad-at">The one job a v4 is bad at</a></li><li><a href="#a-v4-is-not-a-secret">A v4 is not a secret</a></li><li><a href="#questions-people-actually-ask">Questions people actually ask</a></li><li><a href="#related">Related</a></li></ul></details>
+<div class="doc-prose">
+<h2 id="which-bits-are-random-and-which-are-not">Which bits are random and which are not<a class="doc-anchor" href="#which-bits-are-random-and-which-are-not" aria-label="Link to this section">#</a></h2>
+<figure class="doc-specimen report"><div class="report-specimen"><div class="report-chars" role="img" aria-label="0c5b2444-70a0-4932-980c-b4dc0d3f02b5, a version 4 identifier, field by field"><span class="report-char k-random" title="random">0</span><span class="report-char k-random" title="random">c</span><span class="report-char k-random" title="random">5</span><span class="report-char k-random" title="random">b</span><span class="report-char k-random" title="random">2</span><span class="report-char k-random" title="random">4</span><span class="report-char k-random" title="random">4</span><span class="report-char k-random" title="random">4</span><span class="report-char k-random is-group" title="random">7</span><span class="report-char k-random" title="random">0</span><span class="report-char k-random" title="random">a</span><span class="report-char k-random" title="random">0</span><span class="report-char k-version is-group" title="version">4</span><span class="report-char k-random" title="random">9</span><span class="report-char k-random" title="random">3</span><span class="report-char k-random" title="random">2</span><span class="report-char k-variant is-group" title="variant">9</span><span class="report-char k-random" title="random">8</span><span class="report-char k-random" title="random">0</span><span class="report-char k-random" title="random">c</span><span class="report-char k-random is-group" title="random">b</span><span class="report-char k-random" title="random">4</span><span class="report-char k-random" title="random">d</span><span class="report-char k-random" title="random">c</span><span class="report-char k-random" title="random">0</span><span class="report-char k-random" title="random">d</span><span class="report-char k-random" title="random">3</span><span class="report-char k-random" title="random">f</span><span class="report-char k-random" title="random">0</span><span class="report-char k-random" title="random">2</span><span class="report-char k-random" title="random">b</span><span class="report-char k-random" title="random">5</span></div><div class="report-bits" aria-hidden="true"><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-group"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-version is-group"></span><span class="report-bit k-version is-on"></span><span class="report-bit k-version"></span><span class="report-bit k-version"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-variant is-on is-group"></span><span class="report-bit k-variant"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on is-group"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span><span class="report-bit k-random"></span><span class="report-bit k-random is-on"></span></div><div class="report-ruler" aria-hidden="true"><span class="report-run k-random" style="flex-grow:48">random</span><span class="report-run k-version is-narrow" style="flex-grow:4">version</span><span class="report-run k-random" style="flex-grow:12">random</span><span class="report-run k-variant is-narrow" style="flex-grow:2">variant</span><span class="report-run k-random" style="flex-grow:62">random</span></div><div class="report-octets" aria-hidden="true"><span class="report-octet">byte 0</span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet">byte 4</span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet">byte 8</span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet">byte 12</span><span class="report-octet"></span><span class="report-octet"></span><span class="report-octet"></span></div></div><div class="report-chips"><span class="report-chip k-random">random 0-47</span><span class="report-chip k-version">version 48-51</span><span class="report-chip k-random">random 52-63</span><span class="report-chip k-variant">variant 64-65</span><span class="report-chip k-random">random 66-127</span></div><p class="doc-reading" aria-live="polite"></p><figcaption>Two fixed fields cut the randomness into three runs, 122 bits in total.</figcaption></figure>
+<p>The version nibble is the 13th hex digit and the variant sits at the top of the 17th, so a v4 always reads <code>xxxxxxxx-xxxx-4xxx-[89ab]xxx-xxxxxxxxxxxx</code>. Everything else comes from the random source, which is why the entropy is 122 bits rather than 128.</p>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-5.4" target="_blank" rel="noopener noreferrer">RFC 9562 § 5.4 · UUID Version 4</a><span class="rfc-note">The v4 layout</span></p>
+<h2 id="how-likely-is-a-collision-really">How likely is a collision, really<a class="doc-anchor" href="#how-likely-is-a-collision-really" aria-label="Link to this section">#</a></h2>
+<p>Two numbers are worth keeping apart. A one-in-a-billion chance that any two of your identifiers collide arrives at about 10^14 of them: a hundred trillion, which a service minting a million a second reaches in a little over three years. Even odds of a single collision need about 2.7 × 10^18, which the same service reaches in roughly eighty-six thousand years. Both numbers say the same thing for ordinary systems, and the second one is the figure people usually quote.</p>
+<p>What is your risk is the generator. A container image that seeds a userspace PRNG from the clock, a virtual machine restored from a snapshot, a library that falls back to <code>Math.random</code> when the crypto API is missing: each of these has produced duplicate identifiers in production, and none of them is a property of the format.</p>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-6.7" target="_blank" rel="noopener noreferrer">RFC 9562 § 6.7 · Collision Resistance</a><span class="rfc-note">Collision resistance, and what the standard requires of the source</span></p>
+<h2 id="the-one-job-a-v4-is-bad-at">The one job a v4 is bad at<a class="doc-anchor" href="#the-one-job-a-v4-is-bad-at" aria-label="Link to this section">#</a></h2>
+<p>As a primary key in a B-tree index, a v4 is the worst-behaved identifier you can pick. Each insert lands at a random point in the index, so writes touch pages all over the tree, the cache fills with pages that will not be read again, and the index fragments. Replace the same key with a v7 and the inserts land next to each other, because the leading 48 bits are a clock.</p>
+<div class="scroller"><table><thead><tr><th scope="col">Need</th><th scope="col">Reach for</th></tr></thead><tbody><tr><td data-th="Need">An identifier and nothing else</td><td data-th="Reach for">v4</td></tr><tr><td data-th="Need">A primary key that also sorts by time</td><td data-th="Reach for">v7</td></tr><tr><td data-th="Need">The same input always giving the same identifier</td><td data-th="Reach for">v5</td></tr><tr><td data-th="Need">A token nobody may guess</td><td data-th="Reach for">not a UUID — use a random token of your own length</td></tr></tbody></table></div>
+<h2 id="a-v4-is-not-a-secret">A v4 is not a secret<a class="doc-anchor" href="#a-v4-is-not-a-secret" aria-label="Link to this section">#</a></h2>
+<p>122 bits is plenty of entropy for a capability URL in principle, and the standard still says not to treat an identifier as one. Identifiers end up in logs, in referrer headers, in analytics and in support tickets; a value that grants access should be issued, scoped and revocable, and a UUID is none of those things.</p>
+<p class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-6.9" target="_blank" rel="noopener noreferrer">RFC 9562 § 6.9 · Unguessability</a><span class="rfc-note">Unguessability: the standard is explicit that a UUID is not a security token</span></p>
+</div>
+<section class="doc-faq"><h2 id="questions-people-actually-ask">Questions people actually ask<a class="doc-anchor" href="#questions-people-actually-ask" aria-label="Link to this section">#</a></h2><div class="doc-qa"><h3>Why does every v4 have the same character in two places?</h3><p>Those are the version and variant fields: the 13th hex digit is always 4, and the 17th is 8, 9, a or b. Only the other 122 bits are random.</p></div><div class="doc-qa"><h3>Are UUID v4 collisions possible?</h3><p>Mathematically yes, practically no: even odds need about 2.7 × 10^18 identifiers. Broken randomness, cloned VMs and non-crypto fallbacks are the realistic causes of duplicates.</p></div><div class="doc-qa"><h3>Should I use v4 or v7 for a database primary key?</h3><p>v7. It keeps the uniqueness properties of v4 while inserting in time order, which is what a B-tree index wants.</p></div></section>
+<nav class="doc-related" aria-label="Related pages"><h2 id="related">Related<a class="doc-anchor" href="#related" aria-label="Link to this section">#</a></h2><ul><li><a href="../uuid-v7/">UUID version 7</a></li><li><a href="../uuid-versions/">UUID versions, side by side</a></li><li><a href="../uuid-bit-layout/">The bit layout of a UUID</a></li><li><a href="../what-is-a-uuid/">What is a UUID?</a></li></ul></nav>
+<details class="doc-rail-mobile"><summary>Browse the reference</summary><ul class="doc-rail-list"><li class="doc-rail-group"><p class="doc-rail-title">Start here</p><ul><li><a href="../what-is-a-uuid/">What is a UUID?</a></li><li><a href="../guid-vs-uuid/">GUID and UUID</a></li><li><a href="../uuid-versions/">All versions side by side</a></li><li><a href="../uuid-v4-vs-v7/">v4 or v7</a></li><li><a href="../uuid-primary-key/">UUID as a primary key</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Making and converting in bulk</p><ul><li><a href="../uuid-generator/">The generator</a></li><li><a href="../uuid-bulk-convert/">A whole column at once</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Converting a UUID</p><ul><li><a href="../uuid-to-bytes/">To a 16-byte array</a></li><li><a href="../uuid-to-hex/">Without dashes</a></li><li><a href="../uuid-formats/">Every way to write one</a></li><li><a href="../uuid-to-base64/">To Base64, and the short forms</a></li><li><a href="../uuid-to-long/">To a high/low 64-bit pair</a></li><li><a href="../uuid-to-words/">To four 32-bit words</a></li><li><a href="../uuid-byte-order/">Byte order: RFC against mixed-endian GUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Reading one</p><ul><li><a href="../uuid-timestamp/">Decoding the timestamp</a></li><li><a href="../uuid-bit-layout/">The bit layout</a></li><li><a href="../uuid-validation/">Validating a UUID</a></li><li><a href="../uuid-collision-probability/">Collision probability</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">The versions, in order</p><ul><li><a href="../uuid-v1/">Version 1</a></li><li><a href="../uuid-v3/">Version 3</a></li><li><a href="../uuid-v4/" class="is-here" aria-current="page">Version 4</a></li><li><a href="../uuid-v5/">Version 5</a></li><li><a href="../uuid-v6/">Version 6</a></li><li><a href="../uuid-v7/">Version 7</a></li><li><a href="../uuid-v8/">Version 8</a></li><li><a href="../nil-uuid/">The Nil UUID</a></li><li><a href="../max-uuid/">The Max UUID</a></li><li><a href="../uuid-namespaces/">Namespaces</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">In a database</p><ul><li><a href="../uuid-in-postgresql/">PostgreSQL</a></li><li><a href="../uuid-in-mysql/">MySQL</a></li><li><a href="../uuid-in-sql-server/">SQL Server</a></li><li><a href="../uuid-in-mongodb/">MongoDB</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">ULID and the alternatives</p><ul><li><a href="../ulid/">ULID</a></li><li><a href="../ulid-vs-uuid/">ULID or UUID v7</a></li><li><a href="../uuid-alternatives/">When not to use a UUID</a></li></ul></li><li class="doc-rail-group"><p class="doc-rail-title">Running the tool</p><ul><li><a href="../uuid-code-examples/">Code examples</a></li><li><a href="../self-hosted-uuid-tool/">Self-hosted and offline</a></li></ul></li></ul></details>
+<nav class="doc-steps" aria-label="Reference order"><a class="doc-step is-prev" href="../uuid-v3/"><span class="doc-step-kind">Previous</span><span class="doc-step-title">UUID version 3</span></a><a class="doc-step is-next" href="../uuid-v5/"><span class="doc-step-kind">Next</span><span class="doc-step-title">UUID version 5</span></a></nav>
+</article>
+</main>
+<aside class="doc-side"><nav class="doc-toc" aria-label="On this page"><p class="doc-side-title">On this page</p><ul class=""><li><a href="#worked-example">Worked example</a></li><li><a href="#which-bits-are-random-and-which-are-not">Which bits are random and which are not</a></li><li><a href="#how-likely-is-a-collision-really">How likely is a collision, really</a></li><li><a href="#the-one-job-a-v4-is-bad-at">The one job a v4 is bad at</a></li><li><a href="#a-v4-is-not-a-secret">A v4 is not a secret</a></li><li><a href="#questions-people-actually-ask">Questions people actually ask</a></li><li><a href="#related">Related</a></li></ul></nav></aside>
+</div>
+<footer class="footer-main">
+    <div class="footer-container">
+        <div class="footer-content">
+            <span class="footer-brand">uuid-ui</span>
+            <span class="footer-text">by</span>
+            <a href="https://github.com/rez1dent3" class="footer-link" target="_blank" rel="noopener noreferrer">Babichev Maksim</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../" class="footer-link">Converter</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../reference/" class="footer-link">UUID reference</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="../llms.txt" class="footer-link">llms.txt</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="https://github.com/bavix/uuid-ui" class="footer-link" target="_blank" rel="noopener noreferrer">Source Code</a>
+            <span class="footer-separator" aria-hidden="true">•</span>
+            <a href="https://github.com/bavix/uuid-ui/blob/master/LICENSE" class="footer-link" target="_blank" rel="noopener noreferrer">MIT License</a>
+        </div>
+    </div>
+</footer>
+<script>(function(){
+var root=document.documentElement;
+var button=document.getElementById('doc-theme');
+var applied=[];
+
+function read(){
+var raw=localStorage.getItem('theme')||'';var parts=raw.split(':');
+if(parts.length===2){return{palette:parts[0],mode:parts[1]}}
+if(raw==='dark'||raw==='true'||raw==='"true"'){return{palette:'default',mode:'dark'}}
+if(raw==='light'||raw==='false'||raw==='"false"'){return{palette:'default',mode:'light'}}
+return{palette:'default',mode:'system'};
+}
+
+function resolve(mode){
+return mode==='system'
+?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')
+:mode;
+}
+
+function apply(palette,mode){
+var shown=resolve(mode);
+root.classList.toggle('dark',shown==='dark');
+root.classList.toggle('light',shown==='light');
+root.style.colorScheme=shown;
+if(palette&&palette!=='default'&&/^[a-z0-9][a-z0-9-]{0,31}$/.test(palette)){root.setAttribute('data-theme',palette)}
+else{root.removeAttribute('data-theme')}
+applied.forEach(function(name){root.style.removeProperty(name)});
+applied=[];
+if(palette==='custom'&&window.__docCustom){
+var before=root.getAttribute('style')||'';
+window.__docCustom(root,shown);
+var after=root.getAttribute('style')||'';
+if(after!==before){applied=(after.match(/--[a-z0-9-]+/g)||[])}
+}
+return shown;
+}
+
+function store(palette,mode){
+try{
+localStorage.setItem('theme',palette+':'+mode);
+var raw=localStorage.getItem('uuid.data');
+if(!raw){return}
+var held=JSON.parse(raw);
+if(!held||typeof held!=='object'){return}
+var at=Date.now();
+held.settings=held.settings||{};
+held.settings.palette={value:palette,at:at};
+held.settings.theme={value:mode,at:at};
+localStorage.setItem('uuid.data',JSON.stringify(held));
+}catch(e){}
+}
+
+var current=read();
+apply(current.palette,current.mode);
+
+if(button){
+button.addEventListener('click',function(){
+current.mode=resolve(current.mode)==='dark'?'light':'dark';
+apply(current.palette,current.mode);
+store(current.palette,current.mode);
+});
+}
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){
+if(current.mode==='system'){apply(current.palette,current.mode)}
+});
+
+window.addEventListener('storage',function(e){
+if(e.key!=='theme'&&e.key!=='uuid.data'){return}
+current=read();apply(current.palette,current.mode);
+});
+
+document.addEventListener('click',function(e){
+var b=e.target.closest?e.target.closest('.doc-copy'):null;
+if(!b){return}
+var box=b.closest('.doc-case')||b.closest('.code');
+var el=box&&(box.querySelector('.doc-case-out')||box.querySelector('pre code'));
+if(!el||!navigator.clipboard){return}
+navigator.clipboard.writeText(el.textContent).then(function(){
+b.classList.add('is-done');setTimeout(function(){b.classList.remove('is-done')},1400);});
+});
+
+var links=[].slice.call(document.querySelectorAll('.doc-toc a'));
+if(!links.length||!('IntersectionObserver' in window)){return}
+var byId={};links.forEach(function(a){byId[a.getAttribute('href').slice(1)]=a});
+var seen=[];
+var io=new IntersectionObserver(function(entries){
+entries.forEach(function(e){
+var id=e.target.id;var at=seen.indexOf(id);
+if(e.isIntersecting){if(at<0){seen.push(id)}}else if(at>=0){seen.splice(at,1)}
+});
+if(!seen.length){return}
+var first=links.map(function(a){return a.getAttribute('href').slice(1)}).filter(function(id){return seen.indexOf(id)>=0})[0];
+links.forEach(function(a){a.classList.toggle('is-here',a.getAttribute('href').slice(1)===first)});
+},{rootMargin:'-80px 0px -70% 0px'});
+Object.keys(byId).forEach(function(id){var el=document.getElementById(id);if(el){io.observe(el)}});
+})();</script>
+<script type="module" src="../docs.js"></script>
+</body>
+</html>
