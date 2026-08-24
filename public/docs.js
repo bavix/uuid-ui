@@ -226,24 +226,25 @@ var Jt = /* @__PURE__ */ Lt(((u, e) => {
     };
     function ju(D, c, F) {
       var C = D[c];
-      if (C != null && typeof C == "object") if (Array.isArray(C)) for (var E = 0; E < C.length; E++) {
-        var h = String(E), m = ju(C, h, F);
-        m === void 0 ? delete C[h] : Object.defineProperty(C, h, {
-          value: m,
-          writable: !0,
-          enumerable: !0,
-          configurable: !0
-        });
-      }
-      else for (var k in C) {
-        var N = ju(C, k, F);
-        N === void 0 ? delete C[k] : Object.defineProperty(C, k, {
-          value: N,
-          writable: !0,
-          enumerable: !0,
-          configurable: !0
-        });
-      }
+      if (C != null && typeof C == "object")
+        if (Array.isArray(C)) for (var E = 0; E < C.length; E++) {
+          var h = String(E), m = ju(C, h, F);
+          m === void 0 ? delete C[h] : Object.defineProperty(C, h, {
+            value: m,
+            writable: !0,
+            enumerable: !0,
+            configurable: !0
+          });
+        }
+        else for (var k in C) {
+          var N = ju(C, k, F);
+          N === void 0 ? delete C[k] : Object.defineProperty(C, k, {
+            value: N,
+            writable: !0,
+            enumerable: !0,
+            configurable: !0
+          });
+        }
       return F.call(D, c, C);
     }
     var g, d, Eu, X, p;
@@ -1131,7 +1132,7 @@ function Zu(u) {
   for (; e.length > 1 && en.includes(e[0]) && e[e.length - 1] === e[0]; ) e = e.slice(1, -1).trim();
   return e;
 }
-var mr = 2 ** 1, vr = 2 ** 2, yr = 2 ** 3, wr = 2 ** 4, Sr = 2 ** 6, tn = 36, nn = /^[0-9a-f]{2}(?:[\s,]+[0-9a-f]{2}){15}$/i;
+var tn = 36, nn = /^[0-9a-f]{2}(?:[\s,]+[0-9a-f]{2}){15}$/i;
 function Te() {
   const u = [];
   return u[1] = "uuid", u[4] = "base64", u[2] = "high-low", u[8] = "bytes", u[16] = "ulid", u[64] = "words", u;
@@ -1400,10 +1401,10 @@ var Yu = {
   ulid: 16,
   hex: 32,
   words: 64
-}, br = Object.fromEntries(Object.entries(Yu).map(([u, e]) => [e, u])), Gu = {
+}, mr = Object.fromEntries(Object.entries(Yu).map(([u, e]) => [e, u])), Gu = {
   signed: 1,
   unsigned: 2
-}, Ir = Object.fromEntries(Object.entries(Gu).map(([u, e]) => [e, u]));
+}, vr = Object.fromEntries(Object.entries(Gu).map(([u, e]) => [e, u]));
 function Fe(u, e) {
   if (typeof u != "string") return null;
   const t = (new URLSearchParams(u.replace(/^#/, "")).get(e) || "").toLowerCase();
@@ -2165,7 +2166,7 @@ function Pu(u = "v4", e = {}) {
       return _n();
   }
 }
-function _r(u) {
+function yr(u) {
   return tt(u);
 }
 function cr(u, e = {}) {
@@ -2188,10 +2189,10 @@ function lr(u, e = 122) {
   const t = 2 ** e, n = Number(u);
   return !Number.isFinite(n) || n <= 0 || n >= 1 ? 1 / 0 : Math.sqrt(2 * t * Math.log(1 / (1 - n)));
 }
-function Nr(u, e, t) {
+function wr(u, e, t) {
   return nt(u, e, t);
 }
-var Pr = Te().reduce((u, e) => u.concat([e]), []);
+var Sr = Te().reduce((u, e) => u.concat([e]), []);
 function fr(u, e) {
   return u.find(([t, n]) => e >= t && e <= n) || null;
 }
@@ -2359,14 +2360,14 @@ function ye() {
 }
 document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", ye) : ye();
 export {
-  Pr as FORMATS,
+  Sr as FORMATS,
   ar as GENERATORS,
   lr as collisionCount,
   sr as collisionOdds,
   rt as convert,
   cr as convertMany,
-  Nr as derive,
+  wr as derive,
   it as detect,
   Pu as generate,
-  _r as namespaceId
+  yr as namespaceId
 };
