@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.9.2 - 2026-08-24
+
+### What's Changed
+
+* ci(docker): bump golang from 1.26-alpine to 1.27-alpine in the npm group by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/477
+* chore(npm-deps): bump the npm group with 2 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/bavix/uuid-ui/pull/476
+
+**Full Changelog**: https://github.com/bavix/uuid-ui/compare/v1.9.1...v1.9.2
+
 ## v1.9.1 - 2026-08-21
 
 ### What's Changed
