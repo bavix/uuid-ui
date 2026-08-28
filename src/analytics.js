@@ -1,6 +1,7 @@
 'use strict';
 
 import { markFound } from './eggs-found.js';
+import { METRIKA_ID } from './analytics-ids.js';
 
 /**
  * Both counters that this page already loads, behind one call.
@@ -10,9 +11,6 @@ import { markFound } from './eggs-found.js';
  * of the history. The point is to learn which of these are ever found, not to
  * watch what people convert.
  */
-
-// The counter id the page initialises in index.html.
-const METRIKA_ID = 94685288;
 
 const EVENT = 'easter_egg';
 

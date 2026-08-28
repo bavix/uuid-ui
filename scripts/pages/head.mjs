@@ -3,6 +3,7 @@
 import { OG_IMAGE, SITE_NAME, pageUrl } from './site.mjs';
 import { jsonLd, pageGraph } from './schema.mjs';
 import { escape } from './blocks.mjs';
+import { analyticsPreconnect } from './analytics.mjs';
 
 const THEME_SCRIPT = `(function(){try{
 var s=localStorage.getItem('theme')||'';var p=s.split(':');
@@ -52,6 +53,7 @@ export function renderHead(page, hubTitle) {
         '    <link rel="icon" href="../favicon.ico" sizes="any">',
         '    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">',
         '    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">',
+        analyticsPreconnect('    '),
         '    <link rel="stylesheet" href="../theme.css">',
         '    <link rel="stylesheet" href="../docs.css">',
         `    <script>${CUSTOM_SCRIPT}${THEME_SCRIPT}</script>`,

@@ -5,6 +5,7 @@ import { rmSync, readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync
 import preact from '@preact/preset-vite';
 import { THEMES } from './src/themes/index.js';
 import { jsonLd, siteGraph } from './scripts/pages/schema.mjs';
+import { analyticsPreconnect, analyticsScripts } from './scripts/pages/analytics.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -19,7 +20,9 @@ export default defineConfig({
       transformIndexHtml(html) {
         return html
           .replace('__THEME_POOL__', JSON.stringify(THEMES.map(theme => theme.id)))
-          .replace('__SITE_JSON_LD__', jsonLd(siteGraph()));
+          .replace('__SITE_JSON_LD__', jsonLd(siteGraph()))
+          .replace('__ANALYTICS_PRECONNECT__', () => analyticsPreconnect('    ').trimStart())
+          .replace('__ANALYTICS__', () => analyticsScripts('    ').trimStart());
       }
     },
     {

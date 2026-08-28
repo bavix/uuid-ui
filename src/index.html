@@ -80,8 +80,7 @@
     <meta name="twitter:description" content="Convert a UUID to Base64, hex, bytes, a high/low 64-bit pair, four 32-bit words or a ULID. Runs entirely in the browser.">
     <meta name="twitter:image" content="https://bavix.github.io/uuid-ui/og.png">
 
-    <link rel="preconnect" href="https://mc.yandex.ru">
-    <link rel="preconnect" href="https://www.googletagmanager.com">
+    __ANALYTICS_PRECONNECT__
 
     <script type="application/ld+json">__SITE_JSON_LD__</script>
 </head>
@@ -143,49 +142,6 @@
         </div>
     </footer>
 
-    <!-- Yandex.Metrika counter -->
-    <script type="text/javascript">
-        (function(m, e, t, r, i, k, a) {
-            m[i] = m[i] || function() {
-                (m[i].a = m[i].a || []).push(arguments);
-            };
-            m[i].l = 1 * new Date();
-            for (var j = 0; j < e.scripts.length; j++) {
-                if (e.scripts[j].src === r) {
-                    return;
-                }
-            }
-            k = e.createElement(t);
-            k.async = 1;
-            k.src = r;
-            a = e.getElementsByTagName(t)[0];
-            a.parentNode.insertBefore(k, a);
-        })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-
-        ym(94685288, "init", {
-            clickmap: true,
-            trackLinks: true,
-            accurateTrackBounce: true,
-            webvisor: true
-        });
-    </script>
-    <noscript>
-        <div>
-            <img src="https://mc.yandex.ru/watch/94685288" style="position:absolute; left:-9999px;" alt=""/>
-        </div>
-    </noscript>
-    <!-- /Yandex.Metrika counter -->
-
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0E805HG8JN"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-        gtag('js', new Date());
-
-        gtag('config', 'G-0E805HG8JN');
-    </script>
+    __ANALYTICS__
 </body>
 </html>

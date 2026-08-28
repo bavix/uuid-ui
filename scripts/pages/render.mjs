@@ -3,6 +3,7 @@
 import { AUTHOR_NAME, AUTHOR_URL, HUB_SLUG, REPO_URL, SITE_TAGLINE, SITE_URL, docLink, toolLink, pageUrl } from './site.mjs';
 import { anchor, copyButton, escape, headings, renderBlocks, text } from './blocks.mjs';
 import { renderHead } from './head.mjs';
+import { analyticsPreconnect, analyticsScripts } from './analytics.mjs';
 import { exampleColumn, exampleValue, formatName, formatSlugs } from './examples.mjs';
 
 export const MARK = '<!-- uuid-ui:generated-page -->';
@@ -452,6 +453,7 @@ ${side}
 ${footer()}
 <script>${PAGE_SCRIPT}</script>
 <script type="module" src="../docs.js"></script>
+${analyticsScripts()}
 </body>
 </html>
 `;
@@ -465,6 +467,7 @@ export function render404() {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Page not found — UUIDConv</title>
     <meta name="robots" content="noindex">
+${analyticsPreconnect('    ')}
     <style>
         :root { color-scheme: light dark; --ink: #101420; --muted: #5a6375; --bg: #f2f4f8; --accent: #1d4ed8; --line: #d7dbe4; }
         @media (prefers-color-scheme: dark) { :root { --ink: #e6e9f2; --muted: #97a0b5; --bg: #0e1320; --accent: #93c5fd; --line: #263047; } }
@@ -488,6 +491,7 @@ export function render404() {
         <li><a href="${escape(SITE_URL)}sitemap.xml">Every page on this site</a></li>
     </ul>
 </main>
+${analyticsScripts()}
 </body>
 </html>
 `;
