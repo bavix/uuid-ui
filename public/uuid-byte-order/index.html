@@ -22,6 +22,8 @@
     <link rel="icon" href="../favicon.ico" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+    <link rel="preconnect" href="https://mc.yandex.ru">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
     <link rel="stylesheet" href="../theme.css">
     <link rel="stylesheet" href="../docs.css">
     <script>window.__docCustom=function(root,mode){try{
@@ -232,5 +234,21 @@ links.forEach(function(a){a.classList.toggle('is-here',a.getAttribute('href').sl
 Object.keys(byId).forEach(function(id){var el=document.getElementById(id);if(el){io.observe(el)}});
 })();</script>
 <script type="module" src="../docs.js"></script>
+<script>(function(){
+var h=location.hostname;
+if(h==='localhost'||h==='127.0.0.1'||h==='::1'||h==='[::1]'||/\.local$/.test(h)){return}
+(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();
+for(var j=0;j<e.scripts.length;j++){if(e.scripts[j].src===r){return}}
+k=e.createElement(t);k.async=1;k.src=r;a=e.getElementsByTagName(t)[0];a.parentNode.insertBefore(k,a);
+})(window,document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
+ym(94685288,'init',{clickmap:true,trackLinks:true,accurateTrackBounce:true,webvisor:true});
+window.dataLayer=window.dataLayer||[];
+window.gtag=function(){window.dataLayer.push(arguments)};
+gtag('js',new Date());
+gtag('config','G-0E805HG8JN');
+var g=document.createElement('script');g.async=1;g.src='https://www.googletagmanager.com/gtag/js?id=G-0E805HG8JN';
+document.head.appendChild(g);
+})();</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/94685288" style="position:absolute; left:-9999px;" alt=""/></div></noscript>
 </body>
 </html>
