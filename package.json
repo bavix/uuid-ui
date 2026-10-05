@@ -26,9 +26,9 @@
   "author": "Maksim Babichev",
   "license": "MIT",
   "dependencies": {
-    "@theme-toggles/react": "^4.1.0",
+    "@theme-toggles/react": "^5.0.5",
     "json5": "^2.2.3",
-    "preact": "^10.29.8",
+    "preact": "^11.0.0",
     "sonner": "^2.0.8",
     "uuid": "^14.0.2"
   },
@@ -38,12 +38,12 @@
   "devDependencies": {
     "@preact/preset-vite": "^2.10.6",
     "@tailwindcss/postcss": "^4.3.3",
-    "baseline-browser-mapping": "^2.11.19",
+    "baseline-browser-mapping": "^2.11.27",
     "esbuild": "^0.28.2",
-    "eslint": "^10.9.1",
-    "globals": "^17.11.0",
-    "postcss": "^8.5.26",
+    "eslint": "^10.11.0",
+    "globals": "^17.13.0",
+    "postcss": "^8.5.28",
     "tailwindcss": "^4.2.1",
-    "vite": "^8.2.2"
+    "vite": "^8.3.2"
   }
 }
