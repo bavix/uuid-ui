@@ -26,7 +26,7 @@
   "author": "Maksim Babichev",
   "license": "MIT",
   "dependencies": {
-    "@theme-toggles/react": "^5.0.5",
+    "@theme-toggles/react": "^4.1.0",
     "json5": "^2.2.3",
     "preact": "^11.1.1",
     "sonner": "^2.0.8",
